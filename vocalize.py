@@ -11,7 +11,7 @@ chain_a = [['ei', 'EY'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
 
 def vocalize(matrix):
     for i in matrix:
-        path = "../../Sites/msc_experiment/alex/" + i[0] + ".m4a"
+        path = "Experiment/vocalizations/" + i[0] + ".m4a"
         phon = "\"[[inpt PHON]]" + i[1] + "\""
         call(["say", "-o", path, phon])
     return
@@ -43,7 +43,7 @@ def stress(phon):
 ### Load a set file
 
 def load(condition, chain_code, set_file):
-    filename = "../../Sites/msc_experiment/data/" + condition + "/" + chain_code + "/" + set_file
+    filename = "Experiment/data/" + condition + "/" + chain_code + "/" + set_file
     f = open(filename, 'r')
     data = f.read()
     f.close()
@@ -69,6 +69,6 @@ def missingWords(condition, chain_code, generation):
     words = getWords(condition, chain_code, generation)
     missing_words = []
     for word in words:
-        if os.path.exists("../../Sites/msc_experiment/alex/" + word + ".m4a") == False:
+        if os.path.exists("Experiment/vocalizations/" + word + ".m4a") == False:
             missing_words.append(word)
     return missing_words

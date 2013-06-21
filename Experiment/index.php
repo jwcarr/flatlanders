@@ -2,9 +2,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // GLOBAL PARAMETERS
     
-    // Set timezone for timestamps (default = UTC)
-    date_default_timezone_set('UTC');
-    
     // List of valid chain codes (default = [A, B, C, D])
     $chain_codes = array("A", "B", "C", "D");
     
@@ -15,11 +12,35 @@
     $set_size = 50;
     
     // Amount of time for each training item in milliseconds (default = 5000)
-    $time_per_training_item = 3000;
+    $time_per_training_item = 5000;
     
     // Delay before showing the training word in milliseconds (default = 1000)
     $word_delay = 1000;
+    
+    // Canvas width in pixels for the triangle stimuli (default = 500)
+    $canvas_width = 500;
+    
+    // Canvas height in pixels for the triangle stimuli (default = 500)
+    $canvas_height = 500;
+    
+    // Width of the unusable boarder area around the canvas in pixels (default = 10)
+    $canvas_border = 10;
+    
+    // Thickness of the trianlge lines in pixels (default = 2)
+    $triangle_line_thickness = 2;
+    
+    // Radius of the orienting spot in pixels (default = 8)
+    $orienting_spot_radius = 8;
+    
+    // Minimum distance between points A and B on the triangle in pixels (default = 10)
+    $min_distance_B = 10;
+    
+    // Minimum distance between point C and the line intersecting points A and B (default = 50)
+    $min_distance_C = 50;
 
+    // Set timezone for timestamps (default = UTC)
+    date_default_timezone_set('UTC');
+    
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // GENERAL FUNCTIONS
     
@@ -75,7 +96,7 @@
     // Load the file for a given participant's dynamic or stable set
     function loadFile($condition, $chain_code, $generation, $set) {
         // Get the data from that file
-        $data = openFile("data/" . $condition . "/" . $chain_code . "/" . $generation . $set);
+        $data = openFile("data/". $condition ."/". $chain_code ."/". $generation . $set);
         // Read the file line by line
         $lines = explode("\n", $data);
         // Return the lines in an array
@@ -111,8 +132,11 @@
     
     // Save the training score
     function saveTrainingScore($condition, $chain_code, $generation, $training_score) {
+        // Open the scores file as it stands
         $data = openFile("data/scores");
-        $new_data = $data."\n".$condition."\t".$chain_code."\t".$generation."\t".$training_score."\t".date("d/m/Y H:i:s");
+        // Append the new data for this participant
+        $new_data = $data ."\n". $condition. "\t". $chain_code ."\t". $generation ."\t". $training_score ."\t". date("d/m/Y H:i:s");
+        // Write out the new file
         writeFile("data/scores", $new_data);
     }
     
@@ -123,19 +147,19 @@
         // If saving a dynamic file...
         if ($position[0] == "d") {
             // Concatenate the answer, XY coordinates, and timestamp (delimited by tabs)
-            $answer = trim($answer) . "\t" . $xy[0] . "," . $xy[3] . "\t" . $xy[1] . "," . $xy[4] . "\t" . $xy[2] . "," . $xy[5] . "\t" . date("H:i:s");
+            $answer = trim($answer) ."\t". $xy[0] .",". $xy[3] ."\t". $xy[1] .",". $xy[4] ."\t". $xy[2] .",". $xy[5] ."\t". date("H:i:s");
         }
         // If saving a stable file...
         else {
             // Concatenate the stimulus number, answer, XY coordinates, and timestamp (delimited by tabs)
-            $answer = $position[1] . "|||" . trim($answer) . "\t" . $xy[0] . "," . $xy[3] . "\t" . $xy[1] . "," . $xy[4] . "\t" . $xy[2] . "," . $xy[5] . "\t" . date("H:i:s");
+            $answer = $position[1] ."|||". trim($answer) ."\t". $xy[0] .",". $xy[3] ."\t". $xy[1] .",". $xy[4] ."\t". $xy[2] .",". $xy[5] ."\t". date("H:i:s");
         }
         // Determine the filename you want to write to
-        $filename = "data/" . $condition . "/" . $chain_code . "/" . $generation . $position[0];
+        $filename = "data/". $condition ."/". $chain_code ."/". $generation . $position[0];
         // Read the content of that file as it currently stands
         $current_data = openFile($filename);
         // The new content of the file is the old data + the new answer
-        $new_data = $current_data . "\n" . $answer;
+        $new_data = $current_data ."\n". $answer;
         // Write this new data to the file
        	writeFile($filename, trim($new_data));
     }
@@ -149,7 +173,7 @@
         // Load in the lines from a specific stable set file
         $lines = loadFile($condition, $chain_code, $generation, "s");
         // Concatenate the stimulus number, answer, XY coordinates, and timestamp (delimited by tabs) for the final test item
-        $answer = $position[1] . "|||" . trim($answer) . "\t" . $xy[0] . "," . $xy[3] . "\t" . $xy[1] . "," . $xy[4] . "\t" . $xy[2] . "," . $xy[5] . "\t" . date("H:i:s");
+        $answer = $position[1] ."|||". trim($answer) ."\t". $xy[0] .",". $xy[3] ."\t". $xy[1] .",". $xy[4] ."\t". $xy[2] .",". $xy[5] ."\t". date("H:i:s");
         // Add the final answer to the lines array
         array_push($lines, $answer);
         // Set up an empty array in which to dump the parsed lines
@@ -159,22 +183,22 @@
             // Parse the line into its stimulus number and recorded data
             $parsed_line = explode("|||", $lines[$i]);
             // Put the recorded data into the $mappings array with a key equal to the stimulus number (also, append the order number (i) to the recorded data)
-            $mappings[$parsed_line[0]] = $parsed_line[1] . "\t" . ($i+1);
+            $mappings[$parsed_line[0]] = $parsed_line[1] ."\t". ($i+1);
         }
         // Sorts the $mappings array by key
         ksort($mappings);
         // Implode the $mappings array, using a line break as the glue
         $new_data = implode("\n", $mappings);
         // Write the new data to the data file
-        writeFile("data/" . $condition . "/" . $chain_code . "/" . $generation."s", $new_data);
+        writeFile("data/". $condition ."/" . $chain_code ."/". $generation."s", $new_data);
     }
     
     // Clear the data files for a specific participant
     function clearFiles($condition, $chain_code, $generation) {
         // Overwrite the dynamic set file with "" (null)
-        writeFile("data/" . $condition . "/" . $chain_code . "/" . $generation."d", "");
+        writeFile("data/". $condition ."/". $chain_code ."/". $generation."d", "");
         // Overwrite the stable set file with "" (null)
-        writeFile("data/" . $condition . "/" . $chain_code . "/" . $generation."s", "");
+        writeFile("data/". $condition ."/". $chain_code ."/". $generation."s", "");
     }
     
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,18 +206,21 @@
     
     // Generate a random triangle stimulus
     function generateTriangle() {
+        // Import global parameters
+        global $canvas_width; global $canvas_height; global $canvas_border; global $min_distance_B; global $min_distance_C;
+        
         // Choose coordinates for point A
-        $x1 = rand(10,490);
-        $y1 = rand(10,490);
+        $x1 = rand($canvas_border+1, $canvas_width-$canvas_border);
+        $y1 = rand($canvas_border+1, $canvas_height-$canvas_border);
         
         // Choose coordinates for point B
-        $x2 = rand(10,490);
-        $y2 = rand(10,490);
+        $x2 = rand($canvas_border+1, $canvas_width-$canvas_border);
+        $y2 = rand($canvas_border+1, $canvas_height-$canvas_border);
         
         // If and while point B is too close to point A, try a different set of coordinates for point B
-        while (distance($x2, $y2, $x1, $y1) < 10) {
-            $x2 = rand(10,490);
-            $y2 = rand(10,490);
+        while (distance($x2, $y2, $x1, $y1) < $min_distance_B) {
+            $x2 = rand($canvas_border+1, $canvas_width-$canvas_border);
+            $y2 = rand($canvas_border+1, $canvas_height-$canvas_border);
         }
         
         // Determine the slope and intercept of the imaginary line that passes through points A and B
@@ -201,26 +228,20 @@
         $intercept = $y1 - ($slope * $x1);
 
         // Choose coordinates for point C
-        $x3 = rand(10,490);
-        $y3 = rand(10,490);
+        $x3 = rand($canvas_border+1, $canvas_width-$canvas_border);
+        $y3 = rand($canvas_border+1, $canvas_height-$canvas_border);
         
         // Given the X coordinate that you've chosen for point C, what point on the Y axis do you want to avoid to prevent skinnies?
         $y_avoid = $intercept + ($x3 * $slope);
         
         // If and while point C is too close to the avoid point, try a different Y coordinate for point C
-        while (distance($x3, $y3, $x3, $y_avoid) < 50) {
-            $y3 = rand(10,490);
+        while (distance($x3, $y3, $x3, $y_avoid) < $min_distance_C) {
+            $y3 = rand($canvas_border+1, $canvas_height-$canvas_border);
             
         }
         
-        // Return an array containg the chosen X and Y coordinates
-        return array($x1, $x2, $x3, $y1, $y2, $y3);
-    }
-    
-    // Measure the Euclidean distance between two points in 2D space
-    function distance($xA, $yA, $xB, $yB) {
-        // Yay Pythagoras!
-        return sqrt(pow($xA - $xB, 2) + pow($yA - $yB, 2));
+        // Return an array containing the chosen X and Y coordinates
+        return array($x1, $x2, $x3, $y1, $y2, $y3, $y_avoid);
     }
     
     // Load the coordinates for a particular triangle stimulus from a given data file
@@ -237,6 +258,12 @@
         $xy3 = explode(",", $columns[3]);
         // Return the loaded coordinates
         return array($xy1[0], $xy2[0], $xy3[0], $xy1[1], $xy2[1], $xy3[1]);
+    }
+    
+    // Measure the Euclidean distance between two points in 2D space
+    function distance($xA, $yA, $xB, $yB) {
+        // Yay Pythagoras!
+        return sqrt(pow($xA - $xB, 2) + pow($yA - $yB, 2));
     }
     
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -256,8 +283,8 @@
 
     // Check that the output data files exist
     function checkDataFilesExist($condition, $chain_code, $generation) {
-        $dynamic_file = file_exists("data/" . $condition . "/" . $chain_code . "/" . $generation . "d");
-        $stable_file = file_exists("data/" . $condition . "/" . $chain_code . "/" . $generation . "s");
+        $dynamic_file = file_exists("data/". $condition ."/" . $chain_code ."/" . $generation ."d");
+        $stable_file = file_exists("data/". $condition ."/" . $chain_code ."/" . $generation ."s");
         if ($dynamic_file == True AND $stable_file == True) { return True; } else { return False; }
     }
     
@@ -275,7 +302,7 @@
         // For each word that needs a vocalization...
         for ($i = 0; $i < count($words); $i++) {
             // ... check that a sounds file exists
-            if (file_exists("alex/" . $words[$i] . ".m4a") == False) {
+            if (file_exists("vocalizations/". $words[$i] .".m4a") == False) {
                 // If not, add it to the missing words array
                 $missing_words[] = $words[$i] . ".m4a";
             }
@@ -326,11 +353,11 @@
             
             // Add the training pages to the map in this shuffled order
             for ($i=0; $i < $set_size; $i++) {
-                $map = $map . "||TR-" . $training_numbers[$i];
+                $map = $map ."||TR-". $training_numbers[$i];
             }
             
             // Now add on the break page
-            $map = $map . "||BREAK";
+            $map = $map ."||BREAK";
             
             // Shuffle the order in which the test items in both the dynamic and stable sets will be presented
             $dynamic_set = range(0, $set_size-1); shuffle($dynamic_set);
@@ -338,11 +365,11 @@
             
             // Add the test pages to the map, interleaving the dynamic flow and stable flow
             for ($i=0; $i < $set_size; $i++) {
-                $map = $map . "||TS-d." . $dynamic_set[$i] . "||TS-s." . $stable_set[$i];
+                $map = $map ."||TS-d.". $dynamic_set[$i] ."||TS-s.". $stable_set[$i];
             }
 
             // Finally we want to add on the experiment completed page
-            $map = $map . "||END";
+            $map = $map ."||END";
         }
         
         // Parse the map to determine what page to display now
@@ -358,7 +385,7 @@
         $new_map = implode("||", $map);
         
         // Set window location for next page for use in JavaScript below
-        $window_location = "index.php?page=experiment&cond=" . $cond . "&chain=" . $chain . "&gen=" . $gen . "&map=" . $new_map;
+        $window_location = "index.php?page=experiment&cond=". $cond ."&chain=". $chain ."&gen=". $gen ."&map=". $new_map;
         
         // If this page needs to be a training page, do the following...
         if ($map_position[0] == "TR") {
@@ -382,7 +409,7 @@
         if ($map_position[0] == "BREAK") {
             // Update the current training score (i.e. how many training items the participant has correctly retyped.
             $score = $_GET["score"] + $_GET["correct"];
-            // Since trainng has now finished, save the score
+            // Since training has now finished, save the score
             saveTrainingScore($cond, $chain, $gen, $score);
         }
     }
@@ -405,7 +432,8 @@
     .textfield {border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px;}
 </style>
 
-<?php if ($page == "experiment" AND $map_position[0] == "BREAK") { echo "<script src='countdown.js' type='text/javascript'></script>\n"; }?>
+<?php if ($page == "experiment" AND $map_position[0] == "BREAK") { echo "<script src='countdown.js' type='text/javascript'></script>"; }?>
+
 <script type="text/javascript">
 
 // Location of the next page
@@ -463,7 +491,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             }
         }
         // Output JavaScript to draw the triangle on the canvas
-        echo "function DrawTriangle() { var canvas = document.getElementById('rectangle'); var c = canvas.getContext('2d'); c.beginPath(); c.moveTo(" . $xy[0] . ", " . $xy[3] . "); c.lineTo(" . $xy[1] . ", " . $xy[4] . "); c.lineTo(" . $xy[2] . ", " . $xy[5] . "); c.closePath(); c.lineWidth=2; c.stroke(); c.beginPath(); c.arc(" . $xy[0] . ", " . $xy[3] . ", 8, 0, 2 * Math.PI, false); c.fill(); c.lineWidth = 1; c.strokeStyle = 'black'; c.stroke(); }\n";
+        echo "function DrawTriangle() { var canvas = document.getElementById('rectangle'); var c = canvas.getContext('2d'); c.beginPath(); c.moveTo(". $xy[0] .", ". $xy[3] ."); c.lineTo(". $xy[1] .", ". $xy[4] ."); c.lineTo(". $xy[2] .", ". $xy[5] ."); c.closePath(); c.lineWidth=". $triangle_line_thickness ."; c.stroke(); c.beginPath(); c.arc(". $xy[0] .", ". $xy[3] .", ". $orienting_spot_radius .", 0, 2 * Math.PI, false); c.fill(); c.lineWidth = 1; c.strokeStyle = 'black'; c.stroke(); }\n";
     }
 ?>
 </script>
@@ -474,8 +502,8 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
     // If the current page is a training or test page, load the relevant JavaScript
     if ($page == "experiment" AND $map_position[0] == "TS") { echo " onload='TestingLoad()'"; }
     elseif ($page == "experiment" AND $map_position[0] == "TR") { echo " onload='TrainingLoad()'"; }
-    echo ">\n";
-?>
+?>>
+
 <table style='width:100%; height:750px;'>
 <tr>
 <td style='text-align:center;'>
@@ -495,22 +523,22 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         
         // A function to output a row on the validation page
         function validationTableRow($colour, $message) {
-            return "<tr><td style='width:30px;'><img src='images/" . $colour . ".png' width='16' height='16' alt='light' /></td><td style='width:550px; text-align:left;'><p class='regular'>" . $message . "</p></td></tr>";
+            return "<tr><td style='width:30px;'><img src='images/". $colour .".png' width='16' height='16' alt='light' /></td><td style='width:550px; text-align:left;'><p class='regular'>". $message ."</p></td></tr>";
         }
         
         echo "<p class='page head'>Validation</p><table style='margin-left:auto; margin-right:auto;'><tr><td colspan='2'><hr style='height:1; width:580px;' /></td></tr>";
 
         // Check that the chain code is valid
         if (checkChain($_POST["chain"]) == True) { echo validationTableRow("green", "Chain " . $_POST["chain"]); }
-        else { echo validationTableRow("red", "Chain \"" . $_POST["chain"] . "\" is invalid"); $error_count ++; }
+        else { echo validationTableRow("red", "Chain \"". $_POST["chain"] ."\" is invalid"); $error_count ++; }
 
         // Check that the generation number is valid
         if (checkGen($_POST["gen"]) == True) { echo validationTableRow("green", "Generation " . $_POST["gen"]); }
-        else { echo validationTableRow("red", "Generation \"" . $_POST["gen"] . "\" is invalid"); $error_count ++; }
+        else { echo validationTableRow("red", "Generation \"". $_POST["gen"] ."\" is invalid"); $error_count ++; }
 
         // Check the condition number is valid
         if ($_POST["condition"] == 1 OR $_POST["condition"] == 2) { echo validationTableRow("green", "Experimental condition " . $_POST["condition"]); }
-        else { echo validationTableRow("red", "Condition \"" . $_POST["condition"] . "\" is invalid"); $error_count ++; }
+        else { echo validationTableRow("red", "Condition \"". $_POST["condition"] ."\" is invalid"); $error_count ++; }
 
         // Check that there are $set_size words in the input set
         if (checkInputSet($_POST["condition"], $_POST["chain"], $_POST["gen"]) == True) { echo validationTableRow("green", "Words in the input set are valid"); }
@@ -533,7 +561,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             $error_count ++;
         }
         
-        // If the above validation functions produce no errors, display messages to check the volume level and keyboad layout
+        // If the above validation functions produce no errors, display messages to check the volume level and keyboard layout
         if ($error_count == 0) {
             // Sound warning
             echo validationTableRow("orange", "Is the volume level okay?");
@@ -542,11 +570,11 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             echo validationTableRow("orange", "Are you using the Alpha-only keyboard layout?");
         }
         
-        echo "<tr><td colspan='2'><hr style='height:1; width:580px;' /></td></tr></table><form id='parameters' name='f' method='post' action='index.php'><input name='page' type='hidden' value='experiment' /><input name='chain' type='hidden' value='" . $_POST["chain"] . "' /><input name='cond' type='hidden' value='" . $_POST["condition"] . "' /><input name='gen' type='hidden' value='" . $_POST["gen"] . "' />";
+        echo "<tr><td colspan='2'><hr style='height:1; width:580px;' /></td></tr></table><form id='parameters' name='f' method='post' action='index.php'><input name='page' type='hidden' value='experiment' /><input name='chain' type='hidden' value='". $_POST["chain"] ."' /><input name='cond' type='hidden' value='". $_POST["condition"] ."' /><input name='gen' type='hidden' value='". $_POST["gen"] ."' />";
         
         // If the above validation functions produce no errors, display the "Begin experiment" button and embed the sound check file
         if ($error_count == 0) {
-            echo "<p><input type='submit' name='submit' value='Begin experiment' style='font-family:Helvetica Neue; font-size:30px;' /></p></form><audio id='alex' src='alex/__sound_check__.m4a' preload='auto' autoplay></audio>";
+            echo "<p><input type='submit' name='submit' value='Begin experiment' style='font-family:Helvetica Neue; font-size:30px;' /></p></form><audio id='alex' src='sound_check.m4a' preload='auto' autoplay></audio>";
         }
     }
         
@@ -572,7 +600,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         elseif ($map_position[0] == "TR") {
             
             // Output HTML for the training page
-            echo "<audio id='alex' src='alex/" . $training_word . ".m4a' preload='auto'></audio><table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='500' height='500' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckWordMatch()'><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p><img id='feedback' src='images/spacer.gif' width='50' height='50' alt='feedback' /></form></td></tr></table>";
+            echo "<audio id='alex' src='vocalizations/". $training_word .".m4a' preload='auto'></audio><table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckWordMatch()'><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p><img id='feedback' src='images/spacer.gif' width='50' height='50' alt='feedback' /></form></td></tr></table>";
         }
         
         // Testing page         -------------------------------------------------------------------------
@@ -583,12 +611,12 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
                 // Create an XY array from the previous XY coordinates
                 $last_xy = array($_POST["last_x1"], $_POST["last_x2"], $_POST["last_x3"], $_POST["last_y1"], $_POST["last_y2"], $_POST["last_y3"]);
                 
-                // Save the previous answer to the relevent file
+                // Save the previous answer to the relevant file
                 saveAnswer($cond, $chain, $gen, $_POST["current"], $_POST["a"], $last_xy);
             }
             
             // Output HTML for the test page
-            echo "<table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='500' height='500' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckForm()'><input name='page' type='hidden' value='experiment' /><input name='map' type='hidden' value='" . $new_map . "' /><input name='chain' type='hidden' value='" . $chain . "' /><input name='cond' type='hidden' value='" . $cond . "' /><input name='gen' type='hidden' value='" . $gen . "' /><input name='current' type='hidden' value='" . $map_position[1] . "' /><input name='last_x1' type='hidden' value='" . $xy[0] . "' /><input name='last_x2' type='hidden' value='" . $xy[1] . "' /><input name='last_x3' type='hidden' value='" . $xy[2] . "' /><input name='last_y1' type='hidden' value='" . $xy[3] . "' /><input name='last_y2' type='hidden' value='" . $xy[4] . "' /><input name='last_y3' type='hidden' value='" . $xy[5] . "' /><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p></form></td></tr></table>";
+            echo "<table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckForm()'><input name='page' type='hidden' value='experiment' /><input name='map' type='hidden' value='". $new_map ."' /><input name='chain' type='hidden' value='". $chain ."' /><input name='cond' type='hidden' value='". $cond ."' /><input name='gen' type='hidden' value='". $gen ."' /><input name='current' type='hidden' value='". $map_position[1] ."' /><input name='last_x1' type='hidden' value='". $xy[0] ."' /><input name='last_x2' type='hidden' value='". $xy[1] ."' /><input name='last_x3' type='hidden' value='". $xy[2] ."' /><input name='last_y1' type='hidden' value='". $xy[3] ."' /><input name='last_y2' type='hidden' value='". $xy[4] ."' /><input name='last_y3' type='hidden' value='". $xy[5] ."' /><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p></form></td></tr></table>";
         }
         
         // Break page         -------------------------------------------------------------------------

@@ -123,7 +123,7 @@ def getOutput(chain_code, generation_number):
 #   LOAD RAW DATA FROM A DATA FILE
 
 def loadOutput(chain_code, generation_number):
-    filename = "../Data/Chain " + chain_code + "/" + str(generation_number) + ".txt"
+    filename = "Experiment/data/" + chain_code + "/" + str(generation_number) + ".txt"
     f = open(filename, 'r')
     data = f.read()
     f.close()
