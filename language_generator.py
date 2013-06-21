@@ -1,8 +1,5 @@
 import random
 
-c = ["s", "t", "d", "g", "z", "p", "f", "m"]
-v = ["a", "i", "o", "u"]
-
 def create_language(consonants, vowels, min_syllables=2, max_syllables=4, number_of_words=50):
     syllabary = create_syllabary(consonants, vowels)
     language = generate(syllabary, number_of_words, min_syllables, max_syllables)
@@ -23,8 +20,7 @@ def generate(syllabary, number_of_words, min_syllables, max_syllables):
         while word in words:
             word = generate_word(syllabary, min_syllables, max_syllables)
         words.append(word)
-        print word
-    return
+    return words
 
 def generate_word(syllabary, min_syllables, max_syllables):
     number_of_syllables = random.randrange(min_syllables, max_syllables + 1)
