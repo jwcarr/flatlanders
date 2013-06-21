@@ -104,19 +104,30 @@
     }
 
     // Get the words from a data file
-    function getWords($condition, $chain_code, $generation) {
-        // Import the global variable $set_size
-        global $set_size;
+    function getWords($condition, $chain_code, $generation, $set) {
         // Load in the file for a specific participant's dynamic set file
-        $lines = loadFile($condition, $chain_code, $generation, "d");
+        $lines = loadFile($condition, $chain_code, $generation, $set);
+        $n = count($lines);
         // Set up an empty array in which to dump the words
         $words = array();
         // For each line in the data file...
-        for ($i=0; $i < $set_size; $i++) {
+        for ($i=0; $i < $n; $i++) {
             // Separate out the columns delimited by tabs
             $columns = explode("\t", $lines[$i]);
+            // If you're getting words from the stable set file...
+            if ($set == "s") {
+                // ... then remove the stimulus number information
+                $remove_pipes = explode("|||", $columns[0]);
+                // ... and the word is whatever comes after the triple pipe delimiter
+                $word = $remove_pipes[1];
+            }
+            // If you're getting words from a dynamic set file...
+            else {
+                // ... then the word is just the first column
+                $word = $columns[0];
+            }
             // Dump the first column (the word) into the $words array
-            array_push($words, $columns[0]);
+            array_push($words, $word);
         }
         // Return the words as an array
         return $words;
@@ -125,7 +136,7 @@
     // Get a specific word from a given participant's dynamic set file
     function getWord($condition, $chain_code, $generation, $word_number) {
         // Get all words in that participant's dynamic file
-        $words = getWords($condition, $chain_code, $generation);
+        $words = getWords($condition, $chain_code, $generation, "d");
         // Return the requested word
         return $words[$word_number];
     }
@@ -460,16 +471,13 @@ function NextItemIncorrect() { window.location = next_page_location + '&correct=
 // Applies to welcome page only. On pressing the 'enter key', move to the next page
 function KeyCheck() { var keyID = event.keyCode; if (keyID == 13) { NextPage() } }
 
-// On submitting a test answer, check that the participant hasn't left the field blank
-function CheckForm() { if (document.f.a.value == '') { return false; } return true; }
-    
 // When the training page loads, draw the triangle, set a delay for showing the training item, and set a delay for hiding the training item
 function TrainingLoad() { DrawTriangle(); setTimeout("ShowWord()", <?php echo $word_delay; ?>); setTimeout("HideWord()", <?php echo $time_per_training_item; ?>); }
 
 // When the testing page loads, draw the triangle, and then give focus to the response textbox
-function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
+function TestingLoad() { DrawTriangle(); document.f.a.focus(); }  
         
-<?php
+<?php        
     // If we are currently on a training or test page...
     if ($map_position[0] == "TR" OR $map_position[0] == "TS") {
         // If we are currently on a training page...
@@ -488,6 +496,22 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             else {
                 // Get the XY coordinates for a given stimulus number from the stable set file
                 $xy = loadTriangle($cond, $chain, ($gen-1), "s", $stimulus_number);
+            }
+
+            // If the participant is in condition 1
+            if ($cond == 1) {
+                // Output JavaScript to check that the participant has not given a blank answer
+                echo "function CheckAnswer() { if (document.f.a.value == '') { return false; } return true; }\n\n";
+            }
+            // If the participant is in condition 2, we want some JavaScript to enforce expressivity
+            else {
+                // Get the words that the participant has used so far
+                $words = getWords($cond, $chain, $gen, $stimulus_set);
+                // Implode the array of words into a string
+                $used_words = "\"". implode("\", \"", $words) ."\"";
+                
+                // Output JavaScript to check that the participant's answer is not a duplicate
+                echo "function CheckAnswer() { if (document.f.a.value == '') {return false;} var used_words = [". $used_words ."]; if (used_words.indexOf(document.f.a.value) != -1) { document.message.duplicate.value = 'Ooops! You already used this word to describe another triangle. Please use a different word for this one.'; document.f.a.value = ''; return false; } return true; }\n\n";
             }
         }
         // Output JavaScript to draw the triangle on the canvas
@@ -549,7 +573,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         else { echo validationTableRow("red", "Missing output data files at /data/" . $_POST["condition"] . "/" . $_POST["chain"] . "/"); $error_count ++; }
 
         // Check that sound files exist for the words in the input set
-        $words = getWords($_POST["condition"], $_POST["chain"], ($_POST["gen"]-1));
+        $words = getWords($_POST["condition"], $_POST["chain"], ($_POST["gen"]-1), "d");
         $missing_words = checkSoundFiles($words);
         if (count($missing_words) == 0) { echo validationTableRow("green", "Required sound files are available"); }
         else {
@@ -616,7 +640,15 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             }
             
             // Output HTML for the test page
-            echo "<table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckForm()'><input name='page' type='hidden' value='experiment' /><input name='map' type='hidden' value='". $new_map ."' /><input name='chain' type='hidden' value='". $chain ."' /><input name='cond' type='hidden' value='". $cond ."' /><input name='gen' type='hidden' value='". $gen ."' /><input name='current' type='hidden' value='". $map_position[1] ."' /><input name='last_x1' type='hidden' value='". $xy[0] ."' /><input name='last_x2' type='hidden' value='". $xy[1] ."' /><input name='last_x3' type='hidden' value='". $xy[2] ."' /><input name='last_y1' type='hidden' value='". $xy[3] ."' /><input name='last_y2' type='hidden' value='". $xy[4] ."' /><input name='last_y3' type='hidden' value='". $xy[5] ."' /><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p></form></td></tr></table>";
+            echo "<table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckAnswer()'><input name='page' type='hidden' value='experiment' /><input name='map' type='hidden' value='". $new_map ."' /><input name='chain' type='hidden' value='". $chain ."' /><input name='cond' type='hidden' value='". $cond ."' /><input name='gen' type='hidden' value='". $gen ."' /><input name='current' type='hidden' value='". $map_position[1] ."' /><input name='last_x1' type='hidden' value='". $xy[0] ."' /><input name='last_x2' type='hidden' value='". $xy[1] ."' /><input name='last_x3' type='hidden' value='". $xy[2] ."' /><input name='last_y1' type='hidden' value='". $xy[3] ."' /><input name='last_y2' type='hidden' value='". $xy[4] ."' /><input name='last_y3' type='hidden' value='". $xy[5] ."' /><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p></form>";
+            
+            // If participant is in the second condition
+            if ($cond == 2) {
+                // Output a textbox in which to tell them if they've duplicated a word
+                echo "<form id='mess' name='message'><p class='large'><input type='text' name='duplicate' value='' id='dup' style='border:hidden; color:red; font-family:Helvetica Neue; font-size:14px; font-weight:lighter; text-align:center; outline:none;' size='120' /></p></form>";
+            }
+            
+            echo "</td></tr></table>";
         }
         
         // Break page         -------------------------------------------------------------------------
@@ -624,6 +656,12 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             
             // Output HTML for the break page
             echo "<p class='large'>Stage 2: Testing</p><p class='medium'>The test will automatically begin in one minute</p><p>&nbsp;</p><table style='margin-left:auto; margin-right:auto;'><tr><td><script type='application/javascript'>var myCountdown2 = new Countdown({style: \"flip\", time: 60, width:100, height:80, rangeHi:'second', onComplete: NextPage, labels: {color: \"#FFFFFF\"}});</script></td></tr></table><p>&nbsp;</p><p class='regular'>You will see a selection of triangles one at a time. This time you will not be given the name.<br />Instead you must type in what you think the name is based on the training you have just<br />completed. After you've typed in the name, press enter to move on to the next one.</p><p class='regular'>You may find it very difficult to remember the words for different triangles.<br />Simply go with your instinct and type in a name that feels right.</p>";
+            
+            // If the participant is in the second condition...
+            if ($_GET["cond"] == 2) {
+                // Add a reminder to say that they can't use the same word more than once
+                echo "<p class='regular'>Remember: you can't use the same word more than once.</p>";
+            }
         }
         
         // End page         -------------------------------------------------------------------------
