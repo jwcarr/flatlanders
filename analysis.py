@@ -2,6 +2,8 @@ import Levenshtein
 import matplotlib.pyplot as plt
 import page
 import scipy
+import datetime
+import geometry
 
 chain_codes = ["A", "B", "C", "D"]
 
@@ -9,14 +11,14 @@ chain_codes = ["A", "B", "C", "D"]
 #   MEASURE LEARNABILITY: CALCULATE THE MEAN NORMALIZED LEVENSHTEIN DISTANCE
 #   FOR A SPECIFIC INDIVIDUAL'S OUTPUT
 
-def transmissionError(chain_code, generation_number, n_back=1):
-    if validateTE(chain_code, generation_number, n_back) == False: return
-    output_A = getOutput(chain_code, generation_number)
-    output_B = getOutput(chain_code, generation_number-n_back)
+def transmissionError(condition, chain_code, generation, n_back=1):
+    if validateTE(chain_code, generation, n_back) == False: return
+    output_A = load(condition, chain_code, generation, "s")
+    output_B = load(condition, chain_code, generation-n_back, "s")
     total = 0.0
     for i in range(0, len(output_A)):
-        lev_dist = Levenshtein.distance(output_A[i], output_B[i])
-        norm_lev_dist = lev_dist / float(len(max(output_A[i], output_B[i])))
+        lev_dist = Levenshtein.distance(output_A[i][0], output_B[i][0])
+        norm_lev_dist = lev_dist / float(len(max(output_A[i][0], output_B[i][0])))
         total += norm_lev_dist
     mean_distance = total / float(len(output_A))
     return mean_distance
@@ -24,12 +26,12 @@ def transmissionError(chain_code, generation_number, n_back=1):
 #############################################################################
 #   GET TRANSMISSION ERROR RESULTS FOR A WHOLE BUNCH OF CHAINS
 
-def allErrors():
+def allErrors(condition):
     results = []
     for i in chain_codes:
         scores = []
         for j in range(1, 11):
-            score = transmissionError(i, j, 1)
+            score = transmissionError(condition, i, j, 1)
             scores.append(score)
         results.append(scores)
     return results
@@ -112,35 +114,18 @@ def student(matrix, hypothesis):
     return diff, len(a)-2, test[0], test[1]/2.0
 
 #############################################################################
-#   GET THE OUTPUT DATA FOR A SPECIFIC INDIVIDUAL
+#   LOAD RAW DATA FROM A DATA FILE INTO A DATA MATRIX
 
-def getOutput(chain_code, generation_number):
-    raw_data = loadOutput(chain_code, generation_number)
-    data_matrix = readOutput(raw_data)
-    return data_matrix
-
-#############################################################################
-#   LOAD RAW DATA FROM A DATA FILE
-
-def loadOutput(chain_code, generation_number):
-    filename = "Experiment/data/" + chain_code + "/" + str(generation_number) + ".txt"
+def load(condition, chain_code, generation, set_type):
+    filename = "Experiment/data/" + str(condition) + "/" + chain_code + "/" + str(generation) + set_type
     f = open(filename, 'r')
     data = f.read()
     f.close()
-    return data
-
-#############################################################################
-#   TAKE RAW DATA AND CONVERT TO A DATA MATRIX
-
-def readOutput(raw_data):
+    rows = data.split("\n")
     matrix = []
-    lines = raw_data.split("\n")
-    for line in lines:
-        row = []
-        cells = row.split(",")
-        for cell in cells:
-            row.append(cell)
-        matrix.append(row)
+    for row in rows:
+        cells = row.split("\t")
+        matrix.append(cells)
     return matrix
 
 #############################################################################
@@ -151,7 +136,7 @@ def validateTE(chain_code, generation_number, n_back):
         print("Error: Invalid chain"); return False
     if checkGen(generation_number, 1, 10) == False:
         print("Error: Invalid generation number"); return False
-    if checkGen(generation_number - n_back, 1, 10) == False:
+    if checkGen(generation_number - n_back, 0, 9) == False:
         print("Error: Invalid n_back value"); return False
     return True
 
@@ -182,3 +167,19 @@ def matrix2vector(matrix):
         for cell in row:
             vector.append(cell)
     return vector
+
+#############################################################################
+#   CALCULATE AVERAGE TIME SPENT ON EACH TEST ITEM
+
+def timePerItem(condition, chain_code, generation):
+    set_d = load(condition, chain_code, generation, "d")
+    timestamp_1 = stringToTimeStamp(set_d[0][4])
+    timestamp_50 = stringToTimeStamp(set_d[49][4])
+    difference = timestamp_50 - timestamp_1
+    time_per_item_set_d = difference.total_seconds() / 98.0
+    return time_per_item_set_d
+
+def stringToTimeStamp(string):
+    tim = string.split(":")
+    timestamp = datetime.timedelta(hours=int(tim[0]), minutes=int(tim[1]), seconds=int(tim[2]))
+    return timestamp
