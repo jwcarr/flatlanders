@@ -1,17 +1,32 @@
 from subprocess import call
 import os.path
 
-chain_a = [['ei', 'EY'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
+rules = [['ei', 'EY'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
            ['au', 'AW'], ['oi', 'OY'], ['o', 'OW'], ['i', 'IY'], ['a', 'AA'],
            ['e', 'EH'], ['u', 'UW'], ['ch', 'C'], ['j', 'J'], ['c', 'k'],
            ['ng', 'N'], ['sh', 'S'], ['th', 'T']]
 
 ########################################################################
-### Produce vocalizations for words and save m4a files in /Alex
+### Produce the missing vocalizations for a participant
+
+def produceVocaliaztionsFor(condition, chain_code, generation):
+    words = missingWords(condition, chain_code, generation-1)
+    n = len(words)
+    print("%s missing words" % n)
+    if n > 0:
+        print("Transforming missing words...")
+        matrix = translate(words, rules)
+        print("Vocalizing missing words...")
+        vocalize(matrix)
+    print("Done")
+    return
+
+########################################################################
+### Produce vocalizations for words and save m4a files
 
 def vocalize(matrix):
     for i in matrix:
-        path = "Experiment/vocalizations/" + i[0] + ".m4a"
+        path = "Experiment/temp/" + i[0] + ".m4a"
         phon = "\"[[inpt PHON]]" + i[1] + "\""
         call(["say", "-o", path, phon])
     return
@@ -66,7 +81,7 @@ def getWords(condition, chain_code, generation):
 ### Determine missing words
 
 def missingWords(condition, chain_code, generation):
-    words = getWords(condition, chain_code, generation)
+    words = getWords(str(condition), chain_code, str(generation))
     missing_words = []
     for word in words:
         if os.path.exists("Experiment/vocalizations/" + word + ".m4a") == False:
