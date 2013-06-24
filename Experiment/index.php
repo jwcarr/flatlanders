@@ -37,6 +37,9 @@
     
     // Minimum distance between point C and the line intersecting points A and B (default = 50)
     $min_distance_C = 50;
+    
+    // Number of times a word can be reused to label items in the dynamic set (default = 5)
+    $permitted_word_repetitions = 5;
 
     // Set timezone for timestamps (default = UTC)
     date_default_timezone_set('UTC');
@@ -498,20 +501,39 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
                 $xy = loadTriangle($cond, $chain, ($gen-1), "s", $stimulus_number);
             }
 
-            // If the participant is in condition 1
-            if ($cond == 1) {
+            // If the participant is in condition 1 or the current item belongs to the stable set...
+            if ($cond == 1 OR $stimulus_set == "s") {
                 // Output JavaScript to check that the participant has not given a blank answer
                 echo "function CheckAnswer() { if (document.f.a.value == '') { return false; } return true; }\n\n";
             }
-            // If the participant is in condition 2, we want some JavaScript to enforce expressivity
-            else {
+            // If the participant is in condition 2 and the current test item belongs to the dynamic set...
+            if ($cond == 2 AND $stimulus_set == "d") {
                 // Get the words that the participant has used so far
-                $words = getWords($cond, $chain, $gen, $stimulus_set);
-                // Implode the array of words into a string
-                $used_words = "\"". implode("\", \"", $words) ."\"";
+                $words = getWords($cond, $chain, $gen, "d");
                 
-                // Output JavaScript to check that the participant's answer is not a duplicate
-                echo "function CheckAnswer() { if (document.f.a.value == '') {return false;} var used_words = [". $used_words ."]; if (used_words.indexOf(document.f.a.value) != -1) { document.message.duplicate.value = 'Ooops! You already used this word to describe another triangle. Please use a different word for this one.'; document.f.a.value = ''; return false; } return true; }\n\n";
+                // Count the total number of words that have been used so far
+                $n = count($words);
+                
+                // Set up an empty array into which to put overused words
+                $overused_words = array();
+                
+                // Add each word that has been overused to the $overused_words array
+                for ($i=0; $i<$n; $i++) {
+                    $c=1;
+                    for ($j=$i+1; $j<$n; $j++) {
+                        if ($words[$i] == $words[$j]) {
+                            $words[$j] = $i." ".$j;
+                            $c = $c+1;
+                        }
+                    }
+                    if ($c == $permitted_word_repetitions) { $overused_words[] = $words[$i]; }
+                }
+                
+                // Implode the array of words into a string
+                $overused_words = "\"". implode("\", \"", $overused_words) ."\"";
+                
+                // Output JavaScript to check that the participant's answer has not been used too many times
+                echo "function CheckAnswer() { if (document.f.a.value == '') {return false;} var used_words = [". $overused_words ."]; if (used_words.indexOf(document.f.a.value) != -1) { document.message.duplicate.value = 'Ooops! You\'ve used this word too many times. Please use a different word to describe this triangle.'; document.f.a.value = ''; return false; } return true; }\n\n";
             }
         }
         // Output JavaScript to draw the triangle on the canvas
