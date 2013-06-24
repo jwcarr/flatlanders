@@ -32,12 +32,6 @@
     // Radius of the orienting spot in pixels (default = 8)
     $orienting_spot_radius = 8;
     
-    // Minimum distance between points A and B on the triangle in pixels (default = 10)
-    $min_distance_B = 10;
-    
-    // Minimum distance between point C and the line intersecting points A and B (default = 50)
-    $min_distance_C = 50;
-    
     // Number of times a word can be reused to label items in the dynamic set (default = 5)
     $permitted_word_repetitions = 5;
 
@@ -221,7 +215,7 @@
     // Generate a random triangle stimulus
     function generateTriangle() {
         // Import global parameters
-        global $canvas_width; global $canvas_height; global $canvas_border; global $min_distance_B; global $min_distance_C;
+        global $canvas_width; global $canvas_height; global $canvas_border;
         
         // Choose coordinates for point A
         $x1 = rand($canvas_border+1, $canvas_width-$canvas_border);
@@ -230,32 +224,13 @@
         // Choose coordinates for point B
         $x2 = rand($canvas_border+1, $canvas_width-$canvas_border);
         $y2 = rand($canvas_border+1, $canvas_height-$canvas_border);
-        
-        // If and while point B is too close to point A, try a different set of coordinates for point B
-        while (distance($x2, $y2, $x1, $y1) < $min_distance_B) {
-            $x2 = rand($canvas_border+1, $canvas_width-$canvas_border);
-            $y2 = rand($canvas_border+1, $canvas_height-$canvas_border);
-        }
-        
-        // Determine the slope and intercept of the imaginary line that passes through points A and B
-        if ($x1 == $x2) { $slope = 999999999; } else { $slope = ($y1 - $y2) / ($x1 - $x2); }
-        $intercept = $y1 - ($slope * $x1);
 
         // Choose coordinates for point C
         $x3 = rand($canvas_border+1, $canvas_width-$canvas_border);
         $y3 = rand($canvas_border+1, $canvas_height-$canvas_border);
         
-        // Given the X coordinate that you've chosen for point C, what point on the Y axis do you want to avoid to prevent skinnies?
-        $y_avoid = $intercept + ($x3 * $slope);
-        
-        // If and while point C is too close to the avoid point, try a different Y coordinate for point C
-        while (distance($x3, $y3, $x3, $y_avoid) < $min_distance_C) {
-            $y3 = rand($canvas_border+1, $canvas_height-$canvas_border);
-            
-        }
-        
         // Return an array containing the chosen X and Y coordinates
-        return array($x1, $x2, $x3, $y1, $y2, $y3, $y_avoid);
+        return array($x1, $x2, $x3, $y1, $y2, $y3);
     }
     
     // Load the coordinates for a particular triangle stimulus from a given data file
