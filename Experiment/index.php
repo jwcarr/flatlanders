@@ -249,12 +249,6 @@
         return array($xy1[0], $xy2[0], $xy3[0], $xy1[1], $xy2[1], $xy3[1]);
     }
     
-    // Measure the Euclidean distance between two points in 2D space
-    function distance($xA, $yA, $xB, $yB) {
-        // Yay Pythagoras!
-        return sqrt(pow($xA - $xB, 2) + pow($yA - $yB, 2));
-    }
-    
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // VALIDATION FUNCTIONS
 
