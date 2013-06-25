@@ -255,9 +255,9 @@
     }
 
     // Check that the output data files exist
-    function checkDataFilesExist($condition, $chain_code, $generation) {
-        $dynamic_file = file_exists("data/". $condition ."/" . $chain_code ."/" . $generation ."d");
-        $stable_file = file_exists("data/". $condition ."/" . $chain_code ."/" . $generation ."s");
+    function checkOutputFiles($condition, $chain_code, $generation) {
+        $dynamic_file = is_writable("data/". $condition ."/" . $chain_code ."/" . $generation ."d");
+        $stable_file = is_writable("data/". $condition ."/" . $chain_code ."/" . $generation ."s");
         if ($dynamic_file == True AND $stable_file == True) { return True; } else { return False; }
     }
     
@@ -575,11 +575,11 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
 
         // Check that there are $set_size words in the input set
         if (checkInputSet($_POST["condition"], $_POST["chain"], $_POST["gen"]) == True) { echo validationTableRow("green", "Words in the input set are valid"); }
-        else { echo validationTableRow("red", "Input set file does not contain $set_size words"); $error_count ++; }
+        else { echo validationTableRow("red", "Input file does not contain $set_size words"); $error_count ++; }
         
         // Check that the data files exist for writing
-        if (checkDataFilesExist($_POST["condition"], $_POST["chain"], $_POST["gen"]) == True) { echo validationTableRow("green", "Output data files are ready for writing"); }
-        else { echo validationTableRow("red", "Missing output data files at /data/" . $_POST["condition"] . "/" . $_POST["chain"] . "/"); $error_count ++; }
+        if (checkOutputFiles($_POST["condition"], $_POST["chain"], $_POST["gen"]) == True) { echo validationTableRow("green", "Output data files are ready for writing"); }
+        else { echo validationTableRow("red", "Output data files at <i>/data/" . $_POST["condition"] . "/" . $_POST["chain"] . "/</i> are not writeable"); $error_count ++; }
 
         // Check that sound files exist for the words in the input set
         $words = getWords($_POST["condition"], $_POST["chain"], ($_POST["gen"]-1), "d");
