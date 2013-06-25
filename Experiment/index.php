@@ -12,7 +12,7 @@
     $set_size = 50;
     
     // Amount of time for each training item in milliseconds (default = 5000)
-    $time_per_training_item = 5000;
+    $time_per_training_item = 2000;
     
     // Delay before showing the training word in milliseconds (default = 1000)
     $word_delay = 1000;
@@ -34,6 +34,9 @@
     
     // Number of times a word can be reused to label items in the dynamic set (default = 5)
     $permitted_word_repetitions = 5;
+    
+    // Do a mini test every X items during the training phase (default = 5)
+    $mini_test_frequency = 5;
 
     // Set timezone for timestamps (default = UTC)
     date_default_timezone_set('UTC');
@@ -104,6 +107,7 @@
     function getWords($condition, $chain_code, $generation, $set) {
         // Load in the file for a specific participant's dynamic set file
         $lines = loadFile($condition, $chain_code, $generation, $set);
+        // How many lines are there?
         $n = count($lines);
         // Set up an empty array in which to dump the words
         $words = array();
@@ -111,20 +115,8 @@
         for ($i=0; $i < $n; $i++) {
             // Separate out the columns delimited by tabs
             $columns = explode("\t", $lines[$i]);
-            // If you're getting words from the stable set file...
-            if ($set == "s") {
-                // ... then remove the stimulus number information
-                $remove_pipes = explode("|||", $columns[0]);
-                // ... and the word is whatever comes after the triple pipe delimiter
-                $word = $remove_pipes[1];
-            }
-            // If you're getting words from a dynamic set file...
-            else {
-                // ... then the word is just the first column
-                $word = $columns[0];
-            }
             // Dump the first column (the word) into the $words array
-            array_push($words, $word);
+            array_push($words, $columns[0]);
         }
         // Return the words as an array
         return $words;
@@ -138,14 +130,12 @@
         return $words[$word_number];
     }
     
-    // Save the training score
-    function saveTrainingScore($condition, $chain_code, $generation, $training_score) {
+    // Save log data to the log file
+    function saveLogData($new_data) {
         // Open the scores file as it stands
-        $data = openFile("data/scores");
-        // Append the new data for this participant
-        $new_data = $data ."\n". $condition. "\t". $chain_code ."\t". $generation ."\t". $training_score ."\t". date("d/m/Y H:i:s");
+        $data = openFile("data/log");
         // Write out the new file
-        writeFile("data/scores", $new_data);
+        writeFile("data/log", $data ."\n". $new_data);
     }
     
     // Save a test answer to a participant's dynamic or stable set file
@@ -323,7 +313,7 @@
             $cond = $_POST["cond"]; $chain = $_POST["chain"]; $gen = $_POST["gen"]; $map = $_POST["map"];
         }
         else {
-            $cond = $_GET["cond"]; $chain = $_GET["chain"]; $gen = $_GET["gen"]; $map = $_GET["map"];
+            $cond = $_GET["cond"]; $chain = $_GET["chain"]; $gen = $_GET["gen"]; $map = $_GET["map"]; $recent = $_GET["recent"];
         }
         
         // Generate MAP if one hasn't been set up yet
@@ -334,13 +324,19 @@
             // Shuffle the order in which the training items from the previous dynamic set will be presented
             $training_numbers = range(0, $set_size-1); shuffle($training_numbers);
             
-            // Add the training pages to the map in this shuffled order
+            // Add the training pages to the map in this shuffled order with a mini test every x items
+            $c=0;
             for ($i=0; $i < $set_size; $i++) {
+                if ($c == 5) {
+                    $map = $map ."||MT";
+                    $c=0;
+                }
                 $map = $map ."||TR-". $training_numbers[$i];
+                $c=$c+1;
             }
             
-            // Now add on the break page
-            $map = $map ."||BREAK";
+            // Add on one final mini test and the break page
+            $map = $map ."||MT||BREAK";
             
             // Shuffle the order in which the test items in both the dynamic and stable sets will be presented
             $dynamic_set = range(0, $set_size-1); shuffle($dynamic_set);
@@ -370,30 +366,56 @@
         // Set window location for next page for use in JavaScript below
         $window_location = "index.php?page=experiment&cond=". $cond ."&chain=". $chain ."&gen=". $gen ."&map=". $new_map;
         
+        // If no recent items have been specified...
+        if ($recent == "") {
+            // Add the current training stimulus number to the list of recents in the window location
+            $window_location = $window_location ."&recent=". $map_position[1];
+        }
+        // Otherwise...
+        else {
+            // If this is not a mini test page...
+            if ($map_position[0] != "MT") {
+                // Add the recent to the window location separated by a comma
+                $window_location = $window_location ."&recent=". $recent .",". $map_position[1];
+            }
+        }
+        
         // If this page needs to be a training page, do the following...
         if ($map_position[0] == "TR") {
             // Get the training item from previous participants word set
             $training_word = getWord($cond, $chain, ($gen-1), $map_position[1]);
-            // Update the current training score (i.e. how many training items the participant has correctly retyped.
-            $score = $_GET["score"] + $_GET["correct"];
-            // Modify the next window location with the current score
-            $window_location = $window_location . "&score=" . $score;
+            
+            // If is the first training item...
+            if ($_GET["first_training_item"] == "yes") {
+                // Write log to the "training" file
+                saveLogData("Cond.\tChain\tGen.\tTimestamp\n". $cond. "\t". $chain ."\t". $gen ."\t". date("d/m/Y H:i:s"));
+            }
+            
+            // If a mini test answer has been provided...
+            if ($_POST["a"] != "") {
+                // Write it to the log along with the correct answer
+                saveLogData($_POST["correct_answer"] ."\t". $_POST["a"]);
+            }
+        }
+        
+        // If this page needs to be a mini test page, do the following...
+        elseif ($map_position[0] == "MT") {
+            // Get the list of recent training items
+            $recent = explode(",", $recent);
+            // Choose one at random
+            $mt_item = rand(0, $mini_test_frequency-1);
+            // Get the XY coordinates for for the random chosen stimulus from the previous participant's dynamic set file
+            $xy = loadTriangle($cond, $chain, ($gen-1), "d", $recent[$mt_item]);
+            // Get the correct word for the randomly chosen stimulus
+            $correct_answer = getWord($cond, $chain, $gen-1, $recent[$mt_item]);
         }
         
         // If this page needs to be a testing page, do the following...
-        if ($map_position[0] == "TS") {
+        elseif ($map_position[0] == "TS") {
             // Parse the test item information into its set (either "d" or "s") and the stimulus number from that set (number between 0 and 49)
             $stimulus_info = explode(".", $map_position[1]);
             $stimulus_set = $stimulus_info[0];
             $stimulus_number = $stimulus_info[1];
-        }
-        
-        // If this page needs to be a break page, do the following...
-        if ($map_position[0] == "BREAK") {
-            // Update the current training score (i.e. how many training items the participant has correctly retyped.
-            $score = $_GET["score"] + $_GET["correct"];
-            // Since training has now finished, save the score
-            saveTrainingScore($cond, $chain, $gen, $score);
         }
     }
 
@@ -425,40 +447,36 @@ var next_page_location = "<?php echo $window_location; ?>";
 // Send to next page
 function NextPage() { window.location = next_page_location; }
 
+// Send to first training page
+function FirstTrainingPage() { window.location = next_page_location + '&first_training_item=yes'; }
+
 // Show the training item the play the vocalization
 function ShowWord() { document.getElementById('alex').play(); document.f.a.value = '<?php echo $training_word; ?>'; }
-        
-// Hide the training item, then give focus to the response textbox
-function HideWord() { document.f.a.value = ''; document.f.a.focus(); }
-    
-// Evaluate whether or not the participant correctly retyped the training item
-function CheckWordMatch() { if (document.f.a.value == '') { return false; } else { if (document.f.a.value == '<?php echo $training_word; ?>') { document.getElementById('feedback').src = 'images/check.png'; setTimeout("NextItemCorrect()", 500); } else { document.getElementById('feedback').src = 'images/cross.png'; setTimeout("NextItemIncorrect()", 500); } return false; } }
-
-// If training item was correctly retyped, send to next page and increase score by 1
-function NextItemCorrect() { window.location = next_page_location + '&correct=1'; }
-
-// If training item was not correctly retyped, send to next page and increase score by 0
-function NextItemIncorrect() { window.location = next_page_location + '&correct=0'; }
 
 // Applies to welcome page only. On pressing the 'enter key', move to the next page
-function KeyCheck() { var keyID = event.keyCode; if (keyID == 13) { NextPage() } }
+function KeyCheck() { var keyID = event.keyCode; if (keyID == 13) { FirstTrainingPage() } }
 
-// When the training page loads, draw the triangle, set a delay for showing the training item, and set a delay for hiding the training item
-function TrainingLoad() { DrawTriangle(); setTimeout("ShowWord()", <?php echo $word_delay; ?>); setTimeout("HideWord()", <?php echo $time_per_training_item; ?>); }
+// When the training page loads, draw the triangle, set a delay for showing the training item, and set a delay for moving to next page
+function TrainingLoad() { DrawTriangle(); setTimeout("ShowWord()", <?php echo $word_delay; ?>); setTimeout("NextPage()", <?php echo $time_per_training_item; ?>); }
 
 // When the testing page loads, draw the triangle, and then give focus to the response textbox
 function TestingLoad() { DrawTriangle(); document.f.a.focus(); }  
         
 <?php        
     // If we are currently on a training or test page...
-    if ($map_position[0] == "TR" OR $map_position[0] == "TS") {
+    if ($map_position[0] == "TR" OR $map_position[0] == "TS" OR $map_position[0] == "MT") {
         // If we are currently on a training page...
         if ($map_position[0] == "TR") {
             // Get the XY coordinates for a given stimulus number from the previous participant's dynamic set file
             $xy = loadTriangle($cond, $chain, ($gen-1), "d", $map_position[1]);
         }
+        // If we are currently on a mini test page...
+        if ($map_position[0] == "MT") {
+            // Output JavaScript to check that the participant has not given a blank answer
+            echo "function CheckAnswer() { if (document.f.a.value == '') { return false; } return true; }\n\n";
+        }
         // If we are currently on a test page...
-        else {
+        elseif ($map_position[0] == "TS") {
             // If the current test item belongs to the dynamic flow...
             if ($stimulus_set == "d") {
                 // Generate random XY coordinates
@@ -515,8 +533,8 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
 
 <body<?php
     // If the current page is a training or test page, load the relevant JavaScript
-    if ($page == "experiment" AND $map_position[0] == "TS") { echo " onload='TestingLoad()'"; }
-    elseif ($page == "experiment" AND $map_position[0] == "TR") { echo " onload='TrainingLoad()'"; }
+    if ($map_position[0] == "TS" OR $map_position[0] == "MT") { echo " onload='TestingLoad()'"; }
+    elseif ($map_position[0] == "TR") { echo " onload='TrainingLoad()'"; }
 ?>>
 
 <table style='width:100%; height:750px;'>
@@ -598,7 +616,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         
     elseif ($page == "experiment") {
         
-        // Welcome page         -------------------------------------------------------------------------
+        // Welcome page           -------------------------------------------------------------------------
         if ($map_position[0] == "BEGIN") {
             
             // Clear the data files in case they already contain content
@@ -611,14 +629,22 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             echo "<p class='large'>Stage 1: Training</p><p>&nbsp;</p><p class='regular'>You will see a selection of triangles along with their names. After a few<br />seconds the name will disappear. Type the name back in<br />and press enter to move onto the next one.</p><p class='regular'> Try to learn the word for each triangle as best as you can.</p><p>&nbsp;</p><p class='medium'>Press the enter key when you’re ready to begin training</p><script type='text/Javascript'>document.onkeypress = KeyCheck;</script>";
         }
         
-        // Training page         -------------------------------------------------------------------------
+        // Training page          -------------------------------------------------------------------------
         elseif ($map_position[0] == "TR") {
             
             // Output HTML for the training page
-            echo "<audio id='alex' src='vocalizations/". $training_word .".m4a' preload='auto'></audio><table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckWordMatch()'><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p><img id='feedback' src='images/spacer.gif' width='50' height='50' alt='feedback' /></form></td></tr></table>";
+            echo "<audio id='alex' src='vocalizations/". $training_word .".m4a' preload='auto'></audio><table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f'><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p></form></td></tr></table>";
         }
         
-        // Testing page         -------------------------------------------------------------------------
+        
+        // Mini test page         -------------------------------------------------------------------------
+        elseif ($map_position[0] == "MT") {
+            
+            // Output HTML for the "mini test" page
+            echo "<table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckAnswer()'><input name='page' type='hidden' value='experiment' /><input name='map' type='hidden' value='". $new_map ."' /><input name='chain' type='hidden' value='". $chain ."' /><input name='cond' type='hidden' value='". $cond ."' /><input name='gen' type='hidden' value='". $gen ."' /><input name='correct_answer' type='hidden' value='". $correct_answer ."' /><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p</form></td></tr></table>";
+        }
+        
+        // Testing page           -------------------------------------------------------------------------
         elseif ($map_position[0] == "TS") {
             
             // If this is not the first test item (indicated by the fact that $current is set to nothing), do the following...
@@ -645,6 +671,12 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         // Break page         -------------------------------------------------------------------------
         elseif ($map_position[0] == "BREAK") {
             
+            // If an answer to a mini test has been provided...
+            if ($_POST["a"] != "") {
+                // Write the answer to the log
+                saveLogData($_POST["correct_answer"] ."\t". $_POST["a"]);
+            }
+            
             // Output HTML for the break page
             echo "<p class='large'>Stage 2: Testing</p><p class='medium'>The test will automatically begin in one minute</p><p>&nbsp;</p><table style='margin-left:auto; margin-right:auto;'><tr><td><script type='application/javascript'>var myCountdown2 = new Countdown({style: \"flip\", time: 60, width:100, height:80, rangeHi:'second', onComplete: NextPage, labels: {color: \"#FFFFFF\"}});</script></td></tr></table><p>&nbsp;</p><p class='regular'>You will see a selection of triangles one at a time. This time you will not be given the name.<br />Instead you must type in what you think the name is based on the training you have just<br />completed. After you've typed in the name, press enter to move on to the next one.</p><p class='regular'>You may find it very difficult to remember the words for different triangles.<br />Simply go with your instinct and type in a name that feels right.</p>";
             
@@ -663,6 +695,9 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             
             // Save the final answer (and sort the stable data file back to its unshuffled order)
             saveFinalAnswer($cond, $chain, $gen, $_POST["current"], $_POST["a"], $last_xy);
+            
+            // Write time at whcih the experiment ended to log
+            saveLogData("END AT " . date("d/m/Y H:i:s") . "\n-------------------------------------------------------------------------\n\n");
             
             // Output HTML for the completion page
             echo "<p class='large'>Experiment complete</p><p class='medium'>Thanks for your participation</p><p>&nbsp;</p><img src='images/smile.png' width='145' alt='flatlander smile' />";
