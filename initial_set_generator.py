@@ -1,6 +1,5 @@
 from random import randrange
 import language_generator
-from math import sqrt
 
 ## Global parameters
 
@@ -15,22 +14,31 @@ canvas_width = 500
 canvas_height = 500
 canvas_border = 10
 
-## Create all the set files you need for a given set of conditions and chains
+#############################################################################
+#   Create all the set files you need for a given set of conditions and chains
+
 def createAllSetFiles(conditions=["1","2"], chains=["A", "B", "C", "D"]):
     for i in conditions:
         for j in chains:
             create_set(i, j, "d")
             create_set(i, j, "s")
-    return
+    return "Done"
 
-## Create an initial generation 0 set file
+#############################################################################
+#   Create an initial generation 0 set file
+
 def create_set(condition, chain_code, set_type):
+    # Generate the word set
     words = language_generator.create_language(consonants, vowels, min_syllables, max_syllables, num_of_items)
+    # Empty data string
     data = ""
+    # For each word...
     for i in range(0, num_of_items):
+        # ...create a triangle to go with it
         line = words[i] + "\t" + randomTriangle()
+        # Put this pairing in the data string
         data = data + "\n" + line
-    # remove the last linebreak from data
+    # Write the data string to the relevent file
     writeFile(condition, chain_code, set_type, data[1:])
     return
 
@@ -49,9 +57,6 @@ def randomTriangle():
 
     # Return the coordinates delimited by tabs
     return str(x1) + "," + str(y1) + "\t" + str(x2) + "," + str(y2) + "\t" + str(x3) + "," + str(y3)
-
-def distance(xA, yA, xB, yB):
-    return sqrt(((xA - xB)**2) + ((yA - yB)**2))
 
 ## Write out a file
 def writeFile(condition, chain_code, set_type, data):
