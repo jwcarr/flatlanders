@@ -439,28 +439,48 @@
 </style>
 
 <?php if ($page == "experiment" AND $map_position[0] == "BREAK") { echo "<script src='countdown.js' type='text/javascript'></script>"; }?>
+
 <script type="text/javascript">
 
-// Location of the next page
-var next_page_location = "<?php echo $window_location; ?>";
+    // Location of the next page
+    var next_page_location = '<?php echo $window_location; ?>';
 
-// Send to next page
-function NextPage() { window.location = next_page_location; }
+    // Send to next page
+    function NextPage() {
+        window.location = next_page_location;
+    }
 
-// Send to first training page
-function FirstTrainingPage() { window.location = next_page_location + '&first_training_item=yes'; }
+    // Send to first training page
+    function FirstTrainingPage() {
+        window.location = next_page_location + '&first_training_item=yes';
+    }
 
-// Show the training item the play the vocalization
-function ShowWord() { document.getElementById('alex').play(); document.f.a.value = '<?php echo $training_word; ?>'; }
+    // Show the training item and play the vocalization
+    function ShowWord() {
+        document.getElementById('alex').play();
+        document.f.a.value = '<?php echo $training_word; ?>';
+    }
 
-// Applies to welcome page only. On pressing the 'enter key', move to the next page
-function KeyCheck() { var keyID = event.keyCode; if (keyID == 13) { FirstTrainingPage() } }
+    // Applies to welcome page only. On pressing the 'enter key', move to the next page
+    function KeyCheck() {
+        var keyID = event.keyCode;
+        if (keyID == 13) {
+            FirstTrainingPage();
+        }
+    }
 
-// When the training page loads, draw the triangle, set a delay for showing the training item, and set a delay for moving to next page
-function TrainingLoad() { DrawTriangle(); setTimeout("ShowWord()", <?php echo $word_delay; ?>); setTimeout("NextPage()", <?php echo $time_per_training_item; ?>); }
+    // When the training page loads, draw the triangle, set a delay for showing the training item, and set a delay for moving to next page
+    function TrainingLoad() {
+        DrawTriangle();
+        setTimeout("ShowWord()", <?php echo $word_delay; ?>);
+        setTimeout("NextPage()", <?php echo $time_per_training_item; ?>);
+    }
 
-// When the testing page loads, draw the triangle, and then give focus to the response textbox
-function TestingLoad() { DrawTriangle(); document.f.a.focus(); }  
+    // When the testing page loads, draw the triangle, and then give focus to the response textbox
+    function TestingLoad() {
+        DrawTriangle();
+        document.f.a.focus();
+    }
         
 <?php        
     // If we are currently on a training or test page...
@@ -473,7 +493,14 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         // If we are currently on a mini test page...
         if ($map_position[0] == "MT") {
             // Output JavaScript to check that the participant has not given a blank answer
-            echo "function CheckAnswer() { if (document.f.a.value == '') { return false; } return true; }\n\n";
+            echo "
+    function CheckAnswer() {
+        if (document.f.a.value == '') {
+            return false;
+        }
+        return true;
+    }
+            ";
         }
         // If we are currently on a test page...
         elseif ($map_position[0] == "TS") {
@@ -491,7 +518,14 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             // If the participant is in condition 1 or the current item belongs to the stable set...
             if ($cond == 1 OR $stimulus_set == "s") {
                 // Output JavaScript to check that the participant has not given a blank answer
-                echo "function CheckAnswer() { if (document.f.a.value == '') { return false; } return true; }\n\n";
+                echo "
+    function CheckAnswer() {
+        if (document.f.a.value == '') {
+            return false;
+        }
+        return true;
+    }
+                ";
             }
             // If the participant is in condition 2 and the current test item belongs to the dynamic set...
             if ($cond == 2 AND $stimulus_set == "d") {
@@ -520,11 +554,42 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
                 $overused_words = "\"". implode("\", \"", $overused_words) ."\"";
                 
                 // Output JavaScript to check that the participant's answer has not been used too many times
-                echo "function CheckAnswer() { if (document.f.a.value == '') {return false;} var used_words = [". $overused_words ."]; if (used_words.indexOf(document.f.a.value) != -1) { document.message.duplicate.value = 'Ooops! You\'ve already used this word to describe a lot of other triangles. Please use a different word to describe this one.'; document.f.a.value = ''; return false; } return true; }\n\n";
+                echo "
+    function CheckAnswer() {
+        if (document.f.a.value == '') {
+            return false;
+        }
+        var used_words = [". $overused_words ."];
+        if (used_words.indexOf(document.f.a.value) != -1) {
+            document.message.duplicate.value = 'Ooops! You\'ve already used this word to describe a lot of other triangles. Please use a different word to describe this one.';
+            document.f.a.value = '';
+            return false;
+        }
+        return true;
+    }
+                ";
             }
         }
         // Output JavaScript to draw the triangle on the canvas
-        echo "function DrawTriangle() { var canvas = document.getElementById('rectangle'); var c = canvas.getContext('2d'); c.beginPath(); c.moveTo(". $xy[0] .", ". $xy[3] ."); c.lineTo(". $xy[1] .", ". $xy[4] ."); c.lineTo(". $xy[2] .", ". $xy[5] ."); c.closePath(); c.lineWidth=". $triangle_line_thickness ."; c.stroke(); c.beginPath(); c.arc(". $xy[0] .", ". $xy[3] .", ". $orienting_spot_radius .", 0, 2 * Math.PI, false); c.fill(); c.lineWidth = 1; c.strokeStyle = 'black'; c.stroke(); }\n";
+        echo "
+    function DrawTriangle() {
+        var canvas = document.getElementById('rectangle');
+        var c = canvas.getContext('2d');
+        c.beginPath();
+        c.moveTo(". $xy[0] .", ". $xy[3] .");
+        c.lineTo(". $xy[1] .", ". $xy[4] .");
+        c.lineTo(". $xy[2] .", ". $xy[5] .");
+        c.closePath();
+        c.lineWidth=". $triangle_line_thickness .";
+        c.stroke();
+        c.beginPath();
+        c.arc(". $xy[0] .", ". $xy[3] .", ". $orienting_spot_radius .", 0, 2 * Math.PI, false);
+        c.fill();
+        c.lineWidth = 1;
+        c.strokeStyle = 'black';
+        c.stroke();
+    }
+        ";
     }
 ?>
 </script>
@@ -538,15 +603,55 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
 ?>>
 
 <table style='width:100%; height:750px;'>
-<tr>
-<td style='text-align:center;'>
+    <tr>
+        <td style='text-align:center;'>
 <?php
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Parameters page
 
     if ($page == "parameters") {
-        echo "<p class='page head'>Settings</p><hr style='height:1; width:580px;' /><form id='parameters' name='f' method='post' action='index.php'><input name='page' type='hidden' value='validation' /><table style='width:400px; margin-left:auto; margin-right:auto;'><tr><td style='width:190px; text-align:right;'><span class='page body'>Diffusion chain:</span></td><td style='width:20px;'></td><td style='width:190px;'><input name='chain' type='text' id='chain' autocomplete='off' style='font:Helvetica Neue; font-size:20px' size='8' /></td></tr><tr><td style='width:190px;'></td><td style='width:20px;'></td><td style='width:190px;'></td></tr><tr><td style='width:190px; text-align:right;'><span class='page body'>Generation:</span></td><td style='width:20px;'></td><td style='width:190px;'><input name='gen' type='text' id='generation' autocomplete='off' style='font:Helvetica Neue; font-size:20px' size='8' /></td></tr><tr><td style='width:190px;'></td><td style='width:20px;'></td><td style='width:190px;'></td></tr><tr><td style='width:190px; text-align:right;'><span class='page body'>Condition:</span></td><td style='width:20px;'></td><td style='width:190px;'><span class='page body'><input name='condition' type='radio' value='1' checked /> Experiment 1<br /><input name='condition' type='radio' value='2' /> Experiment 2</span></td></tr></table><hr style='height:1; width:580px;' /><p><input type='submit' name='submit' value='Okay' style='font-family:Helvetica Neue; font-size:30px;' /></p></form>";
+        echo "
+            <p class='page head'>Settings</p>
+            <hr style='height:1; width:580px;' />
+            <form id='parameters' name='f' method='post' action='index.php'>
+                <input name='page' type='hidden' value='validation' />
+                <table style='width:400px; margin-left:auto; margin-right:auto;'>
+                    <tr>
+                        <td style='width:190px; text-align:right;'>
+                            <span class='page body'>Diffusion chain:</span>
+                        </td>
+                        <td style='width:20px;'></td>
+                        <td style='width:190px;'>
+                            <input name='chain' type='text' id='chain' autocomplete='off' style='font:Helvetica Neue; font-size:20px' size='8' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='width:190px; text-align:right;'>
+                            <span class='page body'>Generation:</span>
+                        </td>
+                        <td style='width:20px;'></td>
+                        <td style='width:190px;'>
+                            <input name='gen' type='text' id='generation' autocomplete='off' style='font:Helvetica Neue; font-size:20px' size='8' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='width:190px; text-align:right;'>
+                            <span class='page body'>Experiment:</span>
+                        </td>
+                        <td style='width:20px;'></td>
+                        <td style='width:190px;'>
+                            <span class='page body'>
+                                <input name='condition' type='radio' value='1' checked /> Experiment 1<br />
+                                <input name='condition' type='radio' value='2' /> Experiment 2
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+                <hr style='height:1; width:580px;' />
+                <input type='submit' name='submit' value='Okay' style='font-family:Helvetica Neue; font-size:30px;' />
+            </form>
+        ";
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -556,10 +661,26 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         
         // A function to output a row on the validation page
         function validationTableRow($colour, $message) {
-            return "<tr><td style='width:30px;'><img src='images/". $colour .".png' width='16' height='16' alt='light' /></td><td style='width:550px; text-align:left;'><p class='regular'>". $message ."</p></td></tr>";
+            return "
+                <tr>
+                    <td style='width:30px;'>
+                        <img src='images/". $colour .".png' width='16' height='16' alt='light' />
+                    </td>
+                    <td style='width:550px; text-align:left;'>
+                        <p class='regular'>". $message ."</p>
+                    </td>
+                </tr>";
         }
         
-        echo "<p class='page head'>Validation</p><table style='margin-left:auto; margin-right:auto;'><tr><td colspan='2'><hr style='height:1; width:580px;' /></td></tr>";
+        echo "
+            <p class='page head'>Validation</p>
+            <table style='margin-left:auto; margin-right:auto;'>
+                <tr>
+                    <td colspan='2'>
+                        <hr style='height:1; width:580px;' />
+                    </td>
+                </tr>
+        ";
 
         // Check that the chain code is valid
         if (checkChain($_POST["chain"]) == True) { echo validationTableRow("green", "Chain " . $_POST["chain"]); }
@@ -603,11 +724,25 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             echo validationTableRow("orange", "Are you using the Alpha-only keyboard layout?");
         }
         
-        echo "<tr><td colspan='2'><hr style='height:1; width:580px;' /></td></tr></table><form id='parameters' name='f' method='post' action='index.php'><input name='page' type='hidden' value='experiment' /><input name='chain' type='hidden' value='". $_POST["chain"] ."' /><input name='cond' type='hidden' value='". $_POST["condition"] ."' /><input name='gen' type='hidden' value='". $_POST["gen"] ."' />";
+        echo "
+                <tr>
+                    <td colspan='2'>
+                        <hr style='height:1; width:580px;' />
+                    </td>
+                </tr>
+            </table>";
         
         // If the above validation functions produce no errors, display the "Begin experiment" button and embed the sound check file
         if ($error_count == 0) {
-            echo "<p><input type='submit' name='submit' value='Begin experiment' style='font-family:Helvetica Neue; font-size:30px;' /></p></form><audio id='alex' src='sound_check.m4a' preload='auto'></audio>";
+            echo "
+            <form id='parameters' name='f' method='post' action='index.php'>
+                <input name='page' type='hidden' value='experiment' />
+                <input name='chain' type='hidden' value='". $_POST["chain"] ."' />
+                <input name='cond' type='hidden' value='". $_POST["condition"] ."' />
+                <input name='gen' type='hidden' value='". $_POST["gen"] ."' />
+                <input type='submit' name='submit' value='Begin experiment' style='font-family:Helvetica Neue; font-size:30px;' />
+            </form>
+            <audio id='alex' src='sound_check.m4a' preload='auto'></audio>";
         }
     }
         
@@ -626,14 +761,41 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             writeFile("detect", $cond . "||" . $chain . "||" . $gen);
             
             // Output HTML for the welcome page
-            echo "<p class='large'>Stage 1: Training</p><p>&nbsp;</p><p class='regular'>You will see a selection of triangles along with their names. After a few<br />seconds the name will disappear. Type the name back in<br />and press enter to move onto the next one.</p><p class='regular'> Try to learn the word for each triangle as best as you can.</p><p>&nbsp;</p><p class='medium'>Press the enter key when you’re ready to begin training</p><script type='text/Javascript'>document.onkeypress = KeyCheck;</script>";
+            echo "
+            <p class='large'>Stage 1: Training</p>
+            <p>&nbsp;</p>
+            <p class='regular'>You will see a selection of triangles along with their names. After a few<br />
+                seconds the name will disappear. Type the name back in<br />
+                and press enter to move onto the next one.</p>
+            <p class='regular'>Try to learn the word for each triangle as best as you can.</p>
+            <p>&nbsp;</p>
+            <p class='medium'>Press the enter key when you’re ready to begin training</p>
+            <script type='text/Javascript'>document.onkeypress = KeyCheck;</script>
+            ";
         }
         
         // Training page          -------------------------------------------------------------------------
         elseif ($map_position[0] == "TR") {
             
             // Output HTML for the training page
-            echo "<audio id='alex' src='vocalizations/". $training_word .".m4a' preload='auto'></audio><table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f'><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p><p class='small'>&nbsp;</p></form></td></tr></table>";
+            echo "
+            <audio id='alex' src='vocalizations/". $training_word .".m4a' preload='auto'></audio>
+            <table style='width:800px; margin-left:auto; margin-right:auto;'>
+                <tr>
+                    <td>
+                        <canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <form id='testing' name='f'>
+                            <p><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p>
+                            <p class='small'>&nbsp;</p>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+            ";
         }
         
         
@@ -641,7 +803,28 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         elseif ($map_position[0] == "MT") {
             
             // Output HTML for the "mini test" page
-            echo "<table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckAnswer()'><input name='page' type='hidden' value='experiment' /><input name='map' type='hidden' value='". $new_map ."' /><input name='chain' type='hidden' value='". $chain ."' /><input name='cond' type='hidden' value='". $cond ."' /><input name='gen' type='hidden' value='". $gen ."' /><input name='correct_answer' type='hidden' value='". $correct_answer ."' /><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p><p class='small'>Type in the name of this triangle that you just saw and press enter.</p></form></td></tr></table>";
+            echo "
+            <table style='width:800px; margin-left:auto; margin-right:auto;'>
+                <tr>
+                <td>
+                    <canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckAnswer()'>
+                            <input name='page' type='hidden' value='experiment' />
+                            <input name='map' type='hidden' value='". $new_map ."' />
+                            <input name='chain' type='hidden' value='". $chain ."' />
+                            <input name='cond' type='hidden' value='". $cond ."' />
+                            <input name='gen' type='hidden' value='". $gen ."' />
+                            <input name='correct_answer' type='hidden' value='". $correct_answer ."' />
+                            <p><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p>
+                            <p class='small'>Type in the name of this triangle and press enter.</p>
+                        </form>
+                    </td>
+                </tr>
+            </table>";
         }
         
         // Testing page           -------------------------------------------------------------------------
@@ -657,15 +840,44 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             }
             
             // Output HTML for the test page
-            echo "<table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckAnswer()'><input name='page' type='hidden' value='experiment' /><input name='map' type='hidden' value='". $new_map ."' /><input name='chain' type='hidden' value='". $chain ."' /><input name='cond' type='hidden' value='". $cond ."' /><input name='gen' type='hidden' value='". $gen ."' /><input name='current' type='hidden' value='". $map_position[1] ."' /><input name='last_x1' type='hidden' value='". $xy[0] ."' /><input name='last_x2' type='hidden' value='". $xy[1] ."' /><input name='last_x3' type='hidden' value='". $xy[2] ."' /><input name='last_y1' type='hidden' value='". $xy[3] ."' /><input name='last_y2' type='hidden' value='". $xy[4] ."' /><input name='last_y3' type='hidden' value='". $xy[5] ."' /><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p></form>";
+            echo "
+            <table style='width:800px; margin-left:auto; margin-right:auto;'>
+                <tr>
+                    <td>
+                        <canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckAnswer()'>
+                            <input name='page' type='hidden' value='experiment' />
+                            <input name='map' type='hidden' value='". $new_map ."' />
+                            <input name='chain' type='hidden' value='". $chain ."' />
+                            <input name='cond' type='hidden' value='". $cond ."' />
+                            <input name='gen' type='hidden' value='". $gen ."' />
+                            <input name='current' type='hidden' value='". $map_position[1] ."' />
+                            <input name='last_x1' type='hidden' value='". $xy[0] ."' />
+                            <input name='last_x2' type='hidden' value='". $xy[1] ."' />
+                            <input name='last_x3' type='hidden' value='". $xy[2] ."' />
+                            <input name='last_y1' type='hidden' value='". $xy[3] ."' />
+                            <input name='last_y2' type='hidden' value='". $xy[4] ."' />
+                            <input name='last_y3' type='hidden' value='". $xy[5] ."' />
+                            <p><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p>
+                        </form>";
             
             // If participant is in the second condition
             if ($cond == 2) {
                 // Output a textbox in which to tell them if they've duplicated a word
-                echo "<form id='mess' name='message'><input type='text' name='duplicate' value='' id='dup' style='border:hidden; color:red; font-family:Helvetica Neue; font-size:14px; font-weight:lighter; text-align:center; outline:none;' size='120' /></form>";
+                echo "
+                        <form id='mess' name='message'>
+                            <input type='text' name='duplicate' value='' id='dup' style='border:hidden; color:red; font-family:Helvetica Neue; font-size:14px; font-weight:lighter; text-align:center; outline:none;' size='120' />
+                        </form>";
             }
             
-            echo "</td></tr></table>";
+            echo "
+                    </td>
+                </tr>
+            </table>";
         }
         
         // Break page         -------------------------------------------------------------------------
@@ -678,12 +890,29 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             }
             
             // Output HTML for the break page
-            echo "<p class='large'>Stage 2: Testing</p><p class='medium'>The test will automatically begin in one minute</p><p>&nbsp;</p><table style='margin-left:auto; margin-right:auto;'><tr><td><script type='application/javascript'>var myCountdown2 = new Countdown({style: \"flip\", time: 60, width:100, height:80, rangeHi:'second', onComplete: NextPage, labels: {color: \"#FFFFFF\"}});</script></td></tr></table><p>&nbsp;</p><p class='regular'>You will now see a selection of triangles. For each one, type in what you<br />think the name is based on the training you have just completed. After<br />you've typed in the name, press enter to move on to the next one.</p><p class='regular'>You may find it very difficult to remember the words for different triangles.<br />Simply go with your instinct and type in a name that feels right.</p>";
+            echo "
+            <p class='large'>Stage 2: Testing</p>
+            <p class='medium'>The test will automatically begin in one minute</p>
+            <p>&nbsp;</p>
+            <table style='margin-left:auto; margin-right:auto;'>
+                <tr>
+                    <td>
+                        <script type='application/javascript'>var myCountdown2 = new Countdown({style: 'flip', time: 60, width:100, height:80, rangeHi:'second', onComplete: NextPage, labels: {color: '#FFFFFF'}});</script>
+                    </td>
+                </tr>
+            </table>
+            <p>&nbsp;</p>
+            <p class='regular'>You will now see a selection of triangles. For each one, type in what you<br />
+                think the name is based on the training you have just completed. After<br />
+                you've typed in the name, press enter to move on to the next one.</p>
+            <p class='regular'>You may find it very difficult to remember the words for different triangles.<br />
+                Simply go with your instinct and type in a name that feels right.</p>";
             
             // If the participant is in the second condition...
             if ($_GET["cond"] == 2) {
                 // Add a reminder to say that they can't use the same word more than once
-                echo "<p class='regular'>Remember: you can't use the same word more than once.</p>";
+                echo "
+            <p class='regular'>Remember: you can&apos;t use the same word more than once.</p>";
             }
         }
         
@@ -700,7 +929,11 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             saveLogData("END AT " . date("d/m/Y H:i:s") . "\n-------------------------------------------------------------------------\n\n");
             
             // Output HTML for the completion page
-            echo "<p class='large'>Experiment complete</p><p class='medium'>Thanks for your participation</p><p>&nbsp;</p><img src='images/smile.png' width='145' alt='flatlander smile' />";
+            echo "
+            <p class='large'>Experiment complete</p>
+            <p class='medium'>Thanks for your participation</p>
+            <p>&nbsp;</p>
+            <img src='images/smile.png' width='145' alt='flatlander smile' />";
         }
         
         // Return error, if the requested experiment page is invalid
@@ -720,8 +953,10 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
 
 ?>
 
-</td>
-</tr>
+        </td>
+    </tr>
 </table>
+        
 </body>
+        
 </html>
