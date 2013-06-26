@@ -450,11 +450,6 @@
         window.location = next_page_location;
     }
 
-    // Send to first training page
-    function FirstTrainingPage() {
-        window.location = next_page_location + '&first_training_item=yes';
-    }
-
     // Show the training item and play the vocalization
     function ShowWord() {
         document.getElementById('alex').play();
@@ -465,7 +460,7 @@
     function KeyCheck() {
         var keyID = event.keyCode;
         if (keyID == 13) {
-            FirstTrainingPage();
+            window.location = next_page_location + '&first_training_item=yes';
         }
     }
 
@@ -482,25 +477,21 @@
         document.f.a.focus();
     }
         
-<?php        
-    // If we are currently on a training or test page...
-    if ($map_position[0] == "TR" OR $map_position[0] == "TS" OR $map_position[0] == "MT") {
-        // If we are currently on a training page...
-        if ($map_position[0] == "TR") {
-            // Get the XY coordinates for a given stimulus number from the previous participant's dynamic set file
-            $xy = loadTriangle($cond, $chain, ($gen-1), "d", $map_position[1]);
-        }
-        // If we are currently on a mini test page...
-        if ($map_position[0] == "MT") {
-            // Output JavaScript to check that the participant has not given a blank answer
-            echo "
+    // Check that the participant has not given a blank answer
     function CheckAnswer() {
         if (document.f.a.value == '') {
             return false;
         }
         return true;
     }
-            ";
+        
+<?php        
+    // If we are currently on a training or test page...
+    if ($map_position[0] == "TR" OR $map_position[0] == "TS") {
+        // If we are currently on a training page...
+        if ($map_position[0] == "TR") {
+            // Get the XY coordinates for a given stimulus number from the previous participant's dynamic set file
+            $xy = loadTriangle($cond, $chain, ($gen-1), "d", $map_position[1]);
         }
         // If we are currently on a test page...
         elseif ($map_position[0] == "TS") {
@@ -513,19 +504,6 @@
             else {
                 // Get the XY coordinates for a given stimulus number from the stable set file
                 $xy = loadTriangle($cond, $chain, ($gen-1), "s", $stimulus_number);
-            }
-
-            // If the participant is in condition 1 or the current item belongs to the stable set...
-            if ($cond == 1 OR $stimulus_set == "s") {
-                // Output JavaScript to check that the participant has not given a blank answer
-                echo "
-    function CheckAnswer() {
-        if (document.f.a.value == '') {
-            return false;
-        }
-        return true;
-    }
-                ";
             }
             // If the participant is in condition 2 and the current test item belongs to the dynamic set...
             if ($cond == 2 AND $stimulus_set == "d") {
@@ -555,7 +533,7 @@
                 
                 // Output JavaScript to check that the participant's answer has not been used too many times
                 echo "
-    function CheckAnswer() {
+    function CheckDuplicates() {
         if (document.f.a.value == '') {
             return false;
         }
@@ -566,8 +544,7 @@
             return false;
         }
         return true;
-    }
-                ";
+    }";
             }
         }
         // Output JavaScript to draw the triangle on the canvas
@@ -588,8 +565,7 @@
         c.lineWidth = 1;
         c.strokeStyle = 'black';
         c.stroke();
-    }
-        ";
+    }";
     }
 ?>
 </script>
@@ -849,7 +825,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckAnswer()'>
+                        <form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckDuplicates()'>
                             <input name='page' type='hidden' value='experiment' />
                             <input name='map' type='hidden' value='". $new_map ."' />
                             <input name='chain' type='hidden' value='". $chain ."' />
@@ -926,7 +902,7 @@
             saveFinalAnswer($cond, $chain, $gen, $_POST["current"], $_POST["a"], $last_xy);
             
             // Write time at whcih the experiment ended to log
-            saveLogData("END AT " . date("d/m/Y H:i:s") . "\n-------------------------------------------------------------------------\n\n");
+            saveLogData("\nEND AT " . date("d/m/Y H:i:s") . "\n-------------------------------------------------------\n\n");
             
             // Output HTML for the completion page
             echo "
