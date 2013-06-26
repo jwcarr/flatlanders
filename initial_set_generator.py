@@ -15,13 +15,13 @@ canvas_height = 500
 canvas_border = 10
 
 #############################################################################
-#   Create all the set files you need for a given set of conditions and chains
+#   Create all the initial dynamic set files you need for a given set of
+#   conditions and chains.
 
 def createAllSetFiles(conditions=["1","2"], chains=["A", "B", "C", "D"]):
     for i in conditions:
         for j in chains:
             create_set(i, j, "d")
-            create_set(i, j, "s")
     return "Done"
 
 #############################################################################
