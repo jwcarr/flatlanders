@@ -12,7 +12,7 @@
     $set_size = 50;
     
     // Amount of time for each training item in milliseconds (default = 5000)
-    $time_per_training_item = 2000;
+    $time_per_training_item = 5000;
     
     // Delay before showing the training word in milliseconds (default = 1000)
     $word_delay = 1000;
@@ -74,7 +74,7 @@
     // Write data to a file
     function writeFile($filename, $data) {
         // If the file actually exists...
-        if (file_exists($filename)) {
+        if (is_writable($filename)) {
             // Open the file
             $file = fopen($filename, "w");
             // If you can secure a lock on the file...
@@ -104,9 +104,9 @@
     }
 
     // Get the words from a data file
-    function getWords($condition, $chain_code, $generation, $set) {
+    function getWords($condition, $chain_code, $generation) {
         // Load in the file for a specific participant's dynamic set file
-        $lines = loadFile($condition, $chain_code, $generation, $set);
+        $lines = loadFile($condition, $chain_code, $generation, "d");
         // How many lines are there?
         $n = count($lines);
         // Set up an empty array in which to dump the words
@@ -125,16 +125,16 @@
     // Get a specific word from a given participant's dynamic set file
     function getWord($condition, $chain_code, $generation, $word_number) {
         // Get all words in that participant's dynamic file
-        $words = getWords($condition, $chain_code, $generation, "d");
+        $words = getWords($condition, $chain_code, $generation);
         // Return the requested word
         return $words[$word_number];
     }
     
     // Save log data to the log file
     function saveLogData($new_data) {
-        // Open the scores file as it stands
+        // Open the log file as it stands
         $data = openFile("data/log");
-        // Write out the new file
+        // Write out the new log file
         writeFile("data/log", $data ."\n". $new_data);
     }
     
@@ -227,7 +227,7 @@
     function loadTriangle($condition, $chain_code, $generation, $stimulus_set, $stimulus_number) {
         // Load in the lines from a specific data file
         $lines = loadFile($condition, $chain_code, $generation, $stimulus_set);
-        // Break those lines into columns using the tab as a delimiter
+        // Break the particular line we need into columns using the tab as a delimiter
         $columns = explode("\t", $lines[$stimulus_number]);
         // Extract the XY coordinates for point A
         $xy1 = explode(",", $columns[1]);
@@ -254,7 +254,7 @@
         if ($generation_number > 0 AND $generation_number <= $max_generation_number) { return True; } else { return False; }
     }
 
-    // Check that the output data files exist
+    // Check that the output data files exist and are writeable
     function checkOutputFiles($condition, $chain_code, $generation) {
         $dynamic_file = is_writable("data/". $condition ."/" . $chain_code ."/" . $generation ."d");
         $stable_file = is_writable("data/". $condition ."/" . $chain_code ."/" . $generation ."s");
@@ -302,6 +302,7 @@
 //
 // BEGIN  =  Welcome page
 // TR-i   =  Training page for training item i
+// MT     =  Mini test page
 // BREAK  =  Break page between training and test
 // TS-a.i =  Test page for test item i in set a (a = either 'd' or 's')
 // END    =  Experiment completed page
@@ -327,7 +328,7 @@
             // Add the training pages to the map in this shuffled order with a mini test every x items
             $c=0;
             for ($i=0; $i < $set_size; $i++) {
-                if ($c == 5) {
+                if ($c == $mini_test_frequency) {
                     $map = $map ."||MT";
                     $c=0;
                 }
@@ -430,7 +431,7 @@
     .page {font-family: Helvetica Neue;}
     .head {color: #B22B3B; font-size: 30px}
     .body {color: black; font-size: 15px}
-    .small {font-family: Helvetica Neue; color: black; font-size: 12px}
+    .small {font-family: Helvetica Neue; font-size: 14px; font-weight:lighter;}
     .regular {font-family: Helvetica Neue; color: black; font-size: 16px}
     .large {font-family: Helvetica Neue; font-weight:lighter; color: black; font-size: 40px}
     .medium {font-family: Helvetica Neue; font-weight:lighter; color: black; font-size: 30px}
@@ -438,7 +439,6 @@
 </style>
 
 <?php if ($page == "experiment" AND $map_position[0] == "BREAK") { echo "<script src='countdown.js' type='text/javascript'></script>"; }?>
-
 <script type="text/javascript">
 
 // Location of the next page
@@ -496,7 +496,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             // If the participant is in condition 2 and the current test item belongs to the dynamic set...
             if ($cond == 2 AND $stimulus_set == "d") {
                 // Get the words that the participant has used so far
-                $words = getWords($cond, $chain, $gen, "d");
+                $words = getWords($cond, $chain, $gen);
                 
                 // Count the total number of words that have been used so far
                 $n = count($words);
@@ -520,7 +520,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
                 $overused_words = "\"". implode("\", \"", $overused_words) ."\"";
                 
                 // Output JavaScript to check that the participant's answer has not been used too many times
-                echo "function CheckAnswer() { if (document.f.a.value == '') {return false;} var used_words = [". $overused_words ."]; if (used_words.indexOf(document.f.a.value) != -1) { document.message.duplicate.value = 'Ooops! You\'ve used this word too many times. Please use a different word to describe this triangle.'; document.f.a.value = ''; return false; } return true; }\n\n";
+                echo "function CheckAnswer() { if (document.f.a.value == '') {return false;} var used_words = [". $overused_words ."]; if (used_words.indexOf(document.f.a.value) != -1) { document.message.duplicate.value = 'Ooops! You\'ve already used this word to describe a lot of other triangles. Please use a different word to describe this one.'; document.f.a.value = ''; return false; } return true; }\n\n";
             }
         }
         // Output JavaScript to draw the triangle on the canvas
@@ -579,10 +579,10 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         
         // Check that the data files exist for writing
         if (checkOutputFiles($_POST["condition"], $_POST["chain"], $_POST["gen"]) == True) { echo validationTableRow("green", "Output data files are ready for writing"); }
-        else { echo validationTableRow("red", "Output data files at <i>/data/" . $_POST["condition"] . "/" . $_POST["chain"] . "/</i> are not writeable"); $error_count ++; }
+        else { echo validationTableRow("red", "Output data files at <i>/data/" . $_POST["condition"] . "/" . $_POST["chain"] . "/</i> are not writeable. Check Permissions"); $error_count ++; }
 
         // Check that sound files exist for the words in the input set
-        $words = getWords($_POST["condition"], $_POST["chain"], ($_POST["gen"]-1), "d");
+        $words = getWords($_POST["condition"], $_POST["chain"], ($_POST["gen"]-1));
         $missing_words = checkSoundFiles($words);
         if (count($missing_words) == 0) { echo validationTableRow("green", "Required sound files are available"); }
         else {
@@ -597,7 +597,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         // If the above validation functions produce no errors, display messages to check the volume level and keyboard layout
         if ($error_count == 0) {
             // Sound warning
-            echo validationTableRow("orange", "Is the volume level okay?");
+            echo validationTableRow("orange", "Is the volume level okay? <a href=\"javascript:document.getElementById('alex').play()\">test</a>");
         
             // Keyboard layout warning
             echo validationTableRow("orange", "Are you using the Alpha-only keyboard layout?");
@@ -607,7 +607,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         
         // If the above validation functions produce no errors, display the "Begin experiment" button and embed the sound check file
         if ($error_count == 0) {
-            echo "<p><input type='submit' name='submit' value='Begin experiment' style='font-family:Helvetica Neue; font-size:30px;' /></p></form><audio id='alex' src='sound_check.m4a' preload='auto' autoplay></audio>";
+            echo "<p><input type='submit' name='submit' value='Begin experiment' style='font-family:Helvetica Neue; font-size:30px;' /></p></form><audio id='alex' src='sound_check.m4a' preload='auto'></audio>";
         }
     }
         
@@ -633,7 +633,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         elseif ($map_position[0] == "TR") {
             
             // Output HTML for the training page
-            echo "<audio id='alex' src='vocalizations/". $training_word .".m4a' preload='auto'></audio><table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f'><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p></form></td></tr></table>";
+            echo "<audio id='alex' src='vocalizations/". $training_word .".m4a' preload='auto'></audio><table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f'><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p><p class='small'>&nbsp;</p></form></td></tr></table>";
         }
         
         
@@ -641,7 +641,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
         elseif ($map_position[0] == "MT") {
             
             // Output HTML for the "mini test" page
-            echo "<table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckAnswer()'><input name='page' type='hidden' value='experiment' /><input name='map' type='hidden' value='". $new_map ."' /><input name='chain' type='hidden' value='". $chain ."' /><input name='cond' type='hidden' value='". $cond ."' /><input name='gen' type='hidden' value='". $gen ."' /><input name='correct_answer' type='hidden' value='". $correct_answer ."' /><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p</form></td></tr></table>";
+            echo "<table style='width:800px; margin-left:auto; margin-right:auto;'><tr><td><canvas id='rectangle' width='". $canvas_width ."' height='". $canvas_height ."' style='border:gray 1px dashed'></canvas></td></tr><tr><td><form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckAnswer()'><input name='page' type='hidden' value='experiment' /><input name='map' type='hidden' value='". $new_map ."' /><input name='chain' type='hidden' value='". $chain ."' /><input name='cond' type='hidden' value='". $cond ."' /><input name='gen' type='hidden' value='". $gen ."' /><input name='correct_answer' type='hidden' value='". $correct_answer ."' /><p class='large'><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p><p class='small'>Type in the name of this triangle that you just saw and press enter.</p></form></td></tr></table>";
         }
         
         // Testing page           -------------------------------------------------------------------------
@@ -662,7 +662,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             // If participant is in the second condition
             if ($cond == 2) {
                 // Output a textbox in which to tell them if they've duplicated a word
-                echo "<form id='mess' name='message'><p class='large'><input type='text' name='duplicate' value='' id='dup' style='border:hidden; color:red; font-family:Helvetica Neue; font-size:14px; font-weight:lighter; text-align:center; outline:none;' size='120' /></p></form>";
+                echo "<form id='mess' name='message'><input type='text' name='duplicate' value='' id='dup' style='border:hidden; color:red; font-family:Helvetica Neue; font-size:14px; font-weight:lighter; text-align:center; outline:none;' size='120' /></form>";
             }
             
             echo "</td></tr></table>";
@@ -678,7 +678,7 @@ function TestingLoad() { DrawTriangle(); document.f.a.focus(); }
             }
             
             // Output HTML for the break page
-            echo "<p class='large'>Stage 2: Testing</p><p class='medium'>The test will automatically begin in one minute</p><p>&nbsp;</p><table style='margin-left:auto; margin-right:auto;'><tr><td><script type='application/javascript'>var myCountdown2 = new Countdown({style: \"flip\", time: 60, width:100, height:80, rangeHi:'second', onComplete: NextPage, labels: {color: \"#FFFFFF\"}});</script></td></tr></table><p>&nbsp;</p><p class='regular'>You will see a selection of triangles one at a time. This time you will not be given the name.<br />Instead you must type in what you think the name is based on the training you have just<br />completed. After you've typed in the name, press enter to move on to the next one.</p><p class='regular'>You may find it very difficult to remember the words for different triangles.<br />Simply go with your instinct and type in a name that feels right.</p>";
+            echo "<p class='large'>Stage 2: Testing</p><p class='medium'>The test will automatically begin in one minute</p><p>&nbsp;</p><table style='margin-left:auto; margin-right:auto;'><tr><td><script type='application/javascript'>var myCountdown2 = new Countdown({style: \"flip\", time: 60, width:100, height:80, rangeHi:'second', onComplete: NextPage, labels: {color: \"#FFFFFF\"}});</script></td></tr></table><p>&nbsp;</p><p class='regular'>You will now see a selection of triangles. For each one, type in what you<br />think the name is based on the training you have just completed. After<br />you've typed in the name, press enter to move on to the next one.</p><p class='regular'>You may find it very difficult to remember the words for different triangles.<br />Simply go with your instinct and type in a name that feels right.</p>";
             
             // If the participant is in the second condition...
             if ($_GET["cond"] == 2) {
