@@ -487,7 +487,7 @@
         
 <?php        
     // If we are currently on a training or test page...
-    if ($map_position[0] == "TR" OR $map_position[0] == "TS") {
+    if ($map_position[0] == "TR" OR $map_position[0] == "TS" OR $map_position[0] == "MT") {
         // If we are currently on a training page...
         if ($map_position[0] == "TR") {
             // Get the XY coordinates for a given stimulus number from the previous participant's dynamic set file
@@ -815,6 +815,17 @@
                 saveAnswer($cond, $chain, $gen, $_POST["current"], $_POST["a"], $last_xy);
             }
             
+            // If the participant is in condition 1
+            if ($cond == 1) {
+                // Set the check javascript to CheckAnswer()
+                $check_script = "CheckAnswer()";
+            }
+            // If the participant is in condition 2
+            else {
+                // Set the check javascript to CheckDuplicates()
+                $check_script = "CheckDuplicates()";
+            }
+            
             // Output HTML for the test page
             echo "
             <table style='width:800px; margin-left:auto; margin-right:auto;'>
@@ -825,7 +836,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckDuplicates()'>
+                        <form id='testing' name='f' method='post' action='index.php' onsubmit='return ". $check_script ."'>
                             <input name='page' type='hidden' value='experiment' />
                             <input name='map' type='hidden' value='". $new_map ."' />
                             <input name='chain' type='hidden' value='". $chain ."' />
