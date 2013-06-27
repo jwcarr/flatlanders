@@ -8,14 +8,17 @@
     // Maximum generation number (default = 10)
     $max_generation_number = 10;
     
-    // Magnitude of the stimuli sets (default = 50)
-    $set_size = 50;
+    // Magnitude of the stimuli sets (default = 48)
+    $set_size = 48;
     
     // Amount of time for each training item in milliseconds (default = 5000)
     $time_per_training_item = 5000;
     
     // Delay before showing the training word in milliseconds (default = 1000)
     $word_delay = 1000;
+    
+    // Amount of time for the break between training and testing in seconds (default = 30)
+    $break_time = 30;
     
     // Canvas width in pixels for the triangle stimuli (default = 500)
     $canvas_width = 500;
@@ -32,11 +35,11 @@
     // Radius of the orienting spot in pixels (default = 8)
     $orienting_spot_radius = 8;
     
-    // Number of times a word can be reused to label items in the dynamic set (default = 5)
+    // Number of times a word can be reused to label items in the dynamic set (condition 2 only) (default = 5)
     $permitted_word_repetitions = 5;
     
     // Do a mini test every X items during the training phase (default = 5)
-    $mini_test_frequency = 5;
+    $mini_test_frequency = 3;
 
     // Set timezone for timestamps (default = UTC)
     date_default_timezone_set('UTC');
@@ -884,7 +887,7 @@
             <table style='margin-left:auto; margin-right:auto;'>
                 <tr>
                     <td>
-                        <script type='application/javascript'>var myCountdown2 = new Countdown({style: 'flip', time: 60, width:100, height:80, rangeHi:'second', onComplete: NextPage, labels: {color: '#FFFFFF'}});</script>
+                        <script type='application/javascript'>var myCountdown2 = new Countdown({style: 'flip', time: ". $break_time .", width:100, height:80, rangeHi:'second', onComplete: NextPage, labels: {color: '#FFFFFF'}});</script>
                     </td>
                 </tr>
             </table>
