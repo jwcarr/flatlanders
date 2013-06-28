@@ -539,6 +539,8 @@
 
     // Location of the next page
     var next_page_location = '<?php echo $window_location; ?>';
+        
+    var answer = '';
 
     // Send to next page
     function NextPage() {
@@ -578,6 +580,32 @@
             return false;
         }
         return true;
+    }
+        
+    // Give feedback on whether the participant got the mini test right or wrong
+    function GiveFeedback() {
+        if (document.f.a.value == '') {
+            return false;
+        }
+        else {
+            document.f.a.blur();
+            if (document.f.a.value == '<?php echo $correct_answer; ?>') {
+                document.getElementById('feedback').src = 'images/check.png';
+                setTimeout("SaveMTResponse()", 500);
+            }
+            else {
+                document.getElementById('feedback').src = 'images/cross.png';
+                setTimeout("SaveMTResponse()", 1000);
+                answer = document.f.a.value;
+                document.f.a.value = '<?php echo $correct_answer; ?>';
+            }
+            return false;
+        }
+    }
+        
+    // Send to next page, saving the mini test answer
+    function SaveMTResponse() {
+        window.location = next_page_location + '&a=' + answer + '&correct_answer=<?php echo $correct_answer; ?>';
     }
     
     // Draw a triangle on the canvas
@@ -702,27 +730,27 @@
         ";
 
         // Check that the chain code is valid
-        if (checkChain($_POST["chain"]) == True) { echo validationTableRow("green", "Chain " . $_POST["chain"]); }
-        else { echo validationTableRow("red", "Chain \"". $_POST["chain"] ."\" is invalid"); $error_count ++; }
+        if (checkChain($_REQUEST["chain"]) == True) { echo validationTableRow("green", "Chain " . $_REQUEST["chain"]); }
+        else { echo validationTableRow("red", "Chain \"". $_REQUEST["chain"] ."\" is invalid"); $error_count ++; }
 
         // Check that the generation number is valid
-        if (checkGen($_POST["gen"]) == True) { echo validationTableRow("green", "Generation " . $_POST["gen"]); }
-        else { echo validationTableRow("red", "Generation \"". $_POST["gen"] ."\" is invalid"); $error_count ++; }
+        if (checkGen($_REQUEST["gen"]) == True) { echo validationTableRow("green", "Generation " . $_REQUEST["gen"]); }
+        else { echo validationTableRow("red", "Generation \"". $_REQUEST["gen"] ."\" is invalid"); $error_count ++; }
 
         // Check the condition number is valid
-        if ($_POST["condition"] == 1 OR $_POST["condition"] == 2) { echo validationTableRow("green", "Experimental condition " . $_POST["condition"]); }
-        else { echo validationTableRow("red", "Condition \"". $_POST["condition"] ."\" is invalid"); $error_count ++; }
+        if ($_REQUEST["condition"] == 1 OR $_REQUEST["condition"] == 2) { echo validationTableRow("green", "Experimental condition " . $_REQUEST["condition"]); }
+        else { echo validationTableRow("red", "Condition \"". $_REQUEST["condition"] ."\" is invalid"); $error_count ++; }
 
         // Check that there are $set_size words in the input set
-        if (checkInputSet($_POST["condition"], $_POST["chain"], $_POST["gen"]) == True) { echo validationTableRow("green", "Words in the input set are valid"); }
+        if (checkInputSet($_REQUEST["condition"], $_REQUEST["chain"], $_REQUEST["gen"]) == True) { echo validationTableRow("green", "Words in the input set are valid"); }
         else { echo validationTableRow("red", "Input file does not contain $set_size words"); $error_count ++; }
         
         // Check that the data files exist for writing
-        if (checkOutputFiles($_POST["condition"], $_POST["chain"], $_POST["gen"]) == True) { echo validationTableRow("green", "Output data files are ready for writing"); }
-        else { echo validationTableRow("red", "Output data files at <i>/data/" . $_POST["condition"] . "/" . $_POST["chain"] . "/</i> are not writeable. Check Permissions"); $error_count ++; }
+        if (checkOutputFiles($_REQUEST["condition"], $_REQUEST["chain"], $_REQUEST["gen"]) == True) { echo validationTableRow("green", "Output data files are ready for writing"); }
+        else { echo validationTableRow("red", "Output data files at <i>/data/" . $_REQUEST["condition"] . "/" . $_REQUEST["chain"] . "/</i> are not writeable. Check Permissions"); $error_count ++; }
 
         // Check that sound files exist for the words in the input set
-        $words = getWords($_POST["condition"], $_POST["chain"], ($_POST["gen"]-1));
+        $words = getWords($_REQUEST["condition"], $_REQUEST["chain"], ($_REQUEST["gen"]-1));
         $missing_words = checkSoundFiles($words);
         if (count($missing_words) == 0) { echo validationTableRow("green", "Required sound files are available"); }
         else {
@@ -756,9 +784,9 @@
             echo "
             <form id='parameters' name='f' method='post' action='index.php'>
                 <input name='page' type='hidden' value='experiment' />
-                <input name='chain' type='hidden' value='". $_POST["chain"] ."' />
-                <input name='cond' type='hidden' value='". $_POST["condition"] ."' />
-                <input name='gen' type='hidden' value='". $_POST["gen"] ."' />
+                <input name='chain' type='hidden' value='". $_REQUEST["chain"] ."' />
+                <input name='cond' type='hidden' value='". $_REQUEST["condition"] ."' />
+                <input name='gen' type='hidden' value='". $_REQUEST["gen"] ."' />
                 <input type='submit' name='submit' value='Begin experiment' style='font-family:Helvetica Neue; font-size:30px;' />
             </form>
             <audio id='alex' src='sound_check.m4a' preload='auto'></audio>";
@@ -831,15 +859,14 @@
                 </tr>
                 <tr>
                     <td>
-                        <form id='testing' name='f' method='post' action='index.php' onsubmit='return CheckAnswer()'>
-                            <input name='page' type='hidden' value='experiment' />
-                            <input name='map' type='hidden' value='". $new_map ."' />
-                            <input name='chain' type='hidden' value='". $chain ."' />
-                            <input name='cond' type='hidden' value='". $cond ."' />
-                            <input name='gen' type='hidden' value='". $gen ."' />
-                            <input name='correct_answer' type='hidden' value='". $correct_answer ."' />
-                            <p><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p>
+                        <form id='testing' name='f' method='post' action='index.php' onsubmit='return GiveFeedback()'>
+                            <p>
+                                <img id='space' src='images/spacer.gif' width='40' height='40' alt='feedback' />
+                                <input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:none; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='27' />
+                                <img id='feedback' src='images/spacer.gif' width='40' height='40' alt='feedback' />
+                            </p>
                             <p class='small'>Type in the name of this triangle and press enter.</p>
+                            
                         </form>
                     </td>
                 </tr>
@@ -850,12 +877,12 @@
         elseif ($experiment_page == "TS") {
             
             // If this is not the first test item (indicated by the fact that $current is set to nothing), do the following...
-            if ($_POST["current"] != "") {
+            if ($_REQUEST["current"] != "") {
                 // Create an XY array from the previous XY coordinates
-                $last_xy = array($_POST["last_x1"], $_POST["last_x2"], $_POST["last_x3"], $_POST["last_y1"], $_POST["last_y2"], $_POST["last_y3"]);
+                $last_xy = array($_REQUEST["last_x1"], $_REQUEST["last_x2"], $_REQUEST["last_x3"], $_REQUEST["last_y1"], $_REQUEST["last_y2"], $_REQUEST["last_y3"]);
                 
                 // Save the previous answer to the relevant file
-                saveAnswer($cond, $chain, $gen, $_POST["current"], $_POST["a"], $last_xy);
+                saveAnswer($cond, $chain, $gen, $_REQUEST["current"], $_REQUEST["a"], $last_xy);
             }
             
             // If the participant is in condition 1
@@ -892,7 +919,12 @@
                             <input name='last_y1' type='hidden' value='". $xy[3] ."' />
                             <input name='last_y2' type='hidden' value='". $xy[4] ."' />
                             <input name='last_y3' type='hidden' value='". $xy[5] ."' />
-                            <p><input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:hidden; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='60' /></p>
+                            <p>
+                                <img id='space' src='images/spacer.gif' width='40' height='40' alt='feedback' />
+                                <input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:none; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='27' />
+                                <img id='feedback' src='images/spacer.gif' width='40' height='40' alt='feedback' />
+                            </p>
+                            <p class='small'>Type in the name of this triangle and press enter.</p>
                         </form>";
             
             // If participant is in the second condition
@@ -914,9 +946,9 @@
         elseif ($experiment_page == "BREAK") {
             
             // If an answer to a mini test has been provided...
-            if ($_POST["a"] != "") {
+            if ($_REQUEST["a"] != "") {
                 // Write the answer to the log
-                saveLogData($_POST["correct_answer"] ."\t". $_POST["a"]);
+                saveLogData($_REQUEST["correct_answer"] ."\t". $_REQUEST["a"]);
             }
             
             // Output HTML for the break page
@@ -939,7 +971,7 @@
                 Simply go with your instinct and type in a name that feels right.</p>";
             
             // If the participant is in the second condition...
-            if ($_GET["cond"] == 2) {
+            if ($_REQUEST["cond"] == 2) {
                 // Add a reminder to say that they can't use the same word more than once
                 echo "
             <p class='regular'>Remember: you can&apos;t use the same word more than once.</p>";
@@ -950,10 +982,10 @@
         elseif ($experiment_page == "END") {
             
             // Create an XY array from the previous XY coordinates
-            $last_xy = array($_POST["last_x1"], $_POST["last_x2"], $_POST["last_x3"], $_POST["last_y1"], $_POST["last_y2"], $_POST["last_y3"]);
+            $last_xy = array($_REQUEST["last_x1"], $_REQUEST["last_x2"], $_REQUEST["last_x3"], $_REQUEST["last_y1"], $_REQUEST["last_y2"], $_REQUEST["last_y3"]);
             
             // Save the final answer (and sort the stable data file back to its unshuffled order)
-            saveFinalAnswer($cond, $chain, $gen, $_POST["current"], $_POST["a"], $last_xy);
+            saveFinalAnswer($cond, $chain, $gen, $_REQUEST["current"], $_REQUEST["a"], $last_xy);
             
             // Write time at whcih the experiment ended to log
             saveLogData("\nEND AT " . date("d/m/Y H:i:s") . "\n-------------------------------------------------------\n\n");
