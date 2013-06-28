@@ -8,7 +8,7 @@ vowels = ["a", "i", "o", "u"]
 
 min_syllables = 2
 max_syllables = 4
-num_of_items = 50
+num_of_items = 48
 
 canvas_width = 500
 canvas_height = 500
