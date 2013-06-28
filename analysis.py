@@ -174,9 +174,9 @@ def matrix2vector(matrix):
 def timePerItem(condition, chain_code, generation):
     set_d = load(condition, chain_code, generation, "d")
     timestamp_1 = stringToTimeStamp(set_d[0][4])
-    timestamp_50 = stringToTimeStamp(set_d[49][4])
+    timestamp_50 = stringToTimeStamp(set_d[47][4])
     difference = timestamp_50 - timestamp_1
-    time_per_item_set_d = difference.total_seconds() / 98.0
+    time_per_item_set_d = difference.total_seconds() / 94.0
     return time_per_item_set_d
 
 def stringToTimeStamp(string):
