@@ -653,8 +653,8 @@
         }
         var used_words = ["<?php echo $overused_words; ?>"];
         if (used_words.indexOf(document.f.a.value) != -1) {
-            document.message.duplicate.value = 'Ooops! You\'ve already used this word to describe a lot of other triangles. Please use a different word to describe this one.';
-            document.message.duplicate.style.color = '#FF2F00';
+            document.getElementById('message').innerHTML = 'Ooops! You\'ve already used this word to describe a lot of other triangles. Please use a different word to describe this one.';
+            //document.getElementById('message').style.color = '#FF2F00';
             document.f.a.value = '';
             return false;
         }
@@ -946,19 +946,8 @@
                                 <input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:none; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='27' />
                                 <img id='feedback' src='images/spacer.gif' width='40' height='40' alt='feedback' />
                             </p>
-                            <p class='small'>Type in the name of this triangle and press enter.</p>
-                        </form>";
-            
-            // If participant is in the second condition
-            if ($cond == 2) {
-                // Output a textbox in which to tell them if they've duplicated a word
-                echo "
-                        <form id='mess' name='message'>
-                            <input type='text' name='duplicate' value='Type in the name of this triangle and press enter.' id='dup' style='border:hidden; font-family:Helvetica Neue; font-size:14px; font-weight:lighter; text-align:center; outline:none;' size='120' />
-                        </form>";
-            }
-            
-            echo "
+                            <p class='small' id='message'>Type in the name of this triangle and press enter.</p>
+                        </form>
                     </td>
                 </tr>
             </table>";
