@@ -44,6 +44,9 @@
     // Do a mini test every X items during the training phase (default = 3, must be a divisor of $set_size)
     // Note, this also determines the number of passes over the training data, ensuring that each item is mini-tested exactly once
     $mini_test_frequency = 3;
+    
+    // For colourblind participants, use blue for correct answers rather than green. This should make the two distinct.
+    $colourblind = False;
 
     // Set timezone for timestamps (default = UTC)
     date_default_timezone_set('UTC');
@@ -601,11 +604,13 @@
         else {
             document.f.a.blur();
             if (document.f.a.value == '<?php echo $correct_answer; ?>') {
-                document.getElementById('feedback').src = 'images/check.png';
-                document.f.a.style.color = '#67C200';
+                document.getElementById('tink').play();
+                document.getElementById('feedback').src = 'images/check<?php if($colourblind==True){echo "_blue";} ?>.png';
+                document.f.a.style.color = '<?php if($colourblind==True){echo "#008CED";} else {echo"#67C200";} ?>';
                 setTimeout("SaveMTResponse()", <?php echo $feedback_time; ?>);
             }
             else {
+                document.getElementById('funk').play();
                 document.getElementById('feedback').src = 'images/cross.png';
                 document.f.a.style.color = '#FF2F00';
                 setTimeout("SaveMTResponse()", <?php echo $feedback_time; ?>);
@@ -880,11 +885,12 @@
                                 <img id='feedback' src='images/spacer.gif' width='40' height='40' alt='feedback' />
                             </p>
                             <p class='small'>Type in the name of this triangle and press enter.</p>
-                            
                         </form>
                     </td>
                 </tr>
-            </table>";
+            </table>
+            <audio id='tink' src='tink.m4a' preload='auto'></audio>
+            <audio id='funk' src='funk.m4a' preload='auto'></audio>";
         }
         
         // Testing page           -------------------------------------------------------------------------
