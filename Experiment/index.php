@@ -45,7 +45,7 @@
     // Note, this also determines the number of passes over the training data, ensuring that each item is mini-tested exactly once
     $mini_test_frequency = 3;
     
-    // For colourblind participants, use blue for correct answers rather than green. This should make the two distinct.
+    // For colourblind participants, use blue for correct answers rather than green. This should make it distinct from red.
     $colourblind = False;
 
     // Set timezone for timestamps (default = UTC)
@@ -613,6 +613,7 @@
                 document.getElementById('funk').play();
                 document.getElementById('feedback').src = 'images/cross.png';
                 document.f.a.style.color = '#FF2F00';
+                document.f.a.style.fontStyle = 'oblique';
                 setTimeout("SaveMTResponse()", <?php echo $feedback_time; ?>);
                 answer = document.f.a.value;
                 document.f.a.value = '<?php echo $correct_answer; ?>';
@@ -653,6 +654,7 @@
         var used_words = ["<?php echo $overused_words; ?>"];
         if (used_words.indexOf(document.f.a.value) != -1) {
             document.message.duplicate.value = 'Ooops! You\'ve already used this word to describe a lot of other triangles. Please use a different word to describe this one.';
+            document.message.duplicate.style.color = '#FF2F00';
             document.f.a.value = '';
             return false;
         }
@@ -830,10 +832,10 @@
             echo "
             <p class='large'>Stage 1: Training</p>
             <p>&nbsp;</p>
-            <p class='regular'>You will see a selection of triangles along with their names. After a few<br />
-                seconds the name will disappear. Type the name back in<br />
-                and press enter to move onto the next one.</p>
-            <p class='regular'>Try to learn the word for each triangle as best as you can.</p>
+            <p class='regular'>You will see a series of triangles along with their names.<br />
+            After every third triangle, you will see one of those three again, and you<br />
+            must type in its name. You will be told whether or not you got it right.</p>
+            <p class='regular'>Try to learn the words for the triangles as best as you can, as you will be tested on them later.</p>
             <p>&nbsp;</p>
             <p class='medium'>Press the enter key when you’re ready to begin training</p>
             <script type='text/Javascript'>document.onkeypress = KeyCheck;</script>
@@ -845,7 +847,6 @@
             
             // Output HTML for the training page
             echo "
-            <audio id='alex' src='vocalizations/". $training_word .".m4a' preload='auto'></audio>
             <table style='width:800px; margin-left:auto; margin-right:auto;'>
                 <tr>
                     <td>
@@ -861,6 +862,7 @@
                     </td>
                 </tr>
             </table>
+            <audio id='alex' src='vocalizations/". $training_word .".m4a' preload='auto'></audio>
             ";
         }
         
@@ -952,7 +954,7 @@
                 // Output a textbox in which to tell them if they've duplicated a word
                 echo "
                         <form id='mess' name='message'>
-                            <input type='text' name='duplicate' value='' id='dup' style='border:hidden; color:red; font-family:Helvetica Neue; font-size:14px; font-weight:lighter; text-align:center; outline:none;' size='120' />
+                            <input type='text' name='duplicate' value='Type in the name of this triangle and press enter.' id='dup' style='border:hidden; font-family:Helvetica Neue; font-size:14px; font-weight:lighter; text-align:center; outline:none;' size='120' />
                         </form>";
             }
             
@@ -973,7 +975,7 @@
             
             // Output HTML for the break page
             echo "
-            <p class='large'>Stage 2: Testing</p>
+            <p class='large'>Stage 2: Test</p>
             <p class='medium'>The test will automatically begin in ". $break_time ." seconds</p>
             <p>&nbsp;</p>
             <table style='margin-left:auto; margin-right:auto;'>
@@ -984,11 +986,11 @@
                 </tr>
             </table>
             <p>&nbsp;</p>
-            <p class='regular'>You will now see a selection of triangles. For each one, type in what you<br />
-                think the name is based on the training you have just completed. After<br />
-                you've typed in the name, press enter to move on to the next one.</p>
-            <p class='regular'>You may find it very difficult to remember the words for different triangles.<br />
-                Simply go with your instinct and type in a name that feels right.</p>";
+            <p class='regular'>You will shortly see a series of triangles. For each one, type in what you<br />
+            think it&apos;s called based on the training you&apos;ve just completed.</p>
+            <p class='regular'>You may find it very difficult to remember the words for the different triangles.<br />
+                Go with your instinct and type in a name that feels right. You will still<br />
+                get points for getting a word partially correct.</p>";
             
             // If the participant is in the second condition...
             if ($_REQUEST["cond"] == 2) {
