@@ -17,6 +17,9 @@
     // Delay before showing the training word in milliseconds (default = 1000)
     $word_delay = 1000;
     
+    // Length of time to show feedback in milliseconds (default = 1000)
+    $feedback_time = 1000;
+    
     // Amount of time for the break between training and testing in seconds (default = 30)
     $break_time = 30;
     
@@ -35,7 +38,7 @@
     // Radius of the orienting spot in pixels (default = 8)
     $orienting_spot_radius = 8;
     
-    // Number of times a word can be reused to label items in the dynamic set (condition 2 only) (default = 5)
+    // Number of times a word can be reused to label items in the dynamic set (experiment 2 only) (default = 5)
     $permitted_word_repetitions = 5;
     
     // Do a mini test every X items during the training phase (default = 3, must be a divisor of $set_size)
@@ -212,7 +215,7 @@
         
         // First we want to present the welcome page
         $map = "BEGIN";
-        
+
         $success = false;
         while ($success == False) {
             // Set up empty array for the training numbers
@@ -265,7 +268,7 @@
                         }
                     }
                 }
-                // And then append the array to the array of training numbers
+                // Finally, append the array to the array of training numbers
                 $training_numbers = array_merge($training_numbers, $pass_i_numbers);
             }
             
@@ -275,9 +278,16 @@
 
         }
         
+        // Since this algorithm seems to be slightly biased towards choosing the last of N items to mini-test,
+        // let's reshuffle each set of N to be sure it's truly random.
+        for ($i=0; $i < $set_size*$mini_test_frequency; $i=$i+$mini_test_frequency) {
+            $this_set = array_slice($training_numbers, $i, $mini_test_frequency);
+            shuffle($this_set);
+            array_splice($training_numbers, $i, $mini_test_frequency, $this_set);
+        }
+    
         // Add the training pages to the map in this shuffled order with a mini test every x items
-        $c=0;
-        for ($i=0; $i < $set_size*$mini_test_frequency; $i++) {
+        for ($i=0, $c=0; $i < $set_size*$mini_test_frequency; $i++) {
             if ($c == $mini_test_frequency) {
                 $map = $map ."||MT-". $mini_test_numbers[($i/$mini_test_frequency)-1];
                 $c=0;
@@ -579,6 +589,7 @@
         if (document.f.a.value == '') {
             return false;
         }
+        document.f.a.blur();
         return true;
     }
         
@@ -591,11 +602,13 @@
             document.f.a.blur();
             if (document.f.a.value == '<?php echo $correct_answer; ?>') {
                 document.getElementById('feedback').src = 'images/check.png';
-                setTimeout("SaveMTResponse()", 500);
+                document.f.a.style.color = '#67C200';
+                setTimeout("SaveMTResponse()", <?php echo $feedback_time; ?>);
             }
             else {
                 document.getElementById('feedback').src = 'images/cross.png';
-                setTimeout("SaveMTResponse()", 1000);
+                document.f.a.style.color = '#FF2F00';
+                setTimeout("SaveMTResponse()", <?php echo $feedback_time; ?>);
                 answer = document.f.a.value;
                 document.f.a.value = '<?php echo $correct_answer; ?>';
             }
@@ -638,6 +651,7 @@
             document.f.a.value = '';
             return false;
         }
+        document.f.a.blur();
         return true;
     }
 
