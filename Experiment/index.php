@@ -1006,7 +1006,9 @@
             <p class='large'>Experiment complete</p>
             <p class='medium'>Thanks for your participation</p>
             <p>&nbsp;</p>
-            <img src='images/smile.png' width='145' alt='flatlander smile' />";
+            <a href='prize.html'>
+            <img src='images/smile.png' width='145' alt='flatlander smile' />
+            </a>";
         }
         
         // Return error, if the requested experiment page is invalid
