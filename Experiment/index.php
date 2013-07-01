@@ -455,7 +455,7 @@
             // If is the first training item...
             if ($_REQUEST["first_training_item"] == "yes") {
                 // Write log to the "training" file
-                saveLogData("Cond.\tChain\tGen.\tTimestamp\n". $cond. "\t". $chain ."\t". $gen ."\t". date("d/m/Y H:i:s"));
+                saveLogData("Cond.\tChain\tGen.\tTimestamp\n". $cond. "\t". $chain ."\t". $gen ."\t". date("d/m/Y H:i:s") ."\n". $map ."\n");
             }
             
             // If a mini test answer has been provided...
@@ -607,6 +607,7 @@
                 document.getElementById('tink').play();
                 document.getElementById('feedback').src = 'images/check<?php if($colourblind==True){echo "_blue";} ?>.png';
                 document.f.a.style.color = '<?php if($colourblind==True){echo "#008CED";} else {echo"#67C200";} ?>';
+                answer = document.f.a.value;
                 setTimeout("SaveMTResponse()", <?php echo $feedback_time; ?>);
             }
             else {
@@ -614,8 +615,8 @@
                 document.getElementById('feedback').src = 'images/cross.png';
                 document.f.a.style.color = '#FF2F00';
                 document.f.a.style.fontStyle = 'oblique';
-                setTimeout("SaveMTResponse()", <?php echo $feedback_time; ?>);
                 answer = document.f.a.value;
+                setTimeout("SaveMTResponse()", <?php echo $feedback_time; ?>);
                 document.f.a.value = '<?php echo $correct_answer; ?>';
             }
             return false;
@@ -832,9 +833,9 @@
             echo "
             <p class='large'>Stage 1: Training</p>
             <p>&nbsp;</p>
-            <p class='regular'>You will see a series of triangles along with their names.<br />
-            After every third triangle, you will see one of those three again, and you<br />
-            must type in its name. You will be told whether or not you got it right.</p>
+            <p class='regular'>You will see a series of triangles along with the words used to describe them.<br />
+            After every third triangle, you will see one of those three triangles again, and you<br />
+            must type in the word you just learned for it. You will be told whether or not you got it right.</p>
             <p class='regular'>Try to learn the words for the triangles as best as you can, as you will be tested on them later.</p>
             <p>&nbsp;</p>
             <p class='medium'>Press the enter key when you’re ready to begin training</p>
@@ -886,7 +887,7 @@
                                 <input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:none; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='27' />
                                 <img id='feedback' src='images/spacer.gif' width='40' height='40' alt='feedback' />
                             </p>
-                            <p class='small'>Type in the name of this triangle and press enter.</p>
+                            <p class='small'>Type in the word for this triangle and press enter.</p>
                         </form>
                     </td>
                 </tr>
@@ -946,7 +947,7 @@
                                 <input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:none; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='27' />
                                 <img id='feedback' src='images/spacer.gif' width='40' height='40' alt='feedback' />
                             </p>
-                            <p class='small' id='message'>Type in the name of this triangle and press enter.</p>
+                            <p class='small' id='message'>Type in the word for this triangle and press enter.</p>
                         </form>
                     </td>
                 </tr>
@@ -978,7 +979,7 @@
             <p class='regular'>You will shortly see a series of triangles. For each one, type in what you<br />
             think it&apos;s called based on the training you&apos;ve just completed.</p>
             <p class='regular'>You may find it very difficult to remember the words for the different triangles.<br />
-                Go with your instinct and type in a name that feels right. You will still<br />
+                Go with your instinct and type in a word that feels right. You will still<br />
                 get points for getting a word partially correct.</p>";
             
             // If the participant is in the second condition...
