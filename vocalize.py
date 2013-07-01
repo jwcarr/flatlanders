@@ -48,7 +48,10 @@ def translate(words, mappings):
 ### Insert the primary stress marker before the penultimate vowel
 
 def stress(phon):
-    b = len(phon) - 5
+    if phon[-1] not in ["W", "Y", "H", "A"]:
+        b = len(phon) - 6
+    else:
+        b = len(phon) - 5
     onset = phon[:b]
     coda = phon[b:]
     stressed_word = onset + "1" + coda
