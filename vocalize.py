@@ -4,7 +4,7 @@ import os.path
 rules = [['ei', 'EY'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
            ['au', 'AW'], ['oi', 'OY'], ['o', 'OW'], ['i', 'IY'], ['a', 'AA'],
            ['e', 'EH'], ['u', 'UW'], ['ch', 'C'], ['j', 'J'], ['c', 'k'],
-           ['ng', 'N'], ['sh', 'S'], ['th', 'T']]
+           ['ng', 'N'], ['sh', 'S'], ['th', 'T'], ['zz', 'z']]
 
 ########################################################################
 ### Produce the missing vocalizations for a participant
