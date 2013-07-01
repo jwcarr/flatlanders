@@ -12,7 +12,6 @@ chain_codes = ["A", "B", "C", "D"]
 #   FOR A SPECIFIC INDIVIDUAL'S OUTPUT
 
 def transmissionError(condition, chain_code, generation, n_back=1):
-    if validateTE(chain_code, generation, n_back) == False: return
     output_A = load(condition, chain_code, generation, "s")
     output_B = load(condition, chain_code, generation-n_back, "s")
     total = 0.0
@@ -22,6 +21,22 @@ def transmissionError(condition, chain_code, generation, n_back=1):
         total += norm_lev_dist
     mean_distance = total / float(len(output_A))
     return mean_distance
+
+#############################################################################
+#   COUNT THE NUMBER OF UNIQUE WORDS FOR GIVEN PARTICIPANT
+
+def numberOfUniqueWords(condition, chain_code, generation):
+    dynamic_data = load(condition, chain_code, generation, "d")
+    stable_data = load(condition, chain_code, generation, "s")
+    dynamic_words = []
+    stable_words = []
+    for i in range(0,48):
+        if dynamic_data[i][0] not in dynamic_words:
+            dynamic_words.append(dynamic_data[i][0])
+        if stable_data[i][0] not in stable_words:
+            stable_words.append(stable_data[i][0])
+    print len(dynamic_words)
+    print len(stable_words)
 
 #############################################################################
 #   GET TRANSMISSION ERROR RESULTS FOR A WHOLE BUNCH OF CHAINS
@@ -127,36 +142,6 @@ def load(condition, chain_code, generation, set_type):
         cells = row.split("\t")
         matrix.append(cells)
     return matrix
-
-#############################################################################
-#   VALIDATE TRANSMISSION ERROR PARAMETERS
-
-def validateTE(chain_code, generation_number, n_back):
-    if checkChain(chain_code) == False:
-        print("Error: Invalid chain"); return False
-    if checkGen(generation_number, 1, 10) == False:
-        print("Error: Invalid generation number"); return False
-    if checkGen(generation_number - n_back, 0, 9) == False:
-        print("Error: Invalid n_back value"); return False
-    return True
-
-#############################################################################
-#   CHECK THAT A GENERATION NUMBER IS VALID
-
-def checkGen(generation_number, lower, upper):
-    if generation_number >= lower and generation_number <= upper:
-        return True
-    else:
-        return False
-
-#############################################################################
-#   CHECK THAT A CHAIN CODE IS VALID
-
-def checkChain(chain_code):
-    if chain_code in chain_codes:
-        return True
-    else:
-        return False
 
 #############################################################################
 #   CONVERT MATRIX INTO VECTOR
