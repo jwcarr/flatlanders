@@ -4,7 +4,7 @@ import os.path
 rules = [['ei', 'EY'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
            ['au', 'AW'], ['oi', 'OY'], ['o', 'OW'], ['i', 'IY'], ['a', 'AA'],
            ['e', 'EH'], ['u', 'UW'], ['ch', 'C'], ['j', 'J'], ['c', 'k'],
-           ['ng', 'N'], ['sh', 'S'], ['th', 'T'], ['zz', 'z']]
+           ['ng', 'N'], ['sh', 'S'], ['th', 'T'], ['zz', 'z'], ['iu', 'IWUW']]
 
 ########################################################################
 ### Produce the missing vocalizations for a participant
@@ -51,7 +51,7 @@ def stress(phon):
     if phon[-1] not in ["W", "Y", "H", "A"]:
         b = len(phon) - 6
     else:
-        b = len(phon) - 5
+        b = len(phon) - 4
     onset = phon[:b]
     coda = phon[b:]
     stressed_word = onset + "1" + coda
