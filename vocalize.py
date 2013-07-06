@@ -2,9 +2,11 @@ from subprocess import call
 import os.path
 
 rules = [['ei', 'EY'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
-           ['au', 'AW'], ['oi', 'OY'], ['o', 'OW'], ['i', 'IY'], ['a', 'AA'],
-           ['e', 'EH'], ['u', 'UW'], ['ch', 'C'], ['j', 'J'], ['c', 'k'],
-           ['ng', 'N'], ['sh', 'S'], ['th', 'T'], ['zz', 'z'], ['iu', 'IWUW']]
+         ['au', 'AW'], ['oi', 'OY'], ['iu', 'IWUW'], ['oa', 'OWAA'],
+         ['o', 'OW'], ['ia', 'IYAA'], ['ua', 'UWAA'], ['ou', 'OWUW'],
+         ['i', 'IY'], ['a', 'AA'],['e', 'EH'], ['u', 'UW'], ['ch', 'C'],
+         ['j', 'J'], ['c', 'k'], ['ng', 'N'], ['sh', 'S'], ['th', 'T'],
+         ['zz', 'z'], ['pp', 'p']]
 
 ########################################################################
 ### Produce the missing vocalizations for a participant
@@ -49,9 +51,15 @@ def translate(words, mappings):
 
 def stress(phon):
     if phon[-1] not in ["W", "Y", "H", "A"]:
-        b = len(phon) - 6
+        if phon[-4] not in ["W", "Y", "H", "A"] and phon[-5] not in ["W", "Y", "H", "A"]:
+            b = len(phon) - 7
+        else:
+            b = len(phon) - 6
     else:
-        b = len(phon) - 4
+        if phon[-3:-2] not in ["W", "Y", "H", "A"]:
+            b = len(phon) - 5
+        else:
+            b = len(phon) - 4
     onset = phon[:b]
     coda = phon[b:]
     stressed_word = onset + "1" + coda
