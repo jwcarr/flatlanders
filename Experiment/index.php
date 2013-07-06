@@ -38,8 +38,8 @@
     // Radius of the orienting spot in pixels (default = 8)
     $orienting_spot_radius = 8;
     
-    // Number of times a word can be reused to label items in the dynamic set (experiment 2 only) (default = 5)
-    $permitted_word_repetitions = 5;
+    // Number of times a word can be reused to label items in the dynamic set (experiment 2 only) (default = 3)
+    $permitted_word_repetitions = 3;
     
     // Do a mini test every X items during the training phase (default = 3, must be a divisor of $set_size)
     // Note, this also determines the number of passes over the training data, ensuring that each item is mini-tested exactly once
@@ -652,10 +652,10 @@
         if (document.f.a.value == '') {
             return false;
         }
-        var used_words = ["<?php echo $overused_words; ?>"];
+        var used_words = [<?php echo $overused_words; ?>];
         if (used_words.indexOf(document.f.a.value) != -1) {
-            document.getElementById('message').innerHTML = 'Ooops! You\'ve already used this word to describe a lot of other triangles. Please use a different word to describe this one.';
-            //document.getElementById('message').style.color = '#FF2F00';
+            document.getElementById('message').innerHTML = 'Ooops! You\'ve used this word too many times. Please try another word.';
+            document.getElementById('message').style.color = '#FF2F00';
             document.f.a.value = '';
             return false;
         }
