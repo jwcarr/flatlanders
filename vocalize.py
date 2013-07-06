@@ -17,7 +17,7 @@ def produceVocaliaztionsFor(condition, chain_code, generation):
     print("%s missing words" % n)
     if n > 0:
         print("Transforming missing words...")
-        matrix = translate(words, rules)
+        matrix = translate(words)
         print("Vocalizing missing words...")
         vocalize(matrix)
     print("Done")
@@ -36,13 +36,13 @@ def vocalize(matrix):
 ########################################################################
 ### Translate the words into machine readable phonemes
 
-def translate(words, mappings):
+def translate(words):
     matrix = []
     for word in words:
         phon = word
-        for mapping in mappings:
+        for mapping in rules:
             phon = phon.replace(mapping[0], mapping[1])
-            stressed_phon = stress(phon)
+        stressed_phon = stress(phon)
         matrix.append([word, stressed_phon])
     return matrix
 
