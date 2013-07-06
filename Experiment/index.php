@@ -455,7 +455,7 @@
             // If is the first training item...
             if ($_REQUEST["first_training_item"] == "yes") {
                 // Write log to the "training" file
-                saveLogData("Cond.\tChain\tGen.\tTimestamp\n". $cond. "\t". $chain ."\t". $gen ."\t". date("d/m/Y H:i:s") ."\n". $map ."\n");
+                saveLogData("Cond.\tChain\tGen.\tTimestamp\n". $cond. "\t". $chain ."\t". $gen ."\t". date("d/m/Y H:i:s") ."\n\n". $map ."\n");
             }
             
             // If a mini test answer has been provided...
