@@ -30,13 +30,19 @@ def numberOfUniqueWords(condition, chain_code, generation):
     stable_data = load(condition, chain_code, generation, "s")
     dynamic_words = []
     stable_words = []
+    combined_words = []
     for i in range(0,48):
         if dynamic_data[i][0] not in dynamic_words:
             dynamic_words.append(dynamic_data[i][0])
+            if dynamic_data[i][0] not in combined_words:
+                combined_words.append(dynamic_data[i][0])
         if stable_data[i][0] not in stable_words:
             stable_words.append(stable_data[i][0])
+            if stable_data[i][0] not in combined_words:
+                combined_words.append(stable_data[i][0])
     print len(dynamic_words)
     print len(stable_words)
+    print len(combined_words)
 
 #############################################################################
 #   GET TRANSMISSION ERROR RESULTS FOR A WHOLE BUNCH OF CHAINS
