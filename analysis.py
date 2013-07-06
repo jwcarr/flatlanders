@@ -24,26 +24,46 @@ def transmissionError(condition, chain_code, generation, n_back=1):
     return mean_distance
 
 #############################################################################
+#   MEASURE LEARNABILITY IN TRAINING: CALCULATE THE MEAN NORMALIZED LEVENSHTEIN
+#   DISTANCE FOR A SPECIFIC INDIVIDUAL'S TRAINING RESULTS
+
+def trainingError(condition, chain_code, generation):
+    data = load(condition, chain_code, generation, "log")
+    total = 0.0
+    for i in range(5, 53):
+        lev_dist = Levenshtein.distance(data[i][0], data[i][1])
+        norm_lev_dist = lev_dist / float(len(max(data[i][0], data[i][1])))
+        total += norm_lev_dist
+    mean_distance = total / 48
+    return mean_distance
+
+#############################################################################
 #   COUNT THE NUMBER OF UNIQUE WORDS FOR GIVEN PARTICIPANT
 
 def numberOfUniqueWords(condition, chain_code, generation):
     dynamic_data = load(condition, chain_code, generation, "d")
     stable_data = load(condition, chain_code, generation, "s")
-    dynamic_words = []
-    stable_words = []
-    combined_words = []
-    for i in range(0,48):
-        if dynamic_data[i][0] not in dynamic_words:
-            dynamic_words.append(dynamic_data[i][0])
-            if dynamic_data[i][0] not in combined_words:
-                combined_words.append(dynamic_data[i][0])
-        if stable_data[i][0] not in stable_words:
-            stable_words.append(stable_data[i][0])
-            if stable_data[i][0] not in combined_words:
-                combined_words.append(stable_data[i][0])
-    print len(dynamic_words)
-    print len(stable_words)
-    print len(combined_words)
+    dynamic_words = [row[0] for row in dynamic_data]
+    stable_words = [row[0] for row in stable_data]
+    combined_words = dynamic_words + stable_words
+    return len(set(dynamic_words)), len(set(stable_words)), len(set(combined_words))
+
+#############################################################################
+#   AVERAGE STRING FREQUENCY
+
+def stringFrequency(condition, chain_code, generation, theta):
+    dynamic_data = load(condition, chain_code, generation, "d")
+    stable_data = load(condition, chain_code, generation, "s")
+    dynamic_words = [row[0] for row in dynamic_data]
+    stable_words = [row[0] for row in stable_data]
+    combined_words = dynamic_words + stable_words
+    dynamic_counts = [dynamic_words.count(x) for x in set(dynamic_words)]
+    stable_counts = [stable_words.count(x) for x in set(stable_words)]
+    combined_counts = [combined_words.count(x) for x in set(combined_words)]
+    dynamic_average = sum(dynamic_counts)/float(len(dynamic_counts))
+    stable_average = sum(stable_counts)/float(len(stable_counts))
+    combined_average = sum(combined_counts)/float(len(combined_counts))
+    return dynamic_average, stable_average, combined_average
 
 #############################################################################
 #   GET TRANSMISSION ERROR RESULTS FOR A WHOLE BUNCH OF CHAINS
@@ -139,7 +159,7 @@ def student(matrix, hypothesis):
 #   LOAD RAW DATA FROM A DATA FILE INTO A DATA MATRIX
 
 def load(condition, chain_code, generation, set_type):
-    filename = "Experiment/data/" + str(condition) + "/" + chain_code + "/" + str(generation) + set_type
+    filename = "Data/" + str(condition) + "/" + chain_code + "/" + str(generation) + set_type
     f = open(filename, 'r')
     data = f.read()
     f.close()
