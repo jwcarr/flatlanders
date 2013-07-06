@@ -2,8 +2,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // GLOBAL PARAMETERS
     
-    // List of valid chain codes (default = [A, B, C, D])
-    $chain_codes = array("A", "B", "C", "D");
+    // List of valid chain codes (default = [A, B, C, D, E, F, G, H])
+    $chain_codes = array("A", "B", "C", "D", "E", "F", "G", "H");
     
     // Maximum generation number (default = 10)
     $max_generation_number = 10;

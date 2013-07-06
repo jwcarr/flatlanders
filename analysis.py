@@ -5,7 +5,8 @@ import scipy
 import datetime
 import geometry
 
-chain_codes = ["A", "B", "C", "D"]
+chains_1 = ["A", "B", "C", "D"]
+chains_2 = ["E", "F", "G", "H"]
 
 #############################################################################
 #   MEASURE LEARNABILITY: CALCULATE THE MEAN NORMALIZED LEVENSHTEIN DISTANCE
