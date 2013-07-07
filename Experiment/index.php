@@ -654,7 +654,7 @@
         }
         var used_words = [<?php echo $overused_words; ?>];
         if (used_words.indexOf(document.f.a.value) != -1) {
-            document.getElementById('message').innerHTML = 'Ooops! You\'ve used this word too many times. Please try another word.';
+            document.getElementById('message').innerHTML = 'Ooops! You\'ve used this word too often. Please use another word.';
             document.getElementById('message').style.color = '#FF2F00';
             document.f.a.value = '';
             return false;
@@ -986,7 +986,7 @@
             if ($_REQUEST["cond"] == 2) {
                 // Add a reminder to say that they can't use the same word more than once
                 echo "
-            <p class='regular'>Remember: you can&apos;t use the same word more than once.</p>";
+            <p class='regular'>Remember: if you use a particular word too often, you will see a message asking you to use a different word.</p>";
             }
         }
         
