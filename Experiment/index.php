@@ -657,6 +657,7 @@
             document.getElementById('message').innerHTML = 'Ooops! You\'ve used this word too often. Please use another word.';
             document.getElementById('message').style.color = '#FF2F00';
             document.f.a.value = '';
+            document.f.overuse.value = <?php echo $_REQUEST["overuse"]+1; ?>;
             return false;
         }
         document.f.a.blur();
@@ -711,8 +712,8 @@
                         <td style='width:20px;'></td>
                         <td style='width:190px;'>
                             <span class='page body'>
-                                <input name='condition' type='radio' value='1' checked /> Experiment 1<br />
-                                <input name='condition' type='radio' value='2' /> Experiment 2
+                                <input name='condition' type='radio' value='1' /> Experiment 1<br />
+                                <input name='condition' type='radio' value='2' checked /> Experiment 2
                             </span>
                         </td>
                     </tr>
@@ -942,6 +943,7 @@
                             <input name='last_y1' type='hidden' value='". $xy[3] ."' />
                             <input name='last_y2' type='hidden' value='". $xy[4] ."' />
                             <input name='last_y3' type='hidden' value='". $xy[5] ."' />
+                            <input name='overuse' type='hidden' value='". $_REQUEST["overuse"] ."' />
                             <p>
                                 <img id='space' src='images/spacer.gif' width='40' height='40' alt='feedback' />
                                 <input name='a' type='text' value='' id='testtext' autocomplete='off' style='border:none; font-family:Helvetica Neue; font-size:40px; font-weight:lighter; text-align:center; outline:none' size='27' />
@@ -1000,7 +1002,12 @@
             saveFinalAnswer($cond, $chain, $gen, $_REQUEST["current"], $_REQUEST["a"], $last_xy);
             
             // Write time at whcih the experiment ended to log
-            saveLogData("\nEND AT " . date("d/m/Y H:i:s") . "\n-------------------------------------------------------\n\n");
+            if ($cond == 1) {
+                saveLogData("\nEND AT " . date("d/m/Y H:i:s") . "\n-------------------------------------------------------\n\n");
+            }
+            else {
+                saveLogData("\nOveruse count = ". $_REQUEST["overuse"] ."\n\nEND AT " . date("d/m/Y H:i:s") . "\n-------------------------------------------------------\n\n");
+            }
             
             // Output HTML for the completion page
             echo "
