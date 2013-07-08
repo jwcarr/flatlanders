@@ -51,7 +51,7 @@ def numberOfUniqueWords(condition, chain_code, generation):
 #############################################################################
 #   AVERAGE STRING FREQUENCY
 
-def stringFrequency(condition, chain_code, generation, theta):
+def stringFrequency(condition, chain_code, generation):
     dynamic_data = load(condition, chain_code, generation, "d")
     stable_data = load(condition, chain_code, generation, "s")
     dynamic_words = [row[0] for row in dynamic_data]
