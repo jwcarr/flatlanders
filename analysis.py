@@ -195,3 +195,14 @@ def stringToTimeStamp(string):
     tim = string.split(":")
     timestamp = datetime.timedelta(hours=int(tim[0]), minutes=int(tim[1]), seconds=int(tim[2]))
     return timestamp
+
+#############################################################################
+# GET THE OVERUSE COUNT FROM A PARTICIPANT'S LOG FILE (EXP 2 ONLY) I.E. THE
+# NUMBER OF TIMES THEY WERE PROMPTED TO ENTER A NEW WORD
+
+def overuseCount(chain_code, generation):
+    data = load(2, chain_code, generation, "log")
+    line = str(data[54])
+    split1 = line.split("overuse count = ")
+    split2 = split1[1].split("'")
+    return int(split2[0])
