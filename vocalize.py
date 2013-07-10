@@ -24,7 +24,8 @@ def produceVocaliaztionsFor(condition, chain_code, generation):
     return
 
 ########################################################################
-### Produce vocalizations for words and save m4a files
+### Produce vocalizations for words and save m4a files using the 'say'
+### command. Place in 'temp' folder for checking.
 
 def vocalize(matrix):
     for i in matrix:
@@ -34,7 +35,8 @@ def vocalize(matrix):
     return
 
 ########################################################################
-### Translate the words into machine readable phonemes
+### Translate the words into machine readable phonemes using rules
+### described above.
 
 def translate(words):
     matrix = []
@@ -47,22 +49,46 @@ def translate(words):
     return matrix
 
 ########################################################################
-### Insert the primary stress marker before the penultimate vowel
+### Insert the primary stress marker before the penultimate vowel.
+### Tries to figure out where the stress marker should be inserted
+### and inserts the number '1' (primary stress) at that point.
 
 def stress(phon):
-    if phon[-1] not in ["W", "Y", "H", "A"]:
-        if phon[-4] not in ["W", "Y", "H", "A"] and phon[-5] not in ["W", "Y", "H", "A"]:
-            b = len(phon) - 7
+    b = None
+    if len(phon) > 4:
+        if phon[-1] not in ["W", "Y", "H", "A"]:
+            if phon[-4] not in ["W", "Y", "H", "A"] and phon[-5] not in ["W", "Y", "H", "A"]:
+                b = len(phon) - 7
+            else:
+                b = len(phon) - 6
         else:
-            b = len(phon) - 6
+            if phon[-3:-2] not in ["W", "Y", "H", "A"]:
+                if phon[-4:-3] not in ["W", "Y", "H", "A"]:
+                    b = len(phon) - 6
+                else:
+                    b = len(phon) - 5
+            else:
+                b = len(phon) - 4
+    elif len(phon) == 4:
+        if phon[-1] in ["W", "Y", "H", "A"] and phon[1] in ["W", "Y", "H", "A"]:
+            b = 0
+        elif phon[-2] in ["W", "Y", "H"]:
+            b = 1
+        elif phon[-1] in ["W", "Y", "H"]:
+            b = 2
+        else:
+            b = 0
     else:
-        if phon[-3:-2] not in ["W", "Y", "H", "A"]:
-            b = len(phon) - 5
+        if phon[-1] in ["W", "Y", "H", "A"]:
+            b = 1
         else:
-            b = len(phon) - 4
-    onset = phon[:b]
-    coda = phon[b:]
-    stressed_word = onset + "1" + coda
+            b = 0
+    if b == None:
+        stressed_word = phon
+    else:
+        onset = phon[:b]
+        coda = phon[b:]
+        stressed_word = onset + "1" + coda
     return stressed_word
 
 ########################################################################
