@@ -4,6 +4,7 @@ import page
 import scipy
 import datetime
 import geometry
+from random import shuffle
 
 chains_1 = ["A", "B", "C", "D"]
 chains_2 = ["E", "F", "G", "H"]
@@ -18,7 +19,7 @@ def transmissionError(condition, chain_code, generation, n_back=1):
     total = 0.0
     for i in range(0, len(output_A)):
         lev_dist = Levenshtein.distance(output_A[i][0], output_B[i][0])
-        norm_lev_dist = lev_dist / float(len(max(output_A[i][0], output_B[i][0])))
+        norm_lev_dist = lev_dist / float(max(len(output_A[i][0]), len(output_B[i][0])))
         total += norm_lev_dist
     mean_distance = total / float(len(output_A))
     return mean_distance
@@ -32,7 +33,7 @@ def trainingError(condition, chain_code, generation):
     total = 0.0
     for i in range(5, 53):
         lev_dist = Levenshtein.distance(data[i][0], data[i][1])
-        norm_lev_dist = lev_dist / float(len(max(data[i][0], data[i][1])))
+        norm_lev_dist = lev_dist / float(max(len(data[i][0]), len(data[i][1])))
         total += norm_lev_dist
     mean_distance = total / 48
     return mean_distance
@@ -167,6 +168,9 @@ def load(condition, chain_code, generation, set_type):
     matrix = []
     for row in rows:
         cells = row.split("\t")
+        cells[1] = int(cells[1].split(',')[0]), int(cells[1].split(',')[1])
+        cells[2] = int(cells[2].split(',')[0]), int(cells[2].split(',')[1])
+        cells[3] = int(cells[3].split(',')[0]), int(cells[3].split(',')[1])
         matrix.append(cells)
     return matrix
 
@@ -206,3 +210,45 @@ def overuseCount(chain_code, generation):
     split1 = line.split("overuse count = ")
     split2 = split1[1].split("'")
     return int(split2[0])
+
+#############################################################################
+#
+
+def stringDistances(strings):
+    distances = []
+    for i in range(0,len(strings)):
+        for j in range(i+1,len(strings)):
+            ld = Levenshtein.distance(strings[i], strings[j])
+            distances.append(ld/float(max(len(strings[i]), len(strings[j]))))
+    return distances
+
+def meaningDistances(meanings):
+    distances = []
+    for i in range(0,len(meanings)):
+        for j in range(i+1,len(meanings)):
+            distances.append(geometry.areaDistance(meanings[i],meanings[j]))
+    return distances
+
+def distanceCorrelation(distances1, distances2):
+    return scipy.stats.pearsonr(distances1, distances2)[0]
+
+def structureScore(experiment, chain, generation):
+    data = load(experiment, chain, generation, 'd')
+    strings = [data[x][0] for x in range(0,len(data))]
+    meanings = []
+    for i in range(0,len(data)):
+        meanings.append([data[i][1], data[i][2], data[i][3]])
+    string_distances = stringDistances(strings)
+    meaning_distances = meaningDistances(meanings)
+    x = distanceCorrelation(string_distances, meaning_distances)
+    m, s = MonteCarlo(strings, meanings, 10000)
+    return (x-m)/s
+
+def MonteCarlo(strings, meanings, simulations):
+    correlations = []
+    meaning_distances = meaningDistances(meanings)
+    for i in xrange(0, simulations):
+        shuffle(strings)
+        string_distances = stringDistances(strings)
+        correlations.append(distanceCorrelation(meaning_distances, string_distances))
+    return scipy.mean(correlations), scipy.std(correlations)
