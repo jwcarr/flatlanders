@@ -11,39 +11,54 @@ chains_2 = ["E", "F", "G", "H"]
 
 #############################################################################
 #   MEASURE LEARNABILITY: CALCULATE THE MEAN NORMALIZED LEVENSHTEIN DISTANCE
-#   FOR A SPECIFIC INDIVIDUAL'S OUTPUT
+#   AND RUN IT THROUGH A MONTE CARLO SIMULATION
 
-def transmissionError(condition, chain_code, generation, n_back=1):
-    output_A = load(condition, chain_code, generation, "s")
-    output_B = load(condition, chain_code, generation-n_back, "s")
+def learnability(experiment, chain, generation, simulations=10000):
+    words_A = getWords(experiment, chain, generation, "s")
+    words_B = getWords(experiment, chain, generation-1, "s")
+    x = meanNormLevenshtein(words_A, words_B)
+    m, sd = MonteCarloError(words_A, words_B, simulations)
+    z = (m-x)/sd
+    return x, m, sd, z
+
+def transmissionError(experiment, chain, generation):
+    words_A = getWords(experiment, chain, generation, "s")
+    words_B = getWords(experiment, chain, generation-1, "s")
+    return meanNormLevenshtein(words_A, words_B)
+
+def MonteCarloError(strings1, strings2, simulations):
+    distances = []
+    for i in xrange(0, simulations):
+        shuffle(strings1)
+        distances.append(meanNormLevenshtein(strings1, strings2))
+    return scipy.mean(distances), scipy.std(distances)
+
+def meanNormLevenshtein(strings1, strings2):
     total = 0.0
-    for i in range(0, len(output_A)):
-        lev_dist = Levenshtein.distance(output_A[i][0], output_B[i][0])
-        norm_lev_dist = lev_dist / float(max(len(output_A[i][0]), len(output_B[i][0])))
-        total += norm_lev_dist
-    mean_distance = total / float(len(output_A))
-    return mean_distance
+    for i in range(0, len(strings1)):
+        ld = Levenshtein.distance(strings1[i], strings2[i])
+        total += ld/float(max(len(strings1[i]), len(strings2[i])))
+    return total/float(len(strings1))
 
 #############################################################################
 #   MEASURE LEARNABILITY IN TRAINING: CALCULATE THE MEAN NORMALIZED LEVENSHTEIN
 #   DISTANCE FOR A SPECIFIC INDIVIDUAL'S TRAINING RESULTS
 
-def trainingError(condition, chain_code, generation):
-    data = load(condition, chain_code, generation, "log")
-    total = 0.0
-    for i in range(5, 53):
-        lev_dist = Levenshtein.distance(data[i][0], data[i][1])
-        norm_lev_dist = lev_dist / float(max(len(data[i][0]), len(data[i][1])))
-        total += norm_lev_dist
-    mean_distance = total / 48
-    return mean_distance
+def trainingError(experiment, chain, generation, simulations=10000):
+    data = load(experiment, chain, generation, "log")
+    words_A = [data[x][0] for x in range(5,53)]
+    words_B = [data[x][1] for x in range(5,53)]
+    x = meanNormLevenshtein(words_A, words_B)
+    m, sd = MonteCarloError(words_A, words_B, simulations)
+    z = (m-x)/sd
+    return x, m, sd, z
 
 #############################################################################
 #   COUNT THE NUMBER OF UNIQUE WORDS FOR GIVEN PARTICIPANT
 
-def numberOfUniqueWords(condition, chain_code, generation):
-    dynamic_data = load(condition, chain_code, generation, "d")
-    stable_data = load(condition, chain_code, generation, "s")
+def uniqueStrings(experiment, chain, generation):
+    dynamic_data = load(experiment, chain, generation, "d")
+    stable_data = load(experiment, chain, generation, "s")
     dynamic_words = [row[0] for row in dynamic_data]
     stable_words = [row[0] for row in stable_data]
     combined_words = dynamic_words + stable_words
@@ -52,9 +67,9 @@ def numberOfUniqueWords(condition, chain_code, generation):
 #############################################################################
 #   AVERAGE STRING FREQUENCY
 
-def stringFrequency(condition, chain_code, generation):
-    dynamic_data = load(condition, chain_code, generation, "d")
-    stable_data = load(condition, chain_code, generation, "s")
+def stringFrequency(experiment, chain, generation):
+    dynamic_data = load(experiment, chain, generation, "d")
+    stable_data = load(experiment, chain, generation, "s")
     dynamic_words = [row[0] for row in dynamic_data]
     stable_words = [row[0] for row in stable_data]
     combined_words = dynamic_words + stable_words
@@ -69,12 +84,33 @@ def stringFrequency(condition, chain_code, generation):
 #############################################################################
 #   GET TRANSMISSION ERROR RESULTS FOR A WHOLE BUNCH OF CHAINS
 
-def allErrors(condition):
+def allTransmissionErrors(experiment):
     results = []
+    if experiment == 1:
+        chain_codes = chains_1
+    else:
+        chain_codes = chains_2
     for i in chain_codes:
         scores = []
         for j in range(1, 11):
-            score = transmissionError(condition, i, j, 1)
+            score = transmissionError(experiment, i, j, 1)
+            scores.append(score)
+        results.append(scores)
+    return results
+
+#############################################################################
+#   GET TRANSMISSION ERROR RESULTS FOR A WHOLE BUNCH OF CHAINS
+
+def allTrainingErrors(experiment):
+    results = []
+    if experiment == 1:
+        chain_codes = chains_1
+    else:
+        chain_codes = chains_2
+    for i in chain_codes:
+        scores = []
+        for j in range(1, 11):
+            score = trainingError(experiment, i, j)
             scores.append(score)
         results.append(scores)
     return results
@@ -159,8 +195,8 @@ def student(matrix, hypothesis):
 #############################################################################
 #   LOAD RAW DATA FROM A DATA FILE INTO A DATA MATRIX
 
-def load(condition, chain_code, generation, set_type):
-    filename = "Data/" + str(condition) + "/" + chain_code + "/" + str(generation) + set_type
+def load(experiment, chain, generation, set_type):
+    filename = "Data/" + str(experiment) + "/" + chain + "/" + str(generation) + set_type
     f = open(filename, 'r')
     data = f.read()
     f.close()
@@ -168,11 +204,28 @@ def load(condition, chain_code, generation, set_type):
     matrix = []
     for row in rows:
         cells = row.split("\t")
-        cells[1] = int(cells[1].split(',')[0]), int(cells[1].split(',')[1])
-        cells[2] = int(cells[2].split(',')[0]), int(cells[2].split(',')[1])
-        cells[3] = int(cells[3].split(',')[0]), int(cells[3].split(',')[1])
         matrix.append(cells)
     return matrix
+
+#############################################################################
+#   LOAD IN THE WORDS FROM A SPECIFIC SET FILE
+
+def getTriangles(experiment, chain, generation, set_type):
+    data = load(experiment, chain, generation, set_type)
+    triangles = []
+    for row in data:
+        row[1] = int(row[1].split(',')[0]), int(row[1].split(',')[1])
+        row[2] = int(row[2].split(',')[0]), int(row[2].split(',')[1])
+        row[3] = int(row[3].split(',')[0]), int(row[3].split(',')[1])
+        triangles.append([row[1], row[2], row[3]])
+    return triangles
+
+#############################################################################
+#   LOAD IN THE WORDS FROM A SPECIFIC SET FILE
+
+def getWords(experiment, chain, generation, set_type):
+    data = load(experiment, chain, generation, set_type)
+    return [data[x][0] for x in range(0,len(data))]
 
 #############################################################################
 #   CONVERT MATRIX INTO VECTOR
@@ -187,8 +240,8 @@ def matrix2vector(matrix):
 #############################################################################
 #   CALCULATE AVERAGE TIME SPENT ON EACH TEST ITEM
 
-def timePerItem(condition, chain_code, generation):
-    set_d = load(condition, chain_code, generation, "d")
+def timePerItem(experiment, chain, generation):
+    set_d = load(experiment, chain, generation, "d")
     timestamp_1 = stringToTimeStamp(set_d[0][4])
     timestamp_50 = stringToTimeStamp(set_d[47][4])
     difference = timestamp_50 - timestamp_1
@@ -204,8 +257,8 @@ def stringToTimeStamp(string):
 # GET THE OVERUSE COUNT FROM A PARTICIPANT'S LOG FILE (EXP 2 ONLY) I.E. THE
 # NUMBER OF TIMES THEY WERE PROMPTED TO ENTER A NEW WORD
 
-def overuseCount(chain_code, generation):
-    data = load(2, chain_code, generation, "log")
+def overuseCount(chain, generation):
+    data = load(2, chain, generation, "log")
     line = str(data[54])
     split1 = line.split("overuse count = ")
     split2 = split1[1].split("'")
@@ -226,27 +279,26 @@ def meaningDistances(meanings):
     distances = []
     for i in range(0,len(meanings)):
         for j in range(i+1,len(meanings)):
-            distances.append(geometry.areaDistance(meanings[i],meanings[j]))
+            A = meanings[i]
+            B = geometry.translate(A, meanings[j], "centroid")
+            distances.append(geometry.triangleDistance(A,B))
     return distances
 
 def distanceCorrelation(distances1, distances2):
     return scipy.stats.pearsonr(distances1, distances2)[0]
 
-def structureScore(experiment, chain, generation):
-    data = load(experiment, chain, generation, 'd')
-    strings = [data[x][0] for x in range(0,len(data))]
-    meanings = []
-    for i in range(0,len(data)):
-        meanings.append([data[i][1], data[i][2], data[i][3]])
+def structureScore(experiment, chain, generation, simulations=1000):
+    strings = getWords(experiment, chain, generation, "d")
+    meanings = getTriangles(experiment, chain, generation, "d")
     string_distances = stringDistances(strings)
     meaning_distances = meaningDistances(meanings)
     x = distanceCorrelation(string_distances, meaning_distances)
-    m, s = MonteCarlo(strings, meanings, 10000)
-    return (x-m)/s
+    m, sd = MonteCarloStructure(strings, meaning_distances, simulations)
+    z = (x-m)/sd
+    return x, m, sd, z
 
-def MonteCarlo(strings, meanings, simulations):
+def MonteCarloStructure(strings, meaning_distances, simulations):
     correlations = []
-    meaning_distances = meaningDistances(meanings)
     for i in xrange(0, simulations):
         shuffle(strings)
         string_distances = stringDistances(strings)
