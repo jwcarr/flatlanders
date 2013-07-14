@@ -16,13 +16,78 @@
     
     // Radius of the orienting spot in pixels (default = 8)
     $orienting_spot_radius = 8;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// GENERAL FUNCTIONS - MAINLY INVOLVES LOADING AND SAVING DATA
     
-    #$triangles = array(array(250,250,250,50,400,75), array(300,100,400,40,200,400));
-    #$triangles = array(array(250,250,250,50,400,75), array(300,45,400,-15,200,345));
-    $triangles = array(array(250,250,250,50,400,75), array(250,250,350,190,150,550));
+    // Open a file
+    function openFile($filename) {
+        // If the file actually exists...
+        if (file_exists($filename)) {
+            // If the filesize > 0...
+            if (filesize($filename) > 0) {
+                // Open the file
+                $file = fopen($filename, "r");
+                // If you can secure a lock on the file...
+                if (flock($file, LOCK_EX)) {
+                    // Read the current data from the file...
+                    $data = fread($file, filesize($filename));
+                    // ... and then unlock it
+                    flock($file, LOCK_UN);
+                }
+                // Close the file
+                fclose($file);
+                // Return the file's content
+                return $data;
+            }
+            // If filesize is 0, return null
+            return "";
+        }
+        // If the file does not exist, return False
+        return False;
+    }
+    
+    // Load the file for a given participant's dynamic or stable set
+    function loadFile($experiment, $chain_code, $generation, $set, $word) {
+        // Get the data from that file
+        if ($set == "c") {
+            $data = openFile("../Data/". $experiment ."/". $chain_code ."/". $generation . "d")."\n".openFile("../Data/". $experiment ."/". $chain_code ."/". $generation . "s");
+        }
+        else {
+            $data = openFile("../Data/". $experiment ."/". $chain_code ."/". $generation . $set);
+        }
+        // Read the file line by line
+        $lines = explode("\n", $data);
+        // How many lines are there?
+        $n = count($lines);
+        // Set up an empty array for the data matrix
+        $matrix = array();
+        // For each line in the data file...
+        for ($i=0; $i < $n; $i++) {
+            // Separate out the columns delimited by tabs
+            $row = explode("\t", $lines[$i]);
+            if ($word=="ALL" OR $word==$row[0]) {
+                $row[1] = explode(",", $row[1]);
+                $row[2] = explode(",", $row[2]);
+                $row[3] = explode(",", $row[3]);
+                array_push($matrix, $row);
+            }
+        }
+        // Return the data matrix
+        return $matrix;
+    }
+    
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     if ($_REQUEST["page"] == "") { $page = "setup"; } else { $page = $_REQUEST["page"]; }
-    if ($page == "display") { $js_onload = " onload='DrawTriangle()'"; }
+    if ($page == "display") {
+        $js_onload = " onload='DrawTriangle()'";
+        
+        $type="file";
+        if ($type=="file") {
+            $matrix = loadFile($_REQUEST['experiment'], $_REQUEST['chain'], $_REQUEST['gen'], $_REQUEST['set'], $_REQUEST['word']);
+        }
+    }
     
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 ?>
@@ -46,25 +111,40 @@
     if ($page == "display") {
         echo"<script type='text/javascript'>function DrawTriangle() { var canvas = document.getElementById('rectangle'); var c = canvas.getContext('2d');";
         
-        $n = count($triangles);
+        $n = count($matrix);
+        
+        $colour_codes = array("#000000", "#C0C0C0", "#808080", "#FF0000", "#800000", "#FFFF00", "#808000", "#00FF00", "#008000", "#00FFFF", "#008080", "#0000FF", "#000080", "#FF00FF", "#800080");
+        
+        $colours = array();
         
         for ($i=0; $i<$n; $i++) {
+            
+            if ($colours[$matrix[$i][0]] != "") {
+                $col = $colours[$matrix[$i][0]];
+            }
+            else {
+                $colours[$matrix[$i][0]] = $colour_codes[0];
+                $col = $colour_codes[0];
+                unset($colour_codes[0]);
+                $colour_codes = array_values($colour_codes);
+            }
+            
             echo "c.beginPath();\n";
-            echo "c.moveTo('". $triangles[$i][0] ."', '". $triangles[$i][1] ."');\n";
-            echo "c.lineTo('". $triangles[$i][2] ."', '". $triangles[$i][3] ."');\n";
-            echo "c.lineTo('". $triangles[$i][4] ."', '". $triangles[$i][5] ."');\n";
+            echo "c.moveTo('". $matrix[$i][1][0] ."', '". $matrix[$i][1][1] ."');\n";
+            echo "c.lineTo('". $matrix[$i][2][0] ."', '". $matrix[$i][2][1] ."');\n";
+            echo "c.lineTo('". $matrix[$i][3][0] ."', '". $matrix[$i][3][1] ."');\n";
             echo "c.closePath();\n";
             echo "c.lineWidth=2;\n";
-            echo "c.strokeStyle='red';\n";
+            echo "c.strokeStyle='". $col ."';\n";
             echo "c.stroke();\n";
             echo "c.beginPath();\n";
-            echo "c.arc(". $triangles[$i][0] .", ". $triangles[$i][1] .", 8, 0, 2 * Math.PI, false);\n";
+            echo "c.arc(". $matrix[$i][1][0] .", ". $matrix[$i][1][1] .", 8, 0, 2 * Math.PI, false);\n";
+            echo "c.fillStyle = '". $col ."';\n";
             echo "c.fill();\n";
             echo "c.lineWidth = 1;\n";
-            echo "c.strokeStyle = 'black';\n";
+            echo "c.strokeStyle = '". $col ."';\n";
             echo "c.stroke();\n";
         }
-
         echo "}</script>";
     }
 ?>
@@ -91,8 +171,8 @@
                         <td style='width:20px;'></td>
                         <td style='width:190px;'>
                             <span class='page body'>
-                                <input name='condition' type='radio' value='1' checked /> Experiment 1<br />
-                                <input name='condition' type='radio' value='2' /> Experiment 2
+                                <input name='experiment' type='radio' value='1' checked /> Experiment 1<br />
+                                <input name='experiment' type='radio' value='2' /> Experiment 2
                             </span>
                         </td>
                     </tr>
@@ -102,7 +182,7 @@
                         </td>
                         <td style='width:20px;'></td>
                         <td style='width:190px;'>
-                            <input name='chain' type='text' id='chain' autocomplete='off' style='font:Helvetica Neue; font-size:20px' size='8' />
+                            <input name='chain' type='text' id='chain' style='font:Helvetica Neue; font-size:20px' size='8' />
                         </td>
                     </tr>
                     <tr>
@@ -111,18 +191,31 @@
                         </td>
                         <td style='width:20px;'></td>
                         <td style='width:190px;'>
-                            <input name='gen' type='text' id='generation' autocomplete='off' style='font:Helvetica Neue; font-size:20px' size='8' />
+                            <input name='gen' type='text' id='generation' style='font:Helvetica Neue; font-size:20px' size='8' />
                         </td>
                     </tr>
                     <tr>
                         <td style='width:190px; text-align:right;'>
-                            <span class='page body'>Word:</span>
+                            <span class='page body'>Set:</span>
                         </td>
                         <td style='width:20px;'></td>
                         <td style='width:190px;'>
-                            <input name='gen' type='text' id='generation' autocomplete='off' style='font:Helvetica Neue; font-size:20px' size='8' />
+                            <input name='set' type='text' id='set_type' style='font:Helvetica Neue; font-size:20px' size='8' />
                         </td>
                     </tr>
+        
+        
+        <tr>
+        <td style='width:190px; text-align:right;'>
+        <span class='page body'>Word:</span>
+        </td>
+        <td style='width:20px;'></td>
+        <td style='width:190px;'>
+        <input name='word' type='text' id='word' style='font:Helvetica Neue; font-size:20px' size='8' />
+        </td>
+        </tr>
+        
+        
                 </table>
                 <hr style='height:1; width:580px;' />
                 <input type='submit' name='submit' value='Visualize' style='font-family:Helvetica Neue; font-size:30px;' />
