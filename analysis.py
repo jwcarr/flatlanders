@@ -279,9 +279,7 @@ def meaningDistances(meanings):
     distances = []
     for i in range(0,len(meanings)):
         for j in range(i+1,len(meanings)):
-            A = meanings[i]
-            B = geometry.translate(A, meanings[j], "centroid")
-            distances.append(geometry.triangleDistance(A,B))
+            distances.append(geometry.HausdorffDistance(meanings[i],meanings[j]))
     return distances
 
 def distanceCorrelation(distances1, distances2):
