@@ -1,4 +1,4 @@
-import scipy
+from scipy import sqrt
 
 #############################################################################
 #   CALCULATE THE PERIMETER OF A TRIANGLE
@@ -21,8 +21,14 @@ def centroid(a, b, c):
 #############################################################################
 #   CALCULATE THE EUCLIDEAN DISTANCE BETWEEN TWO POINTS
 
-def ED(point1, point2):
-    return scipy.sqrt(((point1[0]-point2[0])**2)+((point1[1]-point2[1])**2))
+def ED(a, b):
+    return sqrt(((a[0]-b[0])**2)+((a[1]-b[1])**2))
+
+#############################################################################
+#   CALCULATE THE HAUSDORFF DISTANCE BETWEEN TWO SHAPES
+
+def HausdorffDistance(A, B):
+    return max(max([min([ED(a,b) for b in B]) for a in A]), max([min([ED(a,b) for a in A]) for b in B]))
 
 #############################################################################
 #   CALCULATE THE EUCLIDEAN DISTANCE BETWEEN TWO TRIANGLES
@@ -36,7 +42,7 @@ def triangleDistance(A, B):
 def areaDistance(A, B):
     area_A = area(A[0], A[1], A[2])
     area_B = area(B[0], B[1], B[2])
-    return scipy.sqrt((area_A-area_B)**2)
+    return abs(area_A-area_B)
 
 #############################################################################
 # TRANSLATE THE COORDINATES FOR TRIANGLE B SO THAT ITS CENTROID OR ORIENTING
