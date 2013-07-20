@@ -1,12 +1,12 @@
 from subprocess import call
 import os.path
 
-rules = [['ei', 'EY'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
+rules = [['ei', 'EY'],['oo','UW'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
          ['au', 'AW'], ['oi', 'OY'], ['iu', 'IWUW'], ['oa', 'OWAA'],
          ['o', 'OW'], ['ia', 'IYAA'], ['ua', 'UWAA'], ['ou', 'OWUW'],
          ['i', 'IY'], ['a', 'AA'],['e', 'EH'], ['u', 'UW'], ['ch', 'C'],
          ['j', 'J'], ['c', 'k'], ['ng', 'N'], ['sh', 'S'], ['th', 'T'],
-         ['zz', 'z'], ['pp', 'p']]
+         ['zz', 'z'], ['pp', 'p'], ['kk','k'],['dd','d']]
 
 ########################################################################
 ### Produce the missing vocalizations for a participant
