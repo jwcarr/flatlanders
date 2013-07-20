@@ -10,10 +10,10 @@ chains_1 = ["A", "B", "C", "D"]
 chains_2 = ["E", "F", "G", "H"]
 
 #############################################################################
-#   MEASURE LEARNABILITY: CALCULATE THE MEAN NORMALIZED LEVENSHTEIN DISTANCE
-#   AND RUN IT THROUGH A MONTE CARLO SIMULATION
+# MEASURE LEARNABILITY: CALCULATE TRANSMISSION ERROR AND THEN COMPARE THE
+# VERIDICAL SCORE TO A MONTE CARLO SAMPLE
 
-def learnability(experiment, chain, generation, simulations=10000):
+def learnability(experiment, chain, generation, simulations=100000):
     words_A = getWords(experiment, chain, generation, "s")
     words_B = getWords(experiment, chain, generation-1, "s")
     x = meanNormLevenshtein(words_A, words_B)
@@ -21,10 +21,16 @@ def learnability(experiment, chain, generation, simulations=10000):
     z = (m-x)/sd
     return x, m, sd, z
 
+# CALCULATE THE TRANSMISSION ERROR BETWEEN TWO CONSECUTIVE PARTICIPANTS
+
 def transmissionError(experiment, chain, generation):
     words_A = getWords(experiment, chain, generation, "s")
     words_B = getWords(experiment, chain, generation-1, "s")
     return meanNormLevenshtein(words_A, words_B)
+
+# GIVEN TWO SETS OF STRINGS, SHUFFLE ONE SET OF STRINGS n TIMES. COMPUTE THE
+# MEAN NORMALIZED LEVENSHTEIN DISTANCE FOR EACH SHUFFLING AND RETURN THE MEAN
+# AND STANDARD DEVIATION OF THE COMPUTED SCORES
 
 def MonteCarloError(strings1, strings2, simulations):
     distances = []
@@ -32,6 +38,8 @@ def MonteCarloError(strings1, strings2, simulations):
         shuffle(strings1)
         distances.append(meanNormLevenshtein(strings1, strings2))
     return scipy.mean(distances), scipy.std(distances)
+
+# CALCULATE THE MEAN NORMALIZED LEVENSHTEIN DISTANCE BETWEEN TWO SETS OF STRINGS
 
 def meanNormLevenshtein(strings1, strings2):
     total = 0.0
@@ -41,20 +49,18 @@ def meanNormLevenshtein(strings1, strings2):
     return total/float(len(strings1))
 
 #############################################################################
-#   MEASURE LEARNABILITY IN TRAINING: CALCULATE THE MEAN NORMALIZED LEVENSHTEIN
-#   DISTANCE FOR A SPECIFIC INDIVIDUAL'S TRAINING RESULTS
+# MEASURE LEARNABILITY IN TRAINING: CALCULATE THE MEAN NORMALIZED LEVENSHTEIN
+# DISTANCE FOR A SPECIFIC INDIVIDUAL'S TRAINING RESULTS
 
-def trainingError(experiment, chain, generation, simulations=10000):
+def trainingError(experiment, chain, generation):
     data = load(experiment, chain, generation, "log")
     words_A = [data[x][0] for x in range(5,53)]
     words_B = [data[x][1] for x in range(5,53)]
     x = meanNormLevenshtein(words_A, words_B)
-    m, sd = MonteCarloError(words_A, words_B, simulations)
-    z = (m-x)/sd
-    return x, m, sd, z
+    return x
 
 #############################################################################
-#   COUNT THE NUMBER OF UNIQUE WORDS FOR GIVEN PARTICIPANT
+# COUNT THE NUMBER OF UNIQUE WORDS FOR GIVEN PARTICIPANT
 
 def uniqueStrings(experiment, chain, generation):
     dynamic_data = load(experiment, chain, generation, "d")
@@ -65,7 +71,7 @@ def uniqueStrings(experiment, chain, generation):
     return len(set(dynamic_words)), len(set(stable_words)), len(set(combined_words))
 
 #############################################################################
-#   AVERAGE STRING FREQUENCY
+# AVERAGE STRING FREQUENCY
 
 def stringFrequency(experiment, chain, generation):
     dynamic_data = load(experiment, chain, generation, "d")
@@ -82,7 +88,24 @@ def stringFrequency(experiment, chain, generation):
     return dynamic_average, stable_average, combined_average
 
 #############################################################################
-#   GET TRANSMISSION ERROR RESULTS FOR A WHOLE BUNCH OF CHAINS
+# GET STRUCTURE SCORES FOR ALL CHAINS IN AN EXPERIMENT
+
+def allStructureScores(experiment, simulations=1000):
+    matrix = []
+    if experiment == 1:
+        chain_codes = chains_1
+    else:
+        chain_codes = chains_2
+    for i in chain_codes:
+        scores = []
+        for j in range(0, 11):
+            score = structureScore(experiment, i, j, simulations)
+            scores.append(score)
+        matrix.append(scores)
+    return matrix
+
+#############################################################################
+# GET TRANSMISSION ERROR RESULTS FOR ALL CHAINS IN AN EXPERIMENT
 
 def allTransmissionErrors(experiment):
     results = []
@@ -93,13 +116,30 @@ def allTransmissionErrors(experiment):
     for i in chain_codes:
         scores = []
         for j in range(1, 11):
-            score = transmissionError(experiment, i, j, 1)
+            score = transmissionError(experiment, i, j)
             scores.append(score)
         results.append(scores)
     return results
 
 #############################################################################
-#   GET TRANSMISSION ERROR RESULTS FOR A WHOLE BUNCH OF CHAINS
+# GET LEARNABILITY RESULTS FOR ALL CHAINS IN AN EXPERIMENT
+
+def allLearnability(experiment):
+    results = []
+    if experiment == 1:
+        chain_codes = chains_1
+    else:
+        chain_codes = chains_2
+    for i in chain_codes:
+        scores = []
+        for j in range(1, 11):
+            score = learnability(experiment, i, j)
+            scores.append(score)
+        results.append(scores)
+    return results
+
+#############################################################################
+# GET TRANSMISSION ERROR RESULTS FOR ALL CHAINS IN AN EXPERIMENT
 
 def allTrainingErrors(experiment):
     results = []
@@ -116,7 +156,7 @@ def allTrainingErrors(experiment):
     return results
 
 #############################################################################
-#   PLOT MEANS FOR EACH GENERATION WITH ERROR BARS (95% CI)
+# PLOT MEANS FOR EACH GENERATION WITH ERROR BARS (95% CI)
 
 def plotMean(matrix, start=1, y_label="Score"):
     m = len(matrix)
@@ -137,7 +177,7 @@ def plotMean(matrix, start=1, y_label="Score"):
     plt.show()
 
 #############################################################################
-#   PLOT ALL CHAINS FROM A DATA MATRIX
+# PLOT ALL CHAINS FROM A DATA MATRIX
 
 def plotAll(matrix, start=1, y_label="Score"):
     n = len(matrix[0])
@@ -152,7 +192,7 @@ def plotAll(matrix, start=1, y_label="Score"):
     plt.show()
 
 #############################################################################
-#   RUN ALL THREE STATS
+# RUN ALL THREE STATS
 
 def runStats(matrix, hypothesis="d"):
     page_results = page.ptt(matrix, hypothesis)
@@ -170,7 +210,7 @@ r = %s, n = %s, p = %s, one-tailed''' % pearson_results)
 diff = %s, t (%s) = %s, p = %s, one-tailed''' % student_results)
 
 #############################################################################
-#   CORRELATE A MATRIX OF RESULTS WITH GENERATION NUMBERS
+# CORRELATE A MATRIX OF RESULTS WITH GENERATION NUMBERS
 
 def pearson(matrix):
     scores = matrix2vector(matrix)
@@ -179,7 +219,7 @@ def pearson(matrix):
     return test[0], len(scores), test[1]/2.0
 
 #############################################################################
-#   PAIRED T-TEST BETWEEN FIRST AND LAST GENERATIONS
+# PAIRED T-TEST BETWEEN FIRST AND LAST GENERATIONS
 
 def student(matrix, hypothesis):
     a = [row[0] for row in matrix]
@@ -193,7 +233,7 @@ def student(matrix, hypothesis):
     return diff, len(a)-2, test[0], test[1]/2.0
 
 #############################################################################
-#   LOAD RAW DATA FROM A DATA FILE INTO A DATA MATRIX
+# LOAD RAW DATA FROM A DATA FILE INTO A DATA MATRIX
 
 def load(experiment, chain, generation, set_type):
     filename = "Data/" + str(experiment) + "/" + chain + "/" + str(generation) + set_type
@@ -208,10 +248,13 @@ def load(experiment, chain, generation, set_type):
     return matrix
 
 #############################################################################
-#   LOAD IN THE WORDS FROM A SPECIFIC SET FILE
+# LOAD IN THE WORDS FROM A SPECIFIC SET FILE
 
 def getTriangles(experiment, chain, generation, set_type):
-    data = load(experiment, chain, generation, set_type)
+    if set_type == "c":
+        data = load(experiment, chain, generation, "d") + load(experiment, chain, generation, "s")
+    else:
+        data = load(experiment, chain, generation, set_type)
     triangles = []
     for row in data:
         row[1] = int(row[1].split(',')[0]), int(row[1].split(',')[1])
@@ -221,14 +264,17 @@ def getTriangles(experiment, chain, generation, set_type):
     return triangles
 
 #############################################################################
-#   LOAD IN THE WORDS FROM A SPECIFIC SET FILE
+# LOAD IN THE WORDS FROM A SPECIFIC SET FILE
 
 def getWords(experiment, chain, generation, set_type):
-    data = load(experiment, chain, generation, set_type)
+    if set_type == "c":
+        data = load(experiment, chain, generation, "d") + load(experiment, chain, generation, "s")
+    else:
+        data = load(experiment, chain, generation, set_type)
     return [data[x][0] for x in range(0,len(data))]
 
 #############################################################################
-#   CONVERT MATRIX INTO VECTOR
+# CONVERT MATRIX INTO VECTOR
 
 def matrix2vector(matrix):
     vector = []
@@ -238,7 +284,7 @@ def matrix2vector(matrix):
     return vector
 
 #############################################################################
-#   CALCULATE AVERAGE TIME SPENT ON EACH TEST ITEM
+# CALCULATE AVERAGE TIME SPENT ON EACH TEST ITEM
 
 def timePerItem(experiment, chain, generation):
     set_d = load(experiment, chain, generation, "d")
@@ -265,7 +311,33 @@ def overuseCount(chain, generation):
     return int(split2[0])
 
 #############################################################################
-#
+# CORRELATE THE STRING EDIT DISTANCES AND MEANING DISTANCES, THEN RUN THE
+# DISTANCES THROUGH A MONTE CARLO SIMULATION. RETURN THE VERDICAL COEFFICIENT,
+# THE MEAN AND STANDARD DEVIATION OF THE MONTE CARLO SAMPLE, AND THE Z-SCORE
+
+def structureScore(experiment, chain, generation, simulations=1000):
+    strings = getWords(experiment, chain, generation, "s")
+    meanings = getTriangles(experiment, chain, generation, "s")
+    string_distances = stringDistances(strings)
+    meaning_distances = meaningDistances(meanings)
+    x = distanceCorrelation(string_distances, meaning_distances)
+    m, sd = MonteCarloStructure(string_distances, meaning_distances, simulations)
+    z = (x-m)/sd
+    return x, m, sd, z
+
+# GIVEN STRING EDIT DISTANCES AND MEANING DISTANCES, SHUFFLE THE EDIT DISTANCES
+# n TIMES MEASURING THE CORRELATION BETWEEN EACH. RETURN THE MEAN AND SD OF
+# THE CORRELATIONS
+
+def MonteCarloStructure(string_distances, meaning_distances, simulations):
+    correlations = []
+    for i in xrange(0, simulations):
+        shuffle(string_distances)
+        correlations.append(distanceCorrelation(meaning_distances, string_distances))
+    return scipy.mean(correlations), scipy.std(correlations)
+
+# FOR EACH PAIR OF STRINGS, CALCULATE THE NORMALIZED LEVENSHTEIN DISTANCE
+# BETWEEN THEM
 
 def stringDistances(strings):
     distances = []
@@ -275,30 +347,39 @@ def stringDistances(strings):
             distances.append(ld/float(max(len(strings[i]), len(strings[j]))))
     return distances
 
+# FOR EACH PAIR OF TRIANGLES, CALCULATE THE DISTANCE BETWEEN THEM
+
 def meaningDistances(meanings):
     distances = []
     for i in range(0,len(meanings)):
         for j in range(i+1,len(meanings)):
-            distances.append(geometry.HausdorffDistance(meanings[i],meanings[j]))
+            distances.append(geometry.triangleDistance(meanings[i],meanings[j]))
     return distances
+
+# CORRELATE TWO SETS OF DISTANCES AND RETURN r
 
 def distanceCorrelation(distances1, distances2):
     return scipy.stats.pearsonr(distances1, distances2)[0]
 
-def structureScore(experiment, chain, generation, simulations=1000):
-    strings = getWords(experiment, chain, generation, "d")
-    meanings = getTriangles(experiment, chain, generation, "d")
-    string_distances = stringDistances(strings)
-    meaning_distances = meaningDistances(meanings)
-    x = distanceCorrelation(string_distances, meaning_distances)
-    m, sd = MonteCarloStructure(strings, meaning_distances, simulations)
-    z = (x-m)/sd
-    return x, m, sd, z
+#############################################################################
+# CALCULATE THE ENTROPY OF A LANGUAGE
 
-def MonteCarloStructure(strings, meaning_distances, simulations):
-    correlations = []
-    for i in xrange(0, simulations):
-        shuffle(strings)
-        string_distances = stringDistances(strings)
-        correlations.append(distanceCorrelation(meaning_distances, string_distances))
-    return scipy.mean(correlations), scipy.std(correlations)
+def entropy(experiment, chain, generation):
+    words = getWords(experiment, chain, generation, "c")
+    S = {}
+    for word in words:
+        syllables = word.split("|")
+        for s in syllables:
+            if s in S.keys():
+                S[s] += 1.0
+            else:
+                S[s] = 1.0
+    N = float(sum(S.values()))
+
+    products = []
+    for s in S.keys():
+        p = S[s]/N
+        products.append(p * scipy.log2(p))
+    H = 0.0 - sum(products)
+    
+    return H
