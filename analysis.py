@@ -366,8 +366,9 @@ def distanceCorrelation(distances1, distances2):
 
 def entropy(experiment, chain, generation):
     words = getWords(experiment, chain, generation, "c")
+    segmented_words = segment(words)
     S = {}
-    for word in words:
+    for word in segmented_words:
         syllables = word.split("|")
         for s in syllables:
             if s in S.keys():
@@ -375,11 +376,20 @@ def entropy(experiment, chain, generation):
             else:
                 S[s] = 1.0
     N = float(sum(S.values()))
-
-    products = []
-    for s in S.keys():
-        p = S[s]/N
-        products.append(p * scipy.log2(p))
-    H = 0.0 - sum(products)
-    
+    H = 0.0 - sum([(s/N)*scipy.log2(s/N) for s in S.values()])
     return H
+
+rules = [['ei', 'EY'],['oo','UW'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
+         ['au', 'AW'], ['oi', 'OY'], ['iu', 'IWUW'], ['oa', 'OWAA'],
+         ['o', 'OW'], ['ia', 'IYAA'], ['ua', 'UWAA'], ['ou', 'OWUW'],
+         ['i', 'IY'], ['a', 'AA'],['e', 'EH'], ['u', 'UW'], ['ch', 'C'],
+         ['j', 'J'], ['c', 'k'], ['ng', 'N'], ['sh', 'S'], ['th', 'T'],
+         ['zz', 'z'], ['pp', 'p'], ['kk','k'],['dd','d']]
+
+def segment(words):
+    for i in range(0,len(words)):
+        for rule in rules:            
+            words[i] = words[i].replace(rule[0], rule[1]+"|")
+        if words[i][-1] == "|":
+            words[i] = words[i][:-1]
+    return words
