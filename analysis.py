@@ -133,7 +133,7 @@ def allLearnability(experiment):
     for i in chain_codes:
         scores = []
         for j in range(1, 11):
-            score = learnability(experiment, i, j)
+            score = learnability(experiment, i, j, 100000)[3]
             scores.append(score)
         results.append(scores)
     return results
@@ -158,37 +158,45 @@ def allTrainingErrors(experiment):
 #############################################################################
 # PLOT MEANS FOR EACH GENERATION WITH ERROR BARS (95% CI)
 
-def plotMean(matrix, start=1, y_label="Score"):
+def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
     m = len(matrix)
     n = len(matrix[0])
+    if conf == True:
+        plt.plot(range(0,n+2), [1.959964] * (n+2), color='k', linestyle='--')
     means = []
-    errors = []
+    errors = []    
     for i in range(0,n):
-        column = [row[i] for row in matrix]
+        column = [row[i] for row in matrix if row[i] != None]
         means.append(scipy.mean(column))
-        errors.append((scipy.std(column)/scipy.sqrt(m))*1.96)
+        errors.append((scipy.std(column)/scipy.sqrt(m))*1.959964)
     xvals = range(start, n+start)
-    plt.errorbar(xvals, means, yerr=errors, fmt='ko', linestyle="-")
+    plt.errorbar(xvals, means, yerr=errors, color='k', linestyle="-", linewidth=2.0)
     labels = range(start, start+n)
     plt.xticks(xvals, labels)
     plt.xlim(start-0.5, n+start-0.5)
-    plt.xlabel("Generation number")
-    plt.ylabel(y_label)
+    plt.ylim(miny,maxy)
+    plt.xlabel("Generation number", fontsize=18)
+    plt.ylabel(y_label, fontsize=18)
     plt.show()
 
 #############################################################################
 # PLOT ALL CHAINS FROM A DATA MATRIX
 
-def plotAll(matrix, start=1, y_label="Score"):
+def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
+    colours = ["#2E578C","#5D9648","#E7A13D","#BC2D30"]
     n = len(matrix[0])
     xvals = range(start, n+start)
+    if conf == True:
+        plt.plot(range(0,n+1), [1.959964] * (n+1), color='k', linestyle='--')
     for i in range(0,len(matrix)):
-        plt.plot(xvals, matrix[i])
+        x_vals = range(start, len(matrix[i])+start)
+        plt.plot(x_vals, matrix[i], color=colours[i], linewidth=2.0)
     labels = range(start, start+n)
     plt.xticks(xvals, labels)
     plt.xlim(start, n+start-1)
-    plt.xlabel("Generation number")
-    plt.ylabel(y_label)
+    plt.ylim(miny,maxy)
+    plt.xlabel("Generation number", fontsize=18)
+    plt.ylabel(y_label, fontsize=18)
     plt.show()
 
 #############################################################################
