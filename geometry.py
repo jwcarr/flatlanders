@@ -1,4 +1,4 @@
-from scipy import sqrt
+from scipy import sqrt, arccos
 
 #############################################################################
 #   CALCULATE THE PERIMETER OF A TRIANGLE
@@ -64,3 +64,14 @@ def translate(A, B, alignment="centroid"):
     B3x = B[2][0] + x_shift
     B3y = B[2][1] + y_shift
     return [(B1x, B1y), (B2x, B2y), (B3x, B3y)]
+
+def rotation(A):
+    A_c = centroid(A[0], A[1], A[2])
+    top_point = (A_c[0], 0)
+    ori_spot = A[0]
+
+    a = ED(A_c, ori_spot)
+    b = ED(A_c, top_point)
+    c = ED(top_point, ori_spot)
+
+    return arccos(((a**2)+(b**2)-(c**2))/float(2*a*b))*(180.0/3.1415)
