@@ -1,10 +1,10 @@
+from datetime import timedelta
+import geometry
 import Levenshtein
 import matplotlib.pyplot as plt
 import page
-import scipy
-import datetime
-import geometry
 from random import shuffle
+from scipy import log2, mean, sqrt, stats, std
 
 chains_1 = ["A", "B", "C", "D"]
 chains_2 = ["E", "F", "G", "H"]
@@ -37,7 +37,7 @@ def MonteCarloError(strings1, strings2, simulations):
     for i in xrange(0, simulations):
         shuffle(strings1)
         distances.append(meanNormLevenshtein(strings1, strings2))
-    return scipy.mean(distances), scipy.std(distances)
+    return mean(distances), std(distances)
 
 # CALCULATE THE MEAN NORMALIZED LEVENSHTEIN DISTANCE BETWEEN TWO SETS OF STRINGS
 
@@ -167,14 +167,14 @@ def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
     errors = []    
     for i in range(0,n):
         column = [row[i] for row in matrix if row[i] != None]
-        means.append(scipy.mean(column))
-        errors.append((scipy.std(column)/scipy.sqrt(m))*1.959964)
+        means.append(mean(column))
+        errors.append((std(column)/sqrt(m))*1.959964)
     xvals = range(start, n+start)
     plt.errorbar(xvals, means, yerr=errors, color='k', linestyle="-", linewidth=2.0)
     labels = range(start, start+n)
     plt.xticks(xvals, labels)
     plt.xlim(start-0.5, n+start-0.5)
-    plt.ylim(miny,maxy)
+    plt.ylim(miny, maxy)
     plt.xlabel("Generation number", fontsize=18)
     plt.ylabel(y_label, fontsize=18)
     plt.show()
@@ -182,21 +182,34 @@ def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
 #############################################################################
 # PLOT ALL CHAINS FROM A DATA MATRIX
 
-def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
+def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, short=True, conf=False):
+    if short==True:
+        aspect = 0.625
+    else:
+        aspect = 0.75
+    fig, ax = plt.subplots(figsize=plt.figaspect(aspect))
     colours = ["#2E578C","#5D9648","#E7A13D","#BC2D30"]
     n = len(matrix[0])
     xvals = range(start, n+start)
     if conf == True:
-        plt.plot(range(0,n+1), [1.959964] * (n+1), color='k', linestyle='--')
+        ax.plot(range(0,n+1), [1.959964] * (n+1), color='k', linestyle='--')
     for i in range(0,len(matrix)):
         x_vals = range(start, len(matrix[i])+start)
-        plt.plot(x_vals, matrix[i], color=colours[i], linewidth=2.0)
+        ax.plot(x_vals, matrix[i], color=colours[i], linewidth=2.0)
     labels = range(start, start+n)
-    plt.xticks(xvals, labels)
     plt.xlim(start, n+start-1)
-    plt.ylim(miny,maxy)
-    plt.xlabel("Generation number", fontsize=18)
-    plt.ylabel(y_label, fontsize=18)
+    plt.ylim(miny, maxy) 
+
+    if short==True:
+        plt.xticks(xvals, labels, fontsize=14)
+        plt.yticks(fontsize=14)
+        plt.xlabel("Generation number", fontsize=22)
+        plt.ylabel(y_label, fontsize=22)
+    else:
+        plt.xticks(xvals, labels)
+        plt.xlabel("Generation number", fontsize=18)
+        plt.ylabel(y_label, fontsize=18)
+
     plt.show()
 
 #############################################################################
@@ -223,7 +236,7 @@ diff = %s, t (%s) = %s, p = %s, one-tailed''' % student_results)
 def pearson(matrix):
     scores = matrix2vector(matrix)
     gen_nums = range(1,len(matrix[0])+1)*len(matrix)
-    test = scipy.stats.pearsonr(scores, gen_nums)
+    test = stats.pearsonr(scores, gen_nums)
     return test[0], len(scores), test[1]/2.0
 
 #############################################################################
@@ -233,10 +246,10 @@ def student(matrix, hypothesis):
     a = [row[0] for row in matrix]
     b = [row[len(matrix[0])-1] for row in matrix]
     if hypothesis == "ascending" or hypothesis == "a":
-        test = scipy.stats.ttest_rel(b, a)
+        test = stats.ttest_rel(b, a)
         diff = (float(sum(b))/len(b)) - (float(sum(a))/len(a))
     if hypothesis == "descending" or hypothesis == "d":
-        test = scipy.stats.ttest_rel(a, b)
+        test = stats.ttest_rel(a, b)
         diff = (float(sum(a))/len(a)) - (float(sum(b))/len(b))
     return diff, len(a)-2, test[0], test[1]/2.0
 
@@ -304,7 +317,7 @@ def timePerItem(experiment, chain, generation):
 
 def stringToTimeStamp(string):
     tim = string.split(":")
-    timestamp = datetime.timedelta(hours=int(tim[0]), minutes=int(tim[1]), seconds=int(tim[2]))
+    timestamp = timedelta(hours=int(tim[0]), minutes=int(tim[1]), seconds=int(tim[2]))
     return timestamp
 
 #############################################################################
@@ -328,21 +341,21 @@ def structureScore(experiment, chain, generation, simulations=1000):
     meanings = getTriangles(experiment, chain, generation, "s")
     string_distances = stringDistances(strings)
     meaning_distances = meaningDistances(meanings)
-    x = distanceCorrelation(string_distances, meaning_distances)
+    x = stats.pearsonr(string_distances, meaning_distances)[0]
     m, sd = MonteCarloStructure(string_distances, meaning_distances, simulations)
     z = (x-m)/sd
     return x, m, sd, z
 
 # GIVEN STRING EDIT DISTANCES AND MEANING DISTANCES, SHUFFLE THE EDIT DISTANCES
-# n TIMES MEASURING THE CORRELATION BETWEEN EACH. RETURN THE MEAN AND SD OF
+# n TIMES, MEASURING THE CORRELATION BETWEEN EACH. RETURN THE MEAN AND SD OF
 # THE CORRELATIONS
 
 def MonteCarloStructure(string_distances, meaning_distances, simulations):
     correlations = []
     for i in xrange(0, simulations):
         shuffle(string_distances)
-        correlations.append(distanceCorrelation(meaning_distances, string_distances))
-    return scipy.mean(correlations), scipy.std(correlations)
+        correlations.append(stats.pearsonr(meaning_distances, string_distances)[0])
+    return mean(correlations), std(correlations)
 
 # FOR EACH PAIR OF STRINGS, CALCULATE THE NORMALIZED LEVENSHTEIN DISTANCE
 # BETWEEN THEM
@@ -361,13 +374,8 @@ def meaningDistances(meanings):
     distances = []
     for i in range(0,len(meanings)):
         for j in range(i+1,len(meanings)):
-            distances.append(geometry.triangleDistance(meanings[i],meanings[j]))
+            distances.append(geometry.dT_up_to_rigid_motion(meanings[i],meanings[j]))
     return distances
-
-# CORRELATE TWO SETS OF DISTANCES AND RETURN r
-
-def distanceCorrelation(distances1, distances2):
-    return scipy.stats.pearsonr(distances1, distances2)[0]
 
 #############################################################################
 # CALCULATE THE ENTROPY OF A LANGUAGE
@@ -384,7 +392,7 @@ def entropy(experiment, chain, generation):
             else:
                 S[s] = 1.0
     N = float(sum(S.values()))
-    H = 0.0 - sum([(s/N)*scipy.log2(s/N) for s in S.values()])
+    H = 0.0 - sum([(s/N)*log2(s/N) for s in S.values()])
     return H
 
 rules = [['ei', 'EY'],['oo','UW'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
@@ -401,3 +409,16 @@ def segment(words):
         if words[i][-1] == "|":
             words[i] = words[i][:-1]
     return words
+
+#############################################################################
+# WRITE OUT A MATRIX TO A FILE ON THE DESKTOP
+
+def writeOut(matrix, filename='file'):
+    data = ""
+    for row in matrix:
+        row = [str(x) for x in row]
+        data = data + "\t".join(row) + "\n"
+    data = data[0:-1]
+    f = open('/Users/jon/Desktop/' + filename + '.txt', 'w')
+    f.write(data)
+    f.close()
