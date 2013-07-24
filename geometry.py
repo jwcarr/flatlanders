@@ -42,15 +42,11 @@ def areaDistance(A, B):
 # TRANSLATE THE COORDINATES FOR TRIANGLE B SO THAT ITS CENTROID OR ORIENTING
 # SPOT ALIGNS WITH THAT OF TRIANGLE A
 
-def translate(A, B, alignment="centroid"):
-    if alignment == "centroid":
-        A_centroid = centroid(A[0], A[1], A[2])
-        B_centroid = centroid(B[0], B[1], B[2])
-        x_shift = A_centroid[0] - B_centroid[0]
-        y_shift = A_centroid[1] - B_centroid[1]
-    elif alignment == "spot":
-        x_shift = A[0][0] - B[0][0]
-        y_shift = A[0][1] - B[0][1]
+def translate(A, B):
+    A_centroid = centroid(A[0], A[1], A[2])
+    B_centroid = centroid(B[0], B[1], B[2])
+    x_shift = A_centroid[0] - B_centroid[0]
+    y_shift = A_centroid[1] - B_centroid[1]
     B1x = B[0][0] + x_shift
     B1y = B[0][1] + y_shift
     B2x = B[1][0] + x_shift
@@ -100,9 +96,12 @@ def align_rotations(A, B):
 
 def scale(A):
     ar = area(A[0], A[1], A[2])
-    sf = 100000.0/float(ar)
-    new_A = [(A[0][0]*sf, A[0][1]*sf), (A[1][0]*sf, A[1][1]*sf), (A[2][0]*sf, A[2][1]*sf)]
-    return new_A
+    sf = sqrt(100000.0/float(ar))
+    A_c = centroid(A[0], A[1], A[2])
+    A = [((A[0][0]-A_c[0])*sf+A_c[0], (A[0][1]-A_c[1])*sf+A_c[1]),
+         ((A[1][0]-A_c[0])*sf+A_c[0], (A[1][1]-A_c[1])*sf+A_c[1]),
+         ((A[2][0]-A_c[0])*sf+A_c[0], (A[2][1]-A_c[1])*sf+A_c[1])]
+    return A
 
 #############################################################################
 # TRANSLATE AND ROTATE B SO THAT IT IS LIKE A
