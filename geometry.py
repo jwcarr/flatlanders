@@ -1,4 +1,4 @@
-from scipy import sqrt, arccos
+from scipy import arccos, array, cos, dot, pi, sin, sqrt
 
 #############################################################################
 #   CALCULATE THE PERIMETER OF A TRIANGLE
@@ -31,12 +31,6 @@ def HausdorffDistance(A, B):
     return max(max([min([ED(a,b) for b in B]) for a in A]), max([min([ED(a,b) for a in A]) for b in B]))
 
 #############################################################################
-#   CALCULATE THE EUCLIDEAN DISTANCE BETWEEN TWO TRIANGLES
-
-def triangleDistance(A, B):
-    return ED(A[0],B[0])+min(ED(A[1],B[1])+ED(A[2],B[2]),ED(A[1],B[2])+ED(A[2],B[1]))
-
-#############################################################################
 #   CALCULATE THE DIFFERENCE IN AREA BETWEEN TWO TRIANGLES
 
 def areaDistance(A, B):
@@ -65,13 +59,80 @@ def translate(A, B, alignment="centroid"):
     B3y = B[2][1] + y_shift
     return [(B1x, B1y), (B2x, B2y), (B3x, B3y)]
 
+#############################################################################
+# DETERMINE THE ROTATION OF TRIANGLE A IN RADIANS
+
 def rotation(A):
+    '''Determine the rotation of triangle A'''
     A_c = centroid(A[0], A[1], A[2])
     top_point = (A_c[0], 0)
-    ori_spot = A[0]
-
-    a = ED(A_c, ori_spot)
+    a = ED(A_c, A[0])
     b = ED(A_c, top_point)
-    c = ED(top_point, ori_spot)
+    c = ED(top_point, A[0])
+    ang = arccos(((a**2)+(b**2)-(c**2))/float(2*a*b))
+    if A[0][0] < A_c[0]:
+        ang = pi + (pi-ang)
+    return ang
 
-    return arccos(((a**2)+(b**2)-(c**2))/float(2*a*b))*(180.0/3.1415)
+#############################################################################
+# ROTATE TRIANGLE A AROUND ITS CENTROID BY ang RADIANS
+
+def rotate(A, ang):
+    '''Rotate triangle A around its centroid by ang radians'''
+    pts = array([[A[0][0], A[0][1]], [A[1][0], A[1][1]], [A[2][0], A[2][1]]])
+    c = centroid(A[0], A[1], A[2])
+    cnt = array([c[0], c[1]])
+    return dot(pts-cnt,array([[cos(ang),sin(ang)],[-sin(ang),cos(ang)]]))+cnt
+
+#############################################################################
+# ROTATE B SO THAT IT IS POINTING IN THE SAME DIRECTION AS A
+
+def align_rotations(A, B):
+    '''Rotate B so that it is pointing in the same direction as A'''
+    A_rotation = rotation(A)
+    B_rotation = rotation(B)
+    B_r = rotate(B, A_rotation-B_rotation)
+    B = [(B_r[0][0], B_r[0][1]), (B_r[1][0], B_r[1][1]), (B_r[2][0], B_r[2][1])]
+    return B
+
+#############################################################################
+# SCALE TRIANGLE A SO THAT ITS AREA IS 100,000 SQUARE PIXELS
+
+def scale(A):
+    ar = area(A[0], A[1], A[2])
+    sf = 100000.0/float(ar)
+    new_A = [(A[0][0]*sf, A[0][1]*sf), (A[1][0]*sf, A[1][1]*sf), (A[2][0]*sf, A[2][1]*sf)]
+    return new_A
+
+#############################################################################
+# TRANSLATE AND ROTATE B SO THAT IT IS LIKE A
+
+def rigid_motion(A, B):
+    return translate(A, align_rotations(A, B))
+
+#############################################################################
+# TRIANGLE DISTANCE MEASURES
+
+def dT(A, B):
+    return ED(A[0],B[0])+min(ED(A[1],B[1])+ED(A[2],B[2]),ED(A[1],B[2])+ED(A[2],B[1]))
+
+def dT_up_to_translation(A, B):
+    return dT(A, translate(A, B))
+
+def dT_up_to_rotation(A, B):
+    return dT(A, align_rotations(A, B))
+
+def dT_up_to_scale(A, B):
+    return dT(scale(A), scale(B))
+
+def dT_up_to_rigid_motion(A, B):
+    return dT(A, rigid_motion(A, B))
+
+def dT_up_to_scaled_translation(A, B):
+    return dT(scale(A), scale(translate(A, B)))
+
+def dT_up_to_scaled_rotation(A, B):
+    return dT(scale(A), scale(align_rotations(A, B)))
+
+def dT_up_to_isometry(A, B):
+    return dT(scale(A), scale(rigid_motion(A, B)))
