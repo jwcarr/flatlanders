@@ -99,7 +99,7 @@ def allStructureScores(experiment, simulations=1000):
     for i in chain_codes:
         scores = []
         for j in range(0, 11):
-            score = structureScore(experiment, i, j, simulations)
+            score = structureScore(experiment, i, j, simulations)[3]
             scores.append(score)
         matrix.append(scores)
     return matrix
