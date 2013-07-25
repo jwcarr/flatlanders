@@ -1,12 +1,6 @@
 from numpy import arccos, array, cos, dot, pi, sin, sqrt
 
 #############################################################################
-#   CALCULATE THE PERIMETER OF TRIANGLE A
-
-def perimeter(A):
-    return ED(A[0],A[1])+ED(A[1],A[2])+ED(A[2],A[0])
-
-#############################################################################
 #   CALCULATE THE AREA OF TRIANGLE A
 
 def area(A):
@@ -23,18 +17,6 @@ def centroid(A):
 
 def ED(a, b):
     return sqrt(((a[0]-b[0])**2)+((a[1]-b[1])**2))
-
-#############################################################################
-#   CALCULATE THE HAUSDORFF DISTANCE BETWEEN TWO SHAPES
-
-def HausdorffDistance(A, B):
-    return max(max([min([ED(a,b) for b in B]) for a in A]), max([min([ED(a,b) for a in A]) for b in B]))
-
-#############################################################################
-#   CALCULATE THE DIFFERENCE IN AREA BETWEEN TWO TRIANGLES
-
-def areaDistance(A, B):
-    return abs(area(A)-area(B))
 
 #############################################################################
 # TRANSLATE THE COORDINATES FOR TRIANGLE B SO THAT ITS CENTROID ALIGNS WITH
@@ -73,17 +55,14 @@ def rot(A, r):
 # ROTATE B SO THAT IT IS POINTING IN THE SAME DIRECTION AS A
 
 def rotate(A, B):
-    A_r = determine_rotation(A)
-    B_r = determine_rotation(B)
-    B = rot(B, A_r-B_r)
+    B = rot(B, determine_rotation(A)-determine_rotation(B))
     return [(B[0][0],B[0][1]),(B[1][0],B[1][1]),(B[2][0],B[2][1])]
 
 #############################################################################
 # SCALE TRIANGLE A SO THAT ITS AREA IS 100,000 SQUARE PIXELS
 
 def scale(A):
-    ar = area(A)
-    sf = sqrt(100000.0/float(ar))
+    sf = sqrt(100000.0/area(A))
     A_c = centroid(A)
     return [((A[0][0]-A_c[0])*sf+A_c[0],(A[0][1]-A_c[1])*sf+A_c[1]),((A[1][0]-A_c[0])*sf+A_c[0],(A[1][1]-A_c[1])*sf+A_c[1]),((A[2][0]-A_c[0])*sf+A_c[0],(A[2][1]-A_c[1])*sf+A_c[1])]
 
