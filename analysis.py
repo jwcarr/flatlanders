@@ -6,8 +6,7 @@ import page
 from random import shuffle
 from scipy import log2, mean, sqrt, stats, std
 
-chains_1 = ["A", "B", "C", "D"]
-chains_2 = ["E", "F", "G", "H"]
+chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"]]
 
 #############################################################################
 # MEASURE LEARNABILITY: CALCULATE TRANSMISSION ERROR AND THEN COMPARE THE
@@ -71,36 +70,19 @@ def uniqueStrings(experiment, chain, generation):
     return len(set(dynamic_words)), len(set(stable_words)), len(set(combined_words))
 
 #############################################################################
-# AVERAGE STRING FREQUENCY
-
-def stringFrequency(experiment, chain, generation):
-    dynamic_data = load(experiment, chain, generation, "d")
-    stable_data = load(experiment, chain, generation, "s")
-    dynamic_words = [row[0] for row in dynamic_data]
-    stable_words = [row[0] for row in stable_data]
-    combined_words = dynamic_words + stable_words
-    dynamic_counts = [dynamic_words.count(x) for x in set(dynamic_words)]
-    stable_counts = [stable_words.count(x) for x in set(stable_words)]
-    combined_counts = [combined_words.count(x) for x in set(combined_words)]
-    dynamic_average = sum(dynamic_counts)/float(len(dynamic_counts))
-    stable_average = sum(stable_counts)/float(len(stable_counts))
-    combined_average = sum(combined_counts)/float(len(combined_counts))
-    return dynamic_average, stable_average, combined_average
-
-#############################################################################
 # GET STRUCTURE SCORES FOR ALL CHAINS IN AN EXPERIMENT
 
-def allStructureScores(experiment, simulations=1000):
+def allStructureScores(experiment, sims=1000):
     matrix = []
-    if experiment == 1:
-        chain_codes = chains_1
-    else:
-        chain_codes = chains_2
-    for i in chain_codes:
+    for chain in chain_codes[experiment-1]:
+        print "Chain " + chain
         scores = []
-        for j in range(0, 11):
-            score = structureScore(experiment, i, j, simulations)[3]
-            scores.append(score)
+        for generation in range(0, 11):
+            if uniqueStrings(experiment, chain, generation)[1] > 1:
+                score = structureScore(experiment, chain, generation, sims)[3]
+                scores.append(score)
+            else:
+                scores.append(None)
         matrix.append(scores)
     return matrix
 
@@ -109,14 +91,10 @@ def allStructureScores(experiment, simulations=1000):
 
 def allTransmissionErrors(experiment):
     results = []
-    if experiment == 1:
-        chain_codes = chains_1
-    else:
-        chain_codes = chains_2
-    for i in chain_codes:
+    for chain in chain_codes[experiment-1]:
         scores = []
-        for j in range(1, 11):
-            score = transmissionError(experiment, i, j)
+        for generation in range(1, 11):
+            score = transmissionError(experiment, chain, generation)
             scores.append(score)
         results.append(scores)
     return results
@@ -124,16 +102,12 @@ def allTransmissionErrors(experiment):
 #############################################################################
 # GET LEARNABILITY RESULTS FOR ALL CHAINS IN AN EXPERIMENT
 
-def allLearnability(experiment):
+def allLearnability(experiment, sims=100000):
     results = []
-    if experiment == 1:
-        chain_codes = chains_1
-    else:
-        chain_codes = chains_2
-    for i in chain_codes:
+    for chain in chain_codes[experiment-1]:
         scores = []
-        for j in range(1, 11):
-            score = learnability(experiment, i, j, 100000)[3]
+        for generation in range(1, 11):
+            score = learnability(experiment, chain, generation, sims)[3]
             scores.append(score)
         results.append(scores)
     return results
@@ -143,14 +117,10 @@ def allLearnability(experiment):
 
 def allTrainingErrors(experiment):
     results = []
-    if experiment == 1:
-        chain_codes = chains_1
-    else:
-        chain_codes = chains_2
-    for i in chain_codes:
+    for chain in chain_codes[experiment-1]:
         scores = []
-        for j in range(1, 11):
-            score = trainingError(experiment, i, j)
+        for generation in range(1, 11):
+            score = trainingError(experiment, chain, generation)
             scores.append(score)
         results.append(scores)
     return results
