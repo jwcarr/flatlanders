@@ -1,4 +1,4 @@
-from numpy import arccos, array, cos, dot, pi, sin, sqrt
+from numpy import arccos, array, cos, dot, sin, sqrt
 
 #############################################################################
 #   CALCULATE THE EUCLIDEAN DISTANCE BETWEEN TWO POINTS
@@ -10,7 +10,9 @@ def ED(a, b):
 #   CALCULATE THE AREA OF TRIANGLE A
 
 def area(A):
-    return (ED(A[0],A[1])*ED(A[1],(A[1][0],A[2][1])))/2.0
+    a, b, c = ED(A[0],A[1]), ED(A[1],A[2]), ED(A[2],A[0])
+    s = (a+b+c)/2.0
+    return sqrt(s*(s-a)*(s-b)*(s-c))
 
 #############################################################################
 #   FIND THE CENTROID OF TRIANGLE A
@@ -30,9 +32,9 @@ def translate(B, A):
 def rotate(A):
     c = centroid(A)
     p, q, r = ED(c,A[0]), ED(c,(c[0],0)), ED((c[0],0),A[0])
-    theta = 0.0-arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
-    if A[0][0] < c[0]:
-        theta = pi+(pi-theta)
+    theta = arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
+    if A[0][0] > c[0]:
+        theta = 0.0-theta
     return dot(A-c,array([[cos(theta),sin(theta)],[-sin(theta),cos(theta)]]))+c
 
 #############################################################################
