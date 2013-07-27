@@ -38,10 +38,10 @@ def rotate(A):
     return dot(A-c,array([[cos(theta),sin(theta)],[-sin(theta),cos(theta)]]))+c
 
 #############################################################################
-# SCALE TRIANGLE A SO THAT ITS AREA IS 10,000 SQUARE PIXELS
+# SCALE TRIANGLE A SO THAT ITS AREA IS 18,00 SQUARE PIXELS
 
 def scale(A):
-    f = sqrt(10000.0/area(A))
+    f = sqrt(18000.0/area(A))
     c = centroid(A)
     return ((A-c)*f)+c
 
@@ -70,4 +70,4 @@ def dT_up_to_scaled_rotation(A, B):
     return dT(scale(rotate(A)), scale(rotate(B)))
 
 def dT_up_to_scaled_rigid_motion(A, B):
-    return dT(scale(rotate(A)), scale(rotate(translate(B, A))))
+    return dT(scale(rotate(A)), scale(translate(rotate(B), A)))
