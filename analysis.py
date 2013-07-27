@@ -4,7 +4,7 @@ import Levenshtein
 import matplotlib.pyplot as plt
 import page
 from random import shuffle
-from scipy import log2, mean, sqrt, stats, std
+from scipy import array, log2, mean, sqrt, stats, std
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"]]
 
@@ -75,7 +75,7 @@ def uniqueStrings(experiment, chain, generation):
 def allStructureScores(experiment, sims=1000):
     matrix = []
     for chain in chain_codes[experiment-1]:
-        print "Chain " + chain
+        print "Chain " + chain + "..."
         scores = []
         for generation in range(0, 11):
             if uniqueStrings(experiment, chain, generation)[1] > 1:
@@ -248,10 +248,10 @@ def getTriangles(experiment, chain, generation, set_type):
         data = load(experiment, chain, generation, set_type)
     triangles = []
     for row in data:
-        row[1] = int(row[1].split(',')[0]), int(row[1].split(',')[1])
-        row[2] = int(row[2].split(',')[0]), int(row[2].split(',')[1])
-        row[3] = int(row[3].split(',')[0]), int(row[3].split(',')[1])
-        triangles.append([row[1], row[2], row[3]])
+        x1, y1 = row[1].split(',')
+        x2, y2 = row[2].split(',')
+        x3, y3 = row[3].split(',')
+        triangles.append(array([[float(x1),float(y1)],[float(x2),float(y2)],[float(x3),float(y3)]]))
     return triangles
 
 #############################################################################
