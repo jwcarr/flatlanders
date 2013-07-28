@@ -70,23 +70,6 @@ def uniqueStrings(experiment, chain, generation):
     return len(set(dynamic_words)), len(set(stable_words)), len(set(combined_words))
 
 #############################################################################
-# GET STRUCTURE SCORES FOR ALL CHAINS IN AN EXPERIMENT
-
-def allStructureScores(experiment, sims=1000):
-    matrix = []
-    for chain in chain_codes[experiment-1]:
-        print "Chain " + chain + "..."
-        scores = []
-        for generation in range(0, 11):
-            if uniqueStrings(experiment, chain, generation)[1] > 1:
-                score = structureScore(experiment, chain, generation, sims)[3]
-                scores.append(score)
-            else:
-                scores.append(None)
-        matrix.append(scores)
-    return matrix
-
-#############################################################################
 # GET TRANSMISSION ERROR RESULTS FOR ALL CHAINS IN AN EXPERIMENT
 
 def allTransmissionErrors(experiment):
@@ -163,6 +146,7 @@ def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, short=True, co
     xvals = range(start, n+start)
     if conf == True:
         ax.plot(range(0,n+1), [1.959964] * (n+1), color='k', linestyle='--')
+        ax.plot(range(0,n+1), [-1.959964] * (n+1), color='k', linestyle='--')
     for i in range(0,len(matrix)):
         x_vals = range(start, len(matrix[i])+start)
         ax.plot(x_vals, matrix[i], color=colours[i], linewidth=2.0)
@@ -302,15 +286,58 @@ def overuseCount(chain, generation):
     return int(split2[0])
 
 #############################################################################
+# GET STRUCTURE SCORES FOR ALL METRICS
+
+def allMetrics(experiment, sims=1000, set_type="s"):
+    data = []
+    for metric in ['dt','dtt','dtr','dts','dtrm','dtst','dtsr','dtsrm']:
+        print "-------------\nMETRIC: " + metric + "\n-------------"
+        data.append(allStructureScores(experiment, metric, sims, set_type))
+    return data
+
+#############################################################################
+# GET STRUCTURE SCORES FOR ALL CHAINS IN AN EXPERIMENT
+
+def allStructureScores(experiment, metric='dt', sims=1000, set_type="s"):
+    if set_type == "s":
+        meanings = getTriangles(1, "A", 0, "s")
+        meaning_distances = meaningDistances(meanings, metric)
+        unique_index = 1
+    elif set_type == "d":
+        unique_index = 0
+    elif set_type == "c":
+        unique_index = 2
+    else:
+        print "Invalid set type"
+        return False
+    
+    matrix = []
+    for chain in chain_codes[experiment-1]:
+        print "  Chain " + chain + "..."
+        scores = []
+        for generation in range(0, 11):
+            if uniqueStrings(experiment, chain, generation)[unique_index] > 1:
+                if set_type == "s":
+                    score = structureScore(experiment, chain, generation, metric, sims, set_type, meaning_distances)[3]
+                else:
+                    score = structureScore(experiment, chain, generation, metric, sims, set_type, None)[3]
+                scores.append(score)
+            else:
+                scores.append(None)
+        matrix.append(scores)
+    return matrix
+
+#############################################################################
 # CORRELATE THE STRING EDIT DISTANCES AND MEANING DISTANCES, THEN RUN THE
 # DISTANCES THROUGH A MONTE CARLO SIMULATION. RETURN THE VERDICAL COEFFICIENT,
 # THE MEAN AND STANDARD DEVIATION OF THE MONTE CARLO SAMPLE, AND THE Z-SCORE
 
-def structureScore(experiment, chain, generation, simulations=1000):
-    strings = getWords(experiment, chain, generation, "s")
-    meanings = getTriangles(experiment, chain, generation, "s")
+def structureScore(experiment, chain, generation, metric='dt', simulations=1000, set_type="s", meaning_distances=None):
+    strings = getWords(experiment, chain, generation, set_type)
     string_distances = stringDistances(strings)
-    meaning_distances = meaningDistances(meanings)
+    if meaning_distances == None:
+        meanings = getTriangles(experiment, chain, generation, set_type)
+        meaning_distances = meaningDistances(meanings, metric)
     x = stats.pearsonr(string_distances, meaning_distances)[0]
     m, sd = MonteCarloStructure(string_distances, meaning_distances, simulations)
     z = (x-m)/sd
@@ -340,11 +367,43 @@ def stringDistances(strings):
 
 # FOR EACH PAIR OF TRIANGLES, CALCULATE THE DISTANCE BETWEEN THEM
 
-def meaningDistances(meanings):
+def meaningDistances(meanings, metric):
     distances = []
-    for i in range(0,len(meanings)):
-        for j in range(i+1,len(meanings)):
-            distances.append(geometry.dT_up_to_rigid_motion(meanings[i],meanings[j]))
+    if metric == "dt":
+        for i in range(0,len(meanings)):
+            for j in range(i+1,len(meanings)):
+                distances.append(geometry.dT(meanings[i],meanings[j]))
+    elif metric == "dtt":
+        for i in range(0,len(meanings)):
+            for j in range(i+1,len(meanings)):
+                distances.append(geometry.dT_up_to_translation(meanings[i],meanings[j]))
+    elif metric == "dtr":
+        for i in range(0,len(meanings)):
+            for j in range(i+1,len(meanings)):
+                distances.append(geometry.dT_up_to_rotation(meanings[i],meanings[j]))
+    elif metric == "dts":
+        for i in range(0,len(meanings)):
+            for j in range(i+1,len(meanings)):
+                distances.append(geometry.dT_up_to_scale(meanings[i],meanings[j]))
+    elif metric == "dtrm":
+        for i in range(0,len(meanings)):
+            for j in range(i+1,len(meanings)):
+                distances.append(geometry.dT_up_to_rigid_motion(meanings[i],meanings[j]))
+    elif metric == "dtst":
+        for i in range(0,len(meanings)):
+            for j in range(i+1,len(meanings)):
+                distances.append(geometry.dT_up_to_scaled_translation(meanings[i],meanings[j]))
+    elif metric == "dtsr":
+        for i in range(0,len(meanings)):
+            for j in range(i+1,len(meanings)):
+                distances.append(geometry.dT_up_to_scaled_rotation(meanings[i],meanings[j]))
+    elif metric == "dtsrm":
+        for i in range(0,len(meanings)):
+            for j in range(i+1,len(meanings)):
+                distances.append(geometry.dT_up_to_scaled_rigid_motion(meanings[i],meanings[j]))
+    else:
+        print "Invalid metric"
+        return False
     return distances
 
 #############################################################################
