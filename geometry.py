@@ -31,10 +31,16 @@ def translate(B, A):
 
 def rotate(A):
     c = centroid(A)
-    p, q, r = ED(c,A[0]), ED(c,(c[0],0)), ED((c[0],0),A[0])
-    theta = arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
-    if A[0][0] > c[0]:
-        theta = 0.0-theta
+    if A[0][0] == c[0]:
+        if A[0][1] > c[1]:
+            theta = 3.1415926535897931
+        else:
+            return A
+    else:
+        p, q, r = ED(c,A[0]), ED(c,(c[0],0)), ED((c[0],0),A[0])
+        theta = arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
+        if A[0][0] > c[0]:
+            theta = 0.0-theta
     return dot(A-c,array([[cos(theta),sin(theta)],[-sin(theta),cos(theta)]]))+c
 
 #############################################################################
