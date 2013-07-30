@@ -1,4 +1,4 @@
-from numpy import arccos, array, cos, dot, log, sin, sqrt
+from numpy import arccos, array, cos, dot, sin, sqrt
 
 #############################################################################
 #   CALCULATE THE EUCLIDEAN DISTANCE BETWEEN TWO POINTS
@@ -7,12 +7,10 @@ def ED(a, b):
     return sqrt(((a[0]-b[0])**2.0)+((a[1]-b[1])**2.0))
 
 #############################################################################
-#   CALCULATE THE AREA OF TRIANGLE A
+#   CALCULATE THE PERIMETER OF TRIANGLE A
 
-def area(A):
-    a, b, c = ED(A[0],A[1]), ED(A[1],A[2]), ED(A[2],A[0])
-    s = (a+b+c)/2.0
-    return sqrt(s*(s-a)*(s-b)*(s-c))
+def perimeter(A):
+    return ED(A[0],A[1])+ED(A[1],A[2])+ED(A[2],A[0])
 
 #############################################################################
 #   FIND THE CENTROID OF TRIANGLE A
@@ -47,7 +45,7 @@ def rotate(A):
 # SCALE TRIANGLE A SO THAT ITS AREA IS 18,000 SQUARE PIXELS
 
 def scale(A):
-    f = sqrt(18000.0/area(A))
+    f = 750.0/perimeter(A)
     c = centroid(A)
     return ((A-c)*f)+c
 
@@ -55,7 +53,7 @@ def scale(A):
 # TRIANGLE DISTANCE MEASURES
 
 def dT(A, B):
-    return log(1+ED(A[0],B[0])+min(ED(A[1],B[1])+ED(A[2],B[2]),ED(A[1],B[2])+ED(A[2],B[1])))
+    return ED(A[0],B[0])+min(ED(A[1],B[1])+ED(A[2],B[2]),ED(A[1],B[2])+ED(A[2],B[1]))
 
 def dT_up_to_translation(A, B):
     return dT(A, translate(B, A))
