@@ -7,6 +7,14 @@ def ED(a, b):
     return sqrt(((a[0]-b[0])**2.0)+((a[1]-b[1])**2.0))
 
 #############################################################################
+#   CALCULATE THE AREA OF TRIANGLE A
+
+def area(A):
+    a, b, c = ED(A[0],A[1]), ED(A[1],A[2]), ED(A[2],A[0])
+    s = (a+b+c)/2.0
+    return sqrt(s*(s-a)*(s-b)*(s-c))
+
+#############################################################################
 #   CALCULATE THE PERIMETER OF TRIANGLE A
 
 def perimeter(A):
