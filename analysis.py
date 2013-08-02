@@ -3,7 +3,8 @@ import geometry
 import Levenshtein
 import matplotlib.pyplot as plt
 import page
-from random import shuffle
+from random import shuffle, seed
+from randomdotorg import RandomDotOrg
 from scipy import array, log2, mean, sqrt, stats, std
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"]]
@@ -88,6 +89,8 @@ def allTransmissionErrors(experiment):
 def allLearnability(experiment, sims=100000):
     results = []
     for chain in chain_codes[experiment-1]:
+        print "Chain " + chain + "..."
+        seed(RandomDotOrg().get_seed())
         scores = []
         for generation in range(1, 11):
             score = learnability(experiment, chain, generation, sims)[3]
@@ -112,11 +115,14 @@ def allTrainingErrors(experiment):
 # PLOT MEANS FOR EACH GENERATION WITH ERROR BARS (95% CI)
 
 def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
+    fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
     m = len(matrix)
     n = len(matrix[0])
     if conf == True:
-        plt.plot(range(0,n+2), [1.959964] * (n+2), color='gray', linestyle='--')
-        plt.plot(range(0,n+2), [2.734369] * (n+2), color='k', linestyle=':')
+        ax.plot(range(0,n+2), [1.959964] * (n+2), color='gray', linestyle=':')
+        ax.plot(range(0,n+2), [-1.959964] * (n+2), color='gray', linestyle=':')
+        ax.plot(range(0,n+2), [2.734369] * (n+2), color='k', linestyle='--')
+        ax.plot(range(0,n+2), [-2.734369] * (n+2), color='k', linestyle='--')
     means = []
     errors = []    
     for i in range(0,n):
@@ -124,24 +130,23 @@ def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
         means.append(mean(column))
         errors.append((std(column)/sqrt(m))*1.959964)
     xvals = range(start, n+start)
-    plt.errorbar(xvals, means, yerr=errors, color='k', linestyle="-", linewidth=2.0)
+    (_, caps, _) = ax.errorbar(xvals, means, yerr=errors, color='k', linestyle="-", linewidth=2.0, capsize=5.0, elinewidth=1.5)
+    for cap in caps:
+        cap.set_markeredgewidth(2)
     labels = range(start, start+n)
-    plt.xticks(xvals, labels)
+    plt.xticks(xvals, labels, fontsize=14)
+    plt.yticks(fontsize=14)
     plt.xlim(start-0.5, n+start-0.5)
     plt.ylim(miny, maxy)
-    plt.xlabel("Generation number", fontsize=18)
-    plt.ylabel(y_label, fontsize=18)
+    plt.xlabel("Generation number", fontsize=22)
+    plt.ylabel(y_label, fontsize=22)
     plt.show()
 
 #############################################################################
 # PLOT ALL CHAINS FROM A DATA MATRIX
 
-def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, short=True, conf=False):
-    if short==True:
-        aspect = 0.625
-    else:
-        aspect = 0.75
-    fig, ax = plt.subplots(figsize=plt.figaspect(aspect))
+def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
+    fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
     colours = ["#2E578C","#5D9648","#E7A13D","#BC2D30"]
     n = len(matrix[0])
     xvals = range(start, n+start)
@@ -156,17 +161,10 @@ def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, short=True, co
     labels = range(start, start+n)
     plt.xlim(start, n+start-1)
     plt.ylim(miny, maxy) 
-
-    if short==True:
-        plt.xticks(xvals, labels, fontsize=14)
-        plt.yticks(fontsize=14)
-        plt.xlabel("Generation number", fontsize=22)
-        plt.ylabel(y_label, fontsize=22)
-    else:
-        plt.xticks(xvals, labels)
-        plt.xlabel("Generation number", fontsize=18)
-        plt.ylabel(y_label, fontsize=18)
-
+    plt.xticks(xvals, labels, fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.xlabel("Generation number", fontsize=22)
+    plt.ylabel(y_label, fontsize=22)
     plt.show()
 
 #############################################################################
@@ -291,40 +289,27 @@ def overuseCount(chain, generation):
 #############################################################################
 # GET STRUCTURE SCORES FOR ALL METRICS
 
-def allMetrics(experiment, sims=1000, set_type="s"):
+def allMetrics(experiment, sims=1000):
     data = []
     for metric in ['dt','dtt','dtr','dts','dtrm','dtst','dtsr','dtsrm']:
         print "-------------\nMETRIC: " + metric + "\n-------------"
-        data.append(allStructureScores(experiment, metric, sims, set_type))
+        data.append(allStructureScores(experiment, metric, sims))
     return data
 
 #############################################################################
 # GET STRUCTURE SCORES FOR ALL CHAINS IN AN EXPERIMENT
 
-def allStructureScores(experiment, metric='dt', sims=1000, set_type="s"):
-    if set_type == "s":
-        meanings = getTriangles(1, "A", 0, "s")
-        meaning_distances = meaningDistances(meanings, metric)
-        unique_index = 1
-    elif set_type == "d":
-        unique_index = 0
-    elif set_type == "c":
-        unique_index = 2
-    else:
-        print "Invalid set type"
-        return False
-    
+def allStructureScores(experiment, metric='dt', sims=1000):
+    meanings = getTriangles(1, "A", 0, "s")
+    meaning_distances = meaningDistances(meanings, metric)
     matrix = []
     for chain in chain_codes[experiment-1]:
         print "  Chain " + chain + "..."
+        seed(RandomDotOrg().get_seed())
         scores = []
         for generation in range(0, 11):
-            if uniqueStrings(experiment, chain, generation)[unique_index] > 1:
-                if set_type == "s":
-                    score = structureScore(experiment, chain, generation, metric, sims, set_type, meaning_distances)[3]
-                else:
-                    score = structureScore(experiment, chain, generation, metric, sims, set_type, None)[3]
-                scores.append(score)
+            if uniqueStrings(experiment, chain, generation)[1] > 3:
+                scores.append(structureScore(experiment, chain, generation, metric, sims, meaning_distances)[3])
             else:
                 scores.append(None)
         matrix.append(scores)
@@ -335,11 +320,11 @@ def allStructureScores(experiment, metric='dt', sims=1000, set_type="s"):
 # DISTANCES THROUGH A MONTE CARLO SIMULATION. RETURN THE VERDICAL COEFFICIENT,
 # THE MEAN AND STANDARD DEVIATION OF THE MONTE CARLO SAMPLE, AND THE Z-SCORE
 
-def structureScore(experiment, chain, generation, metric='dt', simulations=1000, set_type="s", meaning_distances=None):
-    strings = getWords(experiment, chain, generation, set_type)
+def structureScore(experiment, chain, generation, metric='dt', simulations=1000, meaning_distances=None):
+    strings = getWords(experiment, chain, generation, 's')
     string_distances = stringDistances(strings)
     if meaning_distances == None:
-        meanings = getTriangles(experiment, chain, generation, set_type)
+        meanings = getTriangles(experiment, chain, generation, 's')
         meaning_distances = meaningDistances(meanings, metric)
     x = stats.pearsonr(string_distances, meaning_distances)[0]
     m, sd = MonteCarloStructure(string_distances, meaning_distances, simulations)
@@ -413,34 +398,90 @@ def meaningDistances(meanings, metric):
 # CALCULATE THE ENTROPY OF A LANGUAGE
 
 def entropy(experiment, chain, generation):
+    P = syllableProbabilities(experiment, chain, generation)
+    return 0.0-sum([p*log2(p) for p in P])
+
+#############################################################################
+# CALCULATE THE CONDITIONAL ENTROPY OF A LANGUAGE
+
+def conditionalEntropy(experiment, chain, generation):
+    X, Y, M = bisyllableProbabilities(experiment, chain, generation)
+    N = float(len(X))
+    return 0.0-sum([M[x][y]*log2(M[x][y]/(X[x]/N)) for x in X.keys() for y in Y.keys()])
+
+#############################################################################
+# GET SYLLABLE PROBABILITIES
+
+def syllableProbabilities(experiment, chain, generation):
     words = getWords(experiment, chain, generation, "c")
     segmented_words = segment(words)
-    S = {}
+    syllables = {}
     for word in segmented_words:
-        syllables = word.split("|")
-        for s in syllables:
-            if s in S.keys():
-                S[s] += 1.0
+        for syllable in word:
+            if syllable in syllables.keys():
+                syllables[syllable] += 1.0
             else:
-                S[s] = 1.0
-    N = float(sum(S.values()))
-    H = 0.0 - sum([(s/N)*log2(s/N) for s in S.values()])
-    return H
+                syllables[syllable] = 1.0
+    F = syllables.values()
+    N = float(sum(F))
+    return [f/N for f in F]
 
-rules = [['ei', 'EY'],['oo','UW'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
-         ['au', 'AW'], ['oi', 'OY'], ['iu', 'IWUW'], ['oa', 'OWAA'],
-         ['o', 'OW'], ['ia', 'IYAA'], ['ua', 'UWAA'], ['ou', 'OWUW'],
-         ['i', 'IY'], ['a', 'AA'],['e', 'EH'], ['u', 'UW'], ['ch', 'C'],
-         ['j', 'J'], ['c', 'k'], ['ng', 'N'], ['sh', 'S'], ['th', 'T'],
-         ['zz', 'z'], ['pp', 'p'], ['kk','k'],['dd','d']]
+def bisyllableProbabilities(experiment, chain, generation):
+    words = getWords(experiment, chain, generation, "c")
+    segmented_words = segment(words)
+    bisyllables = {}
+    for word in segmented_words:
+        for i in range(0,len(word)-1):
+            bisyll = "|".join(word[i:i+2])
+            if bisyll in bisyllables.keys():
+                bisyllables[bisyll] += 1.0
+            else:
+                bisyllables[bisyll] = 1.0
+    N = len(bisyllables)
+    X = {}
+    Y = {}
+    for bisyll in bisyllables.keys():
+        x, y = bisyll.split("|")
+        if x in X.keys():
+            X[x] += 1.0
+        else:
+            X[x] = 1.0
+        if y in Y.keys():
+            Y[y] += 1.0
+        else:
+            Y[y] = 1.0
+    matrix = {}
+    for x in X.keys():
+        row = {}
+        px = X[x]/float(N)
+        for y in Y.keys():
+            row[y] = (px*(Y[y]/float(N)))
+        matrix[x] = row
+    return X, Y, matrix
+
+#############################################################################
+# SEGMENT WORDS INTO THEIR COMPONENT SYLLABLES
+
+rules = [['ei', 'EY'],['oo','UW'],['or', 'AOr'],['ai', 'AY'],['ae', 'AY'],
+             ['au', 'AW'],['oi', 'OY'],['o', 'OW'],['i', 'IY'],['a', 'AA'],
+             ['e', 'EH'],['u', 'UW'],['ch', 'C'],['j', 'J'],['ck', 'k'],
+             ['c', 'k'],['ng', 'N'],['sh', 'S'],['th', 'T']]
 
 def segment(words):
+    segmented_words = []
     for i in range(0,len(words)):
         for rule in rules:            
             words[i] = words[i].replace(rule[0], rule[1]+"|")
         if words[i][-1] == "|":
             words[i] = words[i][:-1]
-    return words
+        segmented_words.append(words[i].split("|"))
+    for i in segmented_words:
+        for j in range(0, len(i)):
+            if len(i[j]) == 1:
+                i[j-1] = i[j-1] + i[j]
+                i.pop(j)
+                j = j-1
+    return segmented_words
 
 #############################################################################
 # WRITE OUT A MATRIX TO A FILE ON THE DESKTOP
