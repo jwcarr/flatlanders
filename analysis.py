@@ -2,10 +2,12 @@ from datetime import timedelta
 import geometry
 import Levenshtein
 import matplotlib.pyplot as plt
+import numpy
 import page
 from random import shuffle, seed
 from randomdotorg import RandomDotOrg
-from scipy import array, log2, mean, sqrt, stats, std
+from scipy import log, log2, mean, sqrt, stats, std
+import scipy.cluster
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"]]
 
@@ -236,7 +238,7 @@ def getTriangles(experiment, chain, generation, set_type):
         x1, y1 = row[1].split(',')
         x2, y2 = row[2].split(',')
         x3, y3 = row[3].split(',')
-        triangles.append(array([[float(x1),float(y1)],[float(x2),float(y2)],[float(x3),float(y3)]]))
+        triangles.append(numpy.array([[float(x1),float(y1)],[float(x2),float(y2)],[float(x3),float(y3)]]))
     return triangles
 
 #############################################################################
@@ -495,3 +497,124 @@ def writeOut(matrix, filename='file'):
     f = open('/Users/jon/Desktop/' + filename + '.txt', 'w')
     f.write(data)
     f.close()
+
+#############################################################################
+# READ IN A PREVIOUSLY SAVED DATA FILE TO A MATRIX
+
+def readIn(filename):
+    f = open(filename, 'r')
+    data = f.read()
+    f.close()
+    lines = data.split("\n")
+    matrix = []
+    for line in lines:
+        cells = line.split("\t")
+        row = []
+        for cell in cells:
+            try:
+                cell = float(cell)
+            except:
+                cell = None
+            row.append(cell)
+        matrix.append(row)
+    return matrix
+
+#############################################################################
+# PLOT A SHAPE-SIZE SCATTER PLOT
+
+def size_shape_plot(experiment, chain, generation, use_clustering=False, clusters=5):
+    triangles = getTriangles(experiment, chain, generation, 's')
+    perimeters = [geometry.perimeter(T) for T in triangles]
+    areas = [geometry.area(T) for T in triangles]
+    words = getWords(experiment, chain, generation, 's')
+    uniques = set(words)
+    matrix = {}
+    for word in uniques:
+        dups = []
+        for i in range(0, len(words)):
+            if words[i] == word:
+                dups.append(i)
+        matrix[word] = dups
+    colours = ["#2E578C","#5D9648","#E7A13D","black","#BC2D30","gray","purple","aqua"]
+    i = 0
+    fig, ax = plt.subplots(figsize=plt.figaspect(0.75))
+    if use_clustering == True:
+        clustered_words = cluster(words, clusters)
+        L=[]
+        for c in clustered_words:
+            P = [perimeters[x] for x in c]
+            R = [areas[x] for x in c]
+            L.append(set([words[x] for x in c]))
+            ax.scatter(P, R, color=colours[i], s=40, marker="^")
+            i += 1
+        clust_labels = []
+        for x in range(1,clusters+1):
+            if len(L[x-1]) > 1:
+                clust_labels.append("cluster "+str(x))
+            else:
+                clust_labels.append(str(L[x-1])[6:-3])
+        l = plt.legend(clust_labels, loc=2, scatterpoints=1)
+    else:        
+        for word in matrix.keys():
+            P = [perimeters[x] for x in matrix[word]]
+            R = [areas[x] for x in matrix[word]]
+            ax.scatter(P, R, color=colours[i], s=40, marker="^")
+            i += 1    
+        l = plt.legend(matrix.keys(), loc=2, scatterpoints=1)
+    l.draw_frame(False)
+    ax.plot(range(100,1401), [peri_to_area(x) for x in range(100,1401)], color='gray', linestyle=':')
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.xlabel("Perimeter", fontsize=22)
+    plt.ylabel("Area (log scale)", fontsize=22)
+    plt.xlim(100,1400)
+    plt.ylim(100,100000)
+    plt.semilogy()
+    #plt.savefig(chain+str(generation)+".pdf", transparent=True)
+    plt.show()
+
+#############################################################################
+# CALCULATE THE AREA OF AN EQUILATERAL TRIANGLE WITH PERIMETER X
+
+def peri_to_area(perimeter):
+    base = perimeter/3.0
+    half_base = base/2.0
+    height = sqrt((base**2)-(half_base**2))
+    return (base*height)/2.0
+
+#############################################################################
+# CLUSTER WORDS AND RETURN 
+
+def cluster(words, clusters):
+    linkage_matrix = clusterWords(words)
+    clustered_words = getClusters(linkage_matrix, clusters, len(words))
+    return clustered_words
+
+#############################################################################
+# PERFORM AGGLOMERATIVE HIERARCHICAL CLUSTERING AND RETURNS LINKAGE MATRIX
+
+def clusterWords(words):
+    distance_matrix = numpy.array([])
+    for i in range(0, len(words)):
+        for j in range(i + 1, len(words)):
+            ld = Levenshtein.distance(words[i], words[j])
+            nld = ld/float(max(len(words[i]), len(words[j])))
+            distance_matrix = numpy.append(distance_matrix, nld)
+    distSquareMatrix = scipy.spatial.distance.squareform(distance_matrix)
+    linkage_matrix = scipy.cluster.hierarchy.average(distSquareMatrix)
+    return linkage_matrix
+
+#############################################################################
+# GET BUILDING BLOCKS GIVEN A LINKAGE MATRIX AND SPECIFIC NUMBER OF BLOCKS
+
+def getClusters(linkage_matrix, clusters, n):
+    blocks = [[x] for x in range(0,n)]        
+    for i in linkage_matrix:
+        if len([value for value in blocks if value != None]) == clusters:
+            break
+        else:
+            merged_block = blocks[int(i[0])] + blocks[int(i[1])]
+            blocks.append(merged_block)
+            blocks[int(i[0])] = None
+            blocks[int(i[1])] = None
+    return [value for value in blocks if value != None]
