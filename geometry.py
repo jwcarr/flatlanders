@@ -7,6 +7,18 @@ def ED(a, b):
     return sqrt(((a[0]-b[0])**2.0)+((a[1]-b[1])**2.0))
 
 #############################################################################
+#   CALCULATE THE ANGLE OF A VERTEX
+
+def angle(A, vertex):
+    if vertex == 1:
+        p, q, r = ED(A[2],A[0]), ED(A[0],A[1]), ED(A[1],A[2])
+    elif vertex == 2:
+        p, q, r = ED(A[0],A[1]), ED(A[1],A[2]), ED(A[2],A[0])
+    elif vertex == 3:
+        p, q, r = ED(A[1],A[2]), ED(A[2],A[0]), ED(A[0],A[1])
+    return arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
+
+#############################################################################
 #   CALCULATE THE AREA OF TRIANGLE A
 
 def area(A):
