@@ -6,7 +6,7 @@ import numpy
 import page
 from random import shuffle, seed
 from randomdotorg import RandomDotOrg
-from scipy import log, log2, mean, sqrt, stats, std
+from scipy import log, log2, mean, polyfit, sqrt, stats, std
 import scipy.cluster
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"]]
@@ -522,7 +522,7 @@ def readIn(filename):
 #############################################################################
 # PLOT A SHAPE-SIZE SCATTER PLOT
 
-def size_shape_plot(experiment, chain, generation, use_clustering=False, clusters=5):
+def sizeShapePlot(experiment, chain, generation, use_clustering=False, clusters=5):
     triangles = getTriangles(experiment, chain, generation, 's')
     perimeters = [geometry.perimeter(T) for T in triangles]
     areas = [geometry.area(T) for T in triangles]
@@ -548,6 +548,7 @@ def size_shape_plot(experiment, chain, generation, use_clustering=False, cluster
             ax.scatter(P, R, color=colours[i], s=40, marker="^")
             i += 1
         clust_labels = []
+        print L
         for x in range(1,clusters+1):
             if len(L[x-1]) > 1:
                 clust_labels.append("cluster "+str(x))
@@ -562,7 +563,7 @@ def size_shape_plot(experiment, chain, generation, use_clustering=False, cluster
             i += 1    
         l = plt.legend(matrix.keys(), loc=2, scatterpoints=1)
     l.draw_frame(False)
-    ax.plot(range(100,1401), [peri_to_area(x) for x in range(100,1401)], color='gray', linestyle=':')
+    ax.plot(range(100,1401), [(p**2)/(12*sqrt(3)) for p in range(100,1401)], color='k', linestyle='-')
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)
     plt.xlabel("Perimeter", fontsize=22)
@@ -572,15 +573,6 @@ def size_shape_plot(experiment, chain, generation, use_clustering=False, cluster
     plt.semilogy()
     #plt.savefig(chain+str(generation)+".pdf", transparent=True)
     plt.show()
-
-#############################################################################
-# CALCULATE THE AREA OF AN EQUILATERAL TRIANGLE WITH PERIMETER X
-
-def peri_to_area(perimeter):
-    base = perimeter/3.0
-    half_base = base/2.0
-    height = sqrt((base**2)-(half_base**2))
-    return (base*height)/2.0
 
 #############################################################################
 # CLUSTER WORDS AND RETURN 
@@ -618,3 +610,73 @@ def getClusters(linkage_matrix, clusters, n):
             blocks[int(i[0])] = None
             blocks[int(i[1])] = None
     return [value for value in blocks if value != None]
+
+def intergenCorr(x, y, y_axis='ln'):
+    m, b = polyfit(x, y, 1)
+    ln = [(m*i)+b for i in range(-4,11)]
+    fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
+    ax.scatter(x, y, marker="x", color='k', s=60)
+    ax.plot(range(-4,11), ln, color="#2E578C", linewidth=2.0)
+    plt.xlim(-4,10)
+    plt.gcf().subplots_adjust(bottom=0.12)
+    plt.xlabel("Structure score ($d_{T_{rm}}$) for generation $i-1$", fontsize=22)
+    if y_axis == 'ln':
+        plt.ylim(-2,8)
+        plt.ylabel("Learnability score for generation $i$", fontsize=22)
+    else:
+        plt.ylim(0,1)
+        plt.ylabel("Transmission error for generation $i$", fontsize=22)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.show()
+
+def triangleOverlayGraphic(experiment, chain, generation, word, col, spot_based=True):
+    colours = ["#2E578C","#5D9648","#E7A13D","black","#BC2D30","#7D807F","#6F3D79"]
+    washed_colours = ["#9AB4D0", "#AED4A7", "#F8D796", "#7F7F7F", "#EA949A", "#C6C8C8", "#C4A2C7"]
+    colour = colours[col]
+    w_colour = washed_colours[col]
+    words = getWords(experiment, chain, generation, "s")
+    triangles = getTriangles(experiment, chain, generation, "s")
+    html = ""
+    T = []
+    for i in range(0, len(words)):
+        if words[i] in word:
+
+            html = html + "c.beginPath(); c.moveTo("+ str(triangles[i][0][0]) +","+ str(triangles[i][0][1]) +"); c.lineTo("+ str(triangles[i][1][0]) +","+ str(triangles[i][1][1]) +"); c.lineTo("+ str(triangles[i][2][0]) +","+ str(triangles[i][2][1]) +"); c.closePath(); c.lineWidth=3; c.strokeStyle='"+ w_colour +"'; c.stroke(); c.beginPath(); c.arc("+ str(triangles[i][0][0]) +","+ str(triangles[i][0][1]) +", 8, 0, 2 * Math.PI, false); c.fillStyle = '"+ w_colour +"'; c.strokeStyle = '"+ w_colour +"'; c.lineWidth = 1; c.fill(); c.stroke();"
+
+            t = geometry.translate(triangles[i], numpy.array([[240.,240.],[240.,240.],[240.,240.]]))
+
+            if spot_based == True:
+                t = geometry.rotate(t)
+            else:
+                a, b, c = geometry.angle(t,1), geometry.angle(t,2), geometry.angle(t,3)
+                angles = {'a':a, 'b':b, 'c':c}
+                min_ang = min(angles, key=angles.get)
+                if min_ang == 'a':
+                    t = numpy.array([[t[0][0], t[0][1]], [t[1][0], t[1][1]], [t[2][0], t[2][1]]])
+                elif min_ang == 'b':
+                    t = numpy.array([[t[1][0], t[1][1]], [t[2][0], t[2][1]], [t[0][0], t[0][1]]])
+                elif min_ang == 'c':
+                    t = numpy.array([[t[2][0], t[2][1]], [t[0][0], t[0][1]], [t[1][0], t[1][1]]])
+                t = geometry.rotate(t)
+            
+            if t[1][0] > t[2][0]:
+                t = numpy.array([t[0],t[2],t[1]])
+            T.append(t)
+    N = len(T)
+    x1 = sum([T[x][0][0] for x in range(0,N)])/float(N)
+    y1 = sum([T[x][0][1] for x in range(0,N)])/float(N)
+    x2 = sum([T[x][1][0] for x in range(0,N)])/float(N)
+    y2 = sum([T[x][1][1] for x in range(0,N)])/float(N)
+    x3 = sum([T[x][2][0] for x in range(0,N)])/float(N)
+    y3 = sum([T[x][2][1] for x in range(0,N)])/float(N)
+    P = numpy.array([[x1,y1],[x2,y2],[x3,y3]])
+    html = html + "c.beginPath(); c.moveTo("+ str(P[0][0]) +","+ str(P[0][1]) +"); c.lineTo("+ str(P[1][0]) +","+ str(P[1][1]) +"); c.lineTo("+ str(P[2][0]) +","+ str(P[2][1]) +"); c.closePath(); c.lineWidth=2; c.strokeStyle='"+ colour +"'; c.fillStyle='"+ colour +"'; c.stroke(); c.fill();"
+    writeOutHTML(html, word[0])
+    return
+
+def writeOutHTML(html, name):
+    data = "<!DOCTYPE HTML>\n<head>\n<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />\n<title>" + name + "</title>\n\n<script type='text/javascript'>function DrawTriangle() { var canvas = document.getElementById('rectangle'); var c = canvas.getContext('2d');" + html + "}</script>       \n</head>\n\n<body onload='DrawTriangle()'>\n\n<table style='width:100%;'>\n    <tr>\n        <td style='text-align:center;'>\n\n        <table style='width:800px; margin-left:auto; margin-right:auto;'>\n            <tr>\n                <td>\n                    <canvas id='rectangle' width='500' height='500' style='border:gray 1px dashed'></canvas>\n                </td>\n            </tr>\n        </table>\n                </td>\n    </tr>\n</table>\n        \n</body>\n        \n</html>"
+    f = open('/Users/jon/Desktop/' + name + '.html', 'w')
+    f.write(data)
+    f.close()
