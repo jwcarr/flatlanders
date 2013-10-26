@@ -62,7 +62,7 @@ def rotate(A):
     return dot(A-c,array([[cos(theta),sin(theta)],[-sin(theta),cos(theta)]]))+c
 
 #############################################################################
-# SCALE TRIANGLE A SO THAT ITS AREA IS 18,000 SQUARE PIXELS
+# SCALE TRIANGLE A SO THAT ITS PERIMETER IS 750 PIXELS
 
 def scale(A):
     f = 750.0/perimeter(A)
