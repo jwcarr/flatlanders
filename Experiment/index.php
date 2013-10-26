@@ -214,7 +214,7 @@
     
     function generateMap() {
         // Import required global variables
-        global $set_size; global $mini_test_frequency;
+        global $set_size, $mini_test_frequency;
         
         // First we want to present the welcome page
         $map = "BEGIN";
@@ -339,7 +339,7 @@
     // Generate a random triangle stimulus
     function generateTriangle() {
         // Import global parameters
-        global $canvas_width; global $canvas_height; global $canvas_border;
+        global $canvas_width, $canvas_height, $canvas_border;
         
         // Choose coordinates for point A
         $x1 = rand($canvas_border+1, $canvas_width-$canvas_border);
