@@ -8,6 +8,7 @@ from random import shuffle, seed
 from randomdotorg import RandomDotOrg
 from scipy import log, log2, mean, polyfit, sqrt, stats, std
 import scipy.cluster
+import re
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"]]
 
@@ -121,10 +122,10 @@ def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
     m = len(matrix)
     n = len(matrix[0])
     if conf == True:
-        ax.plot(range(0,n+2), [1.959964] * (n+2), color='gray', linestyle=':')
-        ax.plot(range(0,n+2), [-1.959964] * (n+2), color='gray', linestyle=':')
-        ax.plot(range(0,n+2), [2.734369] * (n+2), color='k', linestyle='--')
-        ax.plot(range(0,n+2), [-2.734369] * (n+2), color='k', linestyle='--')
+        ax.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':')
+        ax.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':')
+        ax.plot(range(-1,n+2), [2.734369] * (n+3), color='k', linestyle='--')
+        ax.plot(range(-1,n+2), [-2.734369] * (n+3), color='k', linestyle='--')
     means = []
     errors = []    
     for i in range(0,n):
@@ -172,7 +173,15 @@ def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
 #############################################################################
 # RUN ALL THREE STATS
 
-def runStats(matrix, hypothesis="d"):
+def runStats(data_matrix, hypothesis="d", include_gen_zero=True):
+
+    if include_gen_zero == False:
+        matrix = []
+        for row in data_matrix:
+            matrix.append([row[i] for i in range(1,len(row))])
+    else:
+        matrix = data_matrix
+    
     page_results = page.ptt(matrix, hypothesis)
     print('''Page's trend test
 L = %s, m = %s, n = %s, p %s, one-tailed''' % page_results)
@@ -401,7 +410,7 @@ def meaningDistances(meanings, metric):
 
 def entropy(experiment, chain, generation):
     P = syllableProbabilities(experiment, chain, generation)
-    return 0.0-sum([p*log2(p) for p in P])
+    return 0.0-sum([p*log2(p) for p in P.values()])
 
 #############################################################################
 # CALCULATE THE CONDITIONAL ENTROPY OF A LANGUAGE
@@ -414,9 +423,9 @@ def conditionalEntropy(experiment, chain, generation):
 #############################################################################
 # GET SYLLABLE PROBABILITIES
 
-def syllableProbabilities(experiment, chain, generation):
-    words = getWords(experiment, chain, generation, "c")
-    segmented_words = segment(words)
+def syllableProbabilities(experiment, chain, generation, start_stop=False):
+    words = getWords(experiment, chain, generation, "d")
+    segmented_words = segment(words, start_stop)
     syllables = {}
     for word in segmented_words:
         for syllable in word:
@@ -424,52 +433,50 @@ def syllableProbabilities(experiment, chain, generation):
                 syllables[syllable] += 1.0
             else:
                 syllables[syllable] = 1.0
-    F = syllables.values()
-    N = float(sum(F))
-    return [f/N for f in F]
+    N = float(sum(syllables.values()))
+    for s in syllables.keys():
+        syllables[s] = syllables[s]/N
+    return syllables
 
-def bisyllableProbabilities(experiment, chain, generation):
-    words = getWords(experiment, chain, generation, "c")
-    segmented_words = segment(words)
+def condEnt(experiment, chain, generation):
+    syllables = syllableProbabilities(experiment, chain, generation, True)
+    bisyllables = bisyllableProbabilities(experiment, chain, generation, True)
+    H = 0.0
+    for x in syllables.keys():
+        p_x = syllables[x]
+        total = 0.0
+        for y in syllables.keys():
+            if bisyllables.has_key(x+y) == True:
+                p_xy = bisyllables[x+y]
+                total += p_xy*log2(p_xy)
+        H += (p_x * total)
+    return -H
+
+def bisyllableProbabilities(experiment, chain, generation, start_stop=True):
+    words = getWords(experiment, chain, generation, "d")
+    segmented_words = segment(words, start_stop)
     bisyllables = {}
     for word in segmented_words:
         for i in range(0,len(word)-1):
-            bisyll = "|".join(word[i:i+2])
+            bisyll = "".join(word[i:i+2])
             if bisyll in bisyllables.keys():
                 bisyllables[bisyll] += 1.0
             else:
                 bisyllables[bisyll] = 1.0
-    N = len(bisyllables)
-    X = {}
-    Y = {}
-    for bisyll in bisyllables.keys():
-        x, y = bisyll.split("|")
-        if x in X.keys():
-            X[x] += 1.0
-        else:
-            X[x] = 1.0
-        if y in Y.keys():
-            Y[y] += 1.0
-        else:
-            Y[y] = 1.0
-    matrix = {}
-    for x in X.keys():
-        row = {}
-        px = X[x]/float(N)
-        for y in Y.keys():
-            row[y] = (px*(Y[y]/float(N)))
-        matrix[x] = row
-    return X, Y, matrix
+    N = float(sum(bisyllables.values()))
+    for s in bisyllables.keys():
+        bisyllables[s] = bisyllables[s]/N
+    return bisyllables
 
 #############################################################################
 # SEGMENT WORDS INTO THEIR COMPONENT SYLLABLES
 
-rules = [['ei', 'EY'],['oo','UW'],['or', 'AOr'],['ai', 'AY'],['ae', 'AY'],
+rules = [['zwac','zwAA'],['wac', 'wAA'],['ei', 'EY'],['oo','UW'],['or', 'AOr'],['ai', 'AY'],['ae', 'AY'],
              ['au', 'AW'],['oi', 'OY'],['o', 'OW'],['i', 'IY'],['a', 'AA'],
              ['e', 'EH'],['u', 'UW'],['ch', 'C'],['j', 'J'],['ck', 'k'],
              ['c', 'k'],['ng', 'N'],['sh', 'S'],['th', 'T']]
 
-def segment(words):
+def segment(words, start_stop=False):
     segmented_words = []
     for i in range(0,len(words)):
         for rule in rules:            
@@ -483,6 +490,9 @@ def segment(words):
                 i[j-1] = i[j-1] + i[j]
                 i.pop(j)
                 j = j-1
+        if start_stop == True:
+            i.insert(0,"<")
+            i.append(">")
     return segmented_words
 
 #############################################################################
@@ -611,21 +621,26 @@ def getClusters(linkage_matrix, clusters, n):
             blocks[int(i[1])] = None
     return [value for value in blocks if value != None]
 
-def intergenCorr(x, y, y_axis='ln'):
+def intergenCorr(experiment):
+    ln_data = readIn("/Users/jon/Desktop/Experiment " +str(experiment) + " data/ln.txt")
+    st_data = readIn("/Users/jon/Desktop/Experiment " +str(experiment) + " data/st.txt")
+    y = matrix2vector(ln_data)
+    x = matrix2vector(st_data)
+
+    r, p = stats.pearsonr(x,y)
+    n = len(x)
+    print r, n, p
     m, b = polyfit(x, y, 1)
     ln = [(m*i)+b for i in range(-4,11)]
+
     fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
     ax.scatter(x, y, marker="x", color='k', s=60)
-    ax.plot(range(-4,11), ln, color="#2E578C", linewidth=2.0)
+    ax.plot(range(-4,11), ln, color="k", linewidth=2.0)
     plt.xlim(-4,10)
     plt.gcf().subplots_adjust(bottom=0.12)
     plt.xlabel("Structure score ($d_{T_{rm}}$) for generation $i-1$", fontsize=22)
-    if y_axis == 'ln':
-        plt.ylim(-2,8)
-        plt.ylabel("Learnability score for generation $i$", fontsize=22)
-    else:
-        plt.ylim(0,1)
-        plt.ylabel("Transmission error for generation $i$", fontsize=22)
+    plt.ylim(-2,8)
+    plt.ylabel("Learnability score for generation $i$", fontsize=22)
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)
     plt.show()
@@ -636,15 +651,18 @@ def triangleOverlayGraphic(experiment, chain, generation, word, col, spot_based=
     colour = colours[col]
     w_colour = washed_colours[col]
     words = getWords(experiment, chain, generation, "s")
-    triangles = getTriangles(experiment, chain, generation, "s")
-    html = ""
-    T = []
+    T = getTriangles(experiment, chain, generation, "s")
+    svg = ""
+    T_new = []
     for i in range(0, len(words)):
         if words[i] in word:
+            if words[i] == "mappakiki":
+                w_colour = "#7F7F7F"
+            else:
+                w_colour = "#EA949A"
+            svg = svg + "  <g id='word "+str(i)+"'>\n    <polygon points='"+str(T[i][0][0])+","+str(T[i][0][1])+" "+str(T[i][1][0])+","+str(T[i][1][1])+" "+str(T[i][2][0])+","+str(T[i][2][1])+"' style='fill:none;stroke:"+w_colour+";stroke-width:3;stroke-linejoin:miter;'/>\n    <circle cx='"+str(T[i][0][0])+"' cy='"+str(T[i][0][1])+"' r='8' style='stroke:"+w_colour+";fill:"+w_colour+";'/>\n  </g>\n"
 
-            html = html + "c.beginPath(); c.moveTo("+ str(triangles[i][0][0]) +","+ str(triangles[i][0][1]) +"); c.lineTo("+ str(triangles[i][1][0]) +","+ str(triangles[i][1][1]) +"); c.lineTo("+ str(triangles[i][2][0]) +","+ str(triangles[i][2][1]) +"); c.closePath(); c.lineWidth=3; c.strokeStyle='"+ w_colour +"'; c.stroke(); c.beginPath(); c.arc("+ str(triangles[i][0][0]) +","+ str(triangles[i][0][1]) +", 8, 0, 2 * Math.PI, false); c.fillStyle = '"+ w_colour +"'; c.strokeStyle = '"+ w_colour +"'; c.lineWidth = 1; c.fill(); c.stroke();"
-
-            t = geometry.translate(triangles[i], numpy.array([[240.,240.],[240.,240.],[240.,240.]]))
+            t = geometry.translate(T[i], numpy.array([[250.,250.],[250.,250.],[250.,250.]]))
 
             if spot_based == True:
                 t = geometry.rotate(t)
@@ -662,21 +680,67 @@ def triangleOverlayGraphic(experiment, chain, generation, word, col, spot_based=
             
             if t[1][0] > t[2][0]:
                 t = numpy.array([t[0],t[2],t[1]])
-            T.append(t)
-    N = len(T)
-    x1 = sum([T[x][0][0] for x in range(0,N)])/float(N)
-    y1 = sum([T[x][0][1] for x in range(0,N)])/float(N)
-    x2 = sum([T[x][1][0] for x in range(0,N)])/float(N)
-    y2 = sum([T[x][1][1] for x in range(0,N)])/float(N)
-    x3 = sum([T[x][2][0] for x in range(0,N)])/float(N)
-    y3 = sum([T[x][2][1] for x in range(0,N)])/float(N)
+            T_new.append(t)
+    N = len(T_new)
+    x1 = sum([T_new[x][0][0] for x in range(0,N)])/float(N)
+    y1 = sum([T_new[x][0][1] for x in range(0,N)])/float(N)
+    x2 = sum([T_new[x][1][0] for x in range(0,N)])/float(N)
+    y2 = sum([T_new[x][1][1] for x in range(0,N)])/float(N)
+    x3 = sum([T_new[x][2][0] for x in range(0,N)])/float(N)
+    y3 = sum([T_new[x][2][1] for x in range(0,N)])/float(N)
     P = numpy.array([[x1,y1],[x2,y2],[x3,y3]])
-    html = html + "c.beginPath(); c.moveTo("+ str(P[0][0]) +","+ str(P[0][1]) +"); c.lineTo("+ str(P[1][0]) +","+ str(P[1][1]) +"); c.lineTo("+ str(P[2][0]) +","+ str(P[2][1]) +"); c.closePath(); c.lineWidth=2; c.strokeStyle='"+ colour +"'; c.fillStyle='"+ colour +"'; c.stroke(); c.fill();"
-    writeOutHTML(html, word[0])
+    svg = svg + "\n  <g id='prototype'>\n    <polygon points='"+str(P[0][0])+","+str(P[0][1])+" "+str(P[1][0])+","+str(P[1][1])+" "+str(P[2][0])+","+str(P[2][1])+"' style='fill:"+colour+";fill-opacity:0.9;stroke:"+colour+";stroke-width:3;stroke-join:miter'/>\n  </g>\n"
+    writeOutSVG(svg, word[0])
     return
 
-def writeOutHTML(html, name):
-    data = "<!DOCTYPE HTML>\n<head>\n<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />\n<title>" + name + "</title>\n\n<script type='text/javascript'>function DrawTriangle() { var canvas = document.getElementById('rectangle'); var c = canvas.getContext('2d');" + html + "}</script>       \n</head>\n\n<body onload='DrawTriangle()'>\n\n<table style='width:100%;'>\n    <tr>\n        <td style='text-align:center;'>\n\n        <table style='width:800px; margin-left:auto; margin-right:auto;'>\n            <tr>\n                <td>\n                    <canvas id='rectangle' width='500' height='500' style='border:gray 1px dashed'></canvas>\n                </td>\n            </tr>\n        </table>\n                </td>\n    </tr>\n</table>\n        \n</body>\n        \n</html>"
-    f = open('/Users/jon/Desktop/' + name + '.html', 'w')
+def writeOutSVG(svg, name):
+    data = "<svg xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' version='1.1' width='500' height='500'>\n"+svg+"</svg>"
+    f = open('/Users/jon/Desktop/' + name + '.svg', 'w')
     f.write(data)
     f.close()
+
+def drawTriangles(triangles, colours, filename):
+    svg = ""
+    for i in range(0,len(triangles)):
+        c = geometry.centroid(triangles[i])
+        svg = svg + "  <g id='triangle "+str(i)+"'>\n    <polygon points='"+str(triangles[i][0][0])+","+str(triangles[i][0][1])+" "+str(triangles[i][1][0])+","+str(triangles[i][1][1])+" "+str(triangles[i][2][0])+","+str(triangles[i][2][1])+"' style='fill:none;stroke:"+colours[i]+";stroke-width:3;stroke-linejoin:miter;'/>\n    <circle cx='"+str(triangles[i][0][0])+"' cy='"+str(triangles[i][0][1])+"' r='8' style='stroke:"+colours[i]+";fill:"+colours[i]+";'/>\n  </g>\n"
+    writeOutSVG(svg, filename)
+    return
+
+def wordMemory(experiment, chain, generation):
+    words_a = set(getWords(experiment, chain, generation, 'c'))
+    words_b = set(getWords(experiment, chain, generation-1, 'd'))
+    n = float(max(len(words_a),len(words_b)))
+    return len(words_a.intersection(words_b))/n
+
+def soundSymbolism(experiment, chain, generation):
+    words = getWords(experiment, chain, generation, 'c')
+    segmented_words = segment(words, False)
+    T = getTriangles(experiment, chain, generation, 'c')
+    sounds = {'b':[], 'C':[], 'd':[], 'D':[], 'f':[], 'g':[], 'h':[], 'J':[], 'k':[], 'l':[], 'm':[], 'n':[], 'N':[], 'p':[], 'r':[], 's':[], 'S':[], 't':[], 'T':[], 'v':[], 'w':[], 'y':[], 'z':[], 'Z':[], 'AE':[], 'EY':[], 'AO':[], 'AX':[], 'IY':[], 'EH':[], 'IH':[], 'AY':[], 'AA':[], 'UW':[], 'UH':[], 'UX':[], 'OW':[], 'AW':[], 'OI':[]}
+    for i in range(0,48):
+        perimeter = geometry.perimeter(T[i])
+        area = geometry.area(T[i])
+        expected_area = (perimeter**2)/(12*sqrt(3))
+        area_ratio = log(expected_area) / log(area) # 1 if equilateral, <1 if pointy
+        theta = min([geometry.angle(T[i],1), geometry.angle(T[i],2), geometry.angle(T[i],3)])
+        phon = "".join(segmented_words[i])
+        for sound in sounds.keys():
+            if phon.count(sound) > 0:
+                sounds[sound].append(area_ratio)
+        sound_counts = {}
+        for sound in sounds.keys():
+            if len(sounds[sound]) > 0:
+                sound_counts[sound] = sum(sounds[sound])/float(len(sounds[sound]))
+    return sound_counts
+
+def allSoundSymbolism(experiment,start_gen, end_gen):
+    ss  =[[soundSymbolism(experiment,x,y) for y in range(start_gen,end_gen)] for x in chain_codes[experiment-1]]
+    ss_v = matrix2vector(ss)
+    sounds = {'b':[], 'C':[], 'd':[], 'D':[], 'f':[], 'g':[], 'h':[], 'J':[], 'k':[], 'l':[], 'm':[], 'n':[], 'N':[], 'p':[], 'r':[], 's':[], 'S':[], 't':[], 'T':[], 'v':[], 'w':[], 'y':[], 'z':[], 'Z':[], 'AE':[], 'EY':[], 'AO':[], 'AX':[], 'IY':[], 'EH':[], 'IH':[], 'AY':[], 'AA':[], 'UW':[], 'UH':[], 'UX':[], 'OW':[], 'AW':[], 'OI':[]}
+    for i in ss_v:
+        for j in i.keys():
+            sounds[j].append(i[j])
+    for i in sounds.keys():
+        if i in ["IY","AA","OW","UW","d","f","k","m","p","z"]:
+            print i + "\t" + str(mean(sounds[i]))
