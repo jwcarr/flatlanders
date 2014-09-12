@@ -719,10 +719,7 @@ def soundSymbolism(experiment, chain, generation):
     T = getTriangles(experiment, chain, generation, 'c')
     sounds = {'b':[], 'C':[], 'd':[], 'D':[], 'f':[], 'g':[], 'h':[], 'J':[], 'k':[], 'l':[], 'm':[], 'n':[], 'N':[], 'p':[], 'r':[], 's':[], 'S':[], 't':[], 'T':[], 'v':[], 'w':[], 'y':[], 'z':[], 'Z':[], 'AE':[], 'EY':[], 'AO':[], 'AX':[], 'IY':[], 'EH':[], 'IH':[], 'AY':[], 'AA':[], 'UW':[], 'UH':[], 'UX':[], 'OW':[], 'AW':[], 'OI':[]}
     for i in range(0,48):
-        perimeter = geometry.perimeter(T[i])
-        area = geometry.area(T[i])
-        expected_area = (perimeter**2)/(12*sqrt(3))
-        area_ratio = log(expected_area) / log(area) # 1 if equilateral, <1 if pointy
+        area_ratio = pointedness(T[i])
         theta = min([geometry.angle(T[i],1), geometry.angle(T[i],2), geometry.angle(T[i],3)])
         phon = "".join(segmented_words[i])
         for sound in sounds.keys():
@@ -734,13 +731,55 @@ def soundSymbolism(experiment, chain, generation):
                 sound_counts[sound] = sum(sounds[sound])/float(len(sounds[sound]))
     return sound_counts
 
+def pointedness(T):
+    perimeter = geometry.perimeter(T)
+    area = geometry.area(T)
+    expected_area = (perimeter**2)/20.784609691
+    return log(expected_area/area)
+
 def allSoundSymbolism(experiment,start_gen, end_gen):
+    import pointedness
     ss  =[[soundSymbolism(experiment,x,y) for y in range(start_gen,end_gen)] for x in chain_codes[experiment-1]]
     ss_v = matrix2vector(ss)
-    sounds = {'b':[], 'C':[], 'd':[], 'D':[], 'f':[], 'g':[], 'h':[], 'J':[], 'k':[], 'l':[], 'm':[], 'n':[], 'N':[], 'p':[], 'r':[], 's':[], 'S':[], 't':[], 'T':[], 'v':[], 'w':[], 'y':[], 'z':[], 'Z':[], 'AE':[], 'EY':[], 'AO':[], 'AX':[], 'IY':[], 'EH':[], 'IH':[], 'AY':[], 'AA':[], 'UW':[], 'UH':[], 'UX':[], 'OW':[], 'AW':[], 'OI':[]}
+    sounds = {'AA':[],'IY':[],'OW':[], 'UW':[], 'b':[], 'C':[], 'd':[], 'D':[], 'f':[], 'g':[], 'h':[], 'J':[], 'k':[], 'l':[], 'm':[], 'n':[], 'N':[], 'p':[], 'r':[], 's':[], 'S':[], 't':[], 'T':[], 'v':[], 'w':[], 'y':[], 'z':[], 'Z':[], 'AE':[], 'EY':[], 'AO':[], 'AX':[], 'EH':[], 'IH':[], 'AY':[], 'UH':[], 'UX':[], 'AW':[], 'OI':[]}
     for i in ss_v:
         for j in i.keys():
             sounds[j].append(i[j])
+    matrix = []
+    ipaLabels = ipaLabels = {'AA':u"ɑː",'IY':u"iː",'OW':u"əʊ", 'UW':u"uː", 'b':u"b", 'C':u"tʃ", 'd':u"d", 'D':u"ð", 'f':u"f", 'g':u"g", 'h':u"h", 'J':u"dʒ", 'k':u"k", 'l':u"l", 'm':u"m", 'n':u"n", 'N':u"ŋ", 'p':u"p", 'r':u"r", 's':u"s", 'S':u"ʃ", 't':u"t", 'T':u"θ", 'v':u"v", 'w':u"w", 'y':u"j", 'z':u"z", 'Z':u"ʒ", 'AE':u"a", 'EY':u"eɪ", 'AO':u"ɔː", 'AX':u"ə", 'EH':u"ɛ", 'IH':u"ɪ", 'AY':u"ʌɪ", 'UH':u"ə", 'UX':u"ʌ", 'AW':u"aʊ", 'OI':u"ɔɪ"}
+    expected = pointedness.run(10000)
     for i in sounds.keys():
-        if i in ["IY","AA","OW","UW","d","f","k","m","p","z"]:
-            print i + "\t" + str(mean(sounds[i]))
+        if len(sounds[i]) > 20:
+            mw = scipy.stats.mannwhitneyu(expected, sounds[i])
+            matrix.append([ipaLabels[i], mean(sounds[i]), std(sounds[i]), (std(sounds[i])/sqrt(len(sounds[i])))*1.959964, mw[0], mw[1]*2])
+    return matrix
+
+def plotSoundSymbolism(matrix, y_label="Pointedness", miny=0.0, maxy=2, baseline=False):
+    fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
+    n = len(matrix)
+    if baseline == True:
+        ax.plot(range(-1,n+1), [0.85]*(n+2), color='gray', linestyle=':')
+    xvals = range(0,n)
+    means = [row[1] for row in matrix]
+    errors = [row[3] for row in matrix]
+    pvals = [row[5] for row in matrix]
+    (_, caps, _) = ax.errorbar(xvals, means, fmt="o", yerr=errors, color='k', linestyle="", linewidth=2.0, capsize=5.0, elinewidth=1.5)
+    for cap in caps:
+        cap.set_markeredgewidth(2)
+    for i in xvals:
+        sig = ""
+        if pvals[i] <= 0.001:
+            sig = "***"
+        elif pvals[i] <= 0.01:
+            sig = "**"
+        elif pvals[i] <= 0.05:
+            sig = "*"
+        ax.annotate(sig, xy=(i,means[i]+errors[i]+0.05), zorder=10, color="red")
+    labels = [row[0] for row in matrix]
+    plt.xticks(xvals, labels, fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.xlim(-0.5, n-0.5)
+    plt.ylim(miny, maxy)
+    plt.xlabel("Sounds", fontsize=22)
+    plt.ylabel(y_label, fontsize=22)
+    plt.show()
