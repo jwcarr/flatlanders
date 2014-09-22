@@ -1,11 +1,11 @@
-from datetime import timedelta
+﻿from datetime import timedelta
 import geometry
 import Levenshtein
+import MantelTest
 import matplotlib.pyplot as plt
 import numpy
 import page
-from random import shuffle, seed
-from randomdotorg import RandomDotOrg
+from random import shuffle
 from scipy import log, log2, mean, polyfit, sqrt, stats, std
 import scipy.cluster
 import re
@@ -316,11 +316,10 @@ def allStructureScores(experiment, metric='dt', sims=1000):
     matrix = []
     for chain in chain_codes[experiment-1]:
         print "  Chain " + chain + "..."
-        seed(RandomDotOrg().get_seed())
         scores = []
         for generation in range(0, 11):
             if uniqueStrings(experiment, chain, generation)[1] > 3:
-                scores.append(structureScore(experiment, chain, generation, metric, sims, meaning_distances)[3])
+                scores.append(structureScore(experiment, chain, generation, metric, sims, meaning_distances))
             else:
                 scores.append(None)
         matrix.append(scores)
@@ -337,21 +336,8 @@ def structureScore(experiment, chain, generation, metric='dt', simulations=1000,
     if meaning_distances == None:
         meanings = getTriangles(experiment, chain, generation, 's')
         meaning_distances = meaningDistances(meanings, metric)
-    x = stats.pearsonr(string_distances, meaning_distances)[0]
-    m, sd = MonteCarloStructure(string_distances, meaning_distances, simulations)
-    z = (x-m)/sd
-    return x, m, sd, z
-
-# GIVEN STRING EDIT DISTANCES AND MEANING DISTANCES, SHUFFLE THE EDIT DISTANCES
-# n TIMES, MEASURING THE CORRELATION BETWEEN EACH. RETURN THE MEAN AND SD OF
-# THE CORRELATIONS
-
-def MonteCarloStructure(string_distances, meaning_distances, simulations):
-    correlations = []
-    for i in xrange(0, simulations):
-        shuffle(string_distances)
-        correlations.append(stats.pearsonr(meaning_distances, string_distances)[0])
-    return mean(correlations), std(correlations)
+    z = MantelTest.MT(string_distances, meaning_distances, simulations)
+    return z
 
 # FOR EACH PAIR OF STRINGS, CALCULATE THE NORMALIZED LEVENSHTEIN DISTANCE
 # BETWEEN THEM
