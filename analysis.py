@@ -157,7 +157,7 @@ def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, co
     if conf == True:
         ax.plot(range(0,n+1), [1.959964] * (n+1), color='gray', linestyle=':')
         ax.plot(range(0,n+1), [-1.959964] * (n+1), color='gray', linestyle=':')
-    if conf_bonf == True
+    if conf_bonf == True:
         ax.plot(range(0,n+1), [2.734369] * (n+1), color='k', linestyle='--')
         ax.plot(range(0,n+1), [-2.734369] * (n+1), color='k', linestyle='--')
     for i in range(0,len(matrix)):
