@@ -117,13 +117,14 @@ def allTrainingErrors(experiment):
 #############################################################################
 # PLOT MEANS FOR EACH GENERATION WITH ERROR BARS (95% CI)
 
-def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
+def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, conf_bonf=False):
     fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
     m = len(matrix)
     n = len(matrix[0])
     if conf == True:
         ax.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':')
         ax.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':')
+    if conf_bonf == True:
         ax.plot(range(-1,n+2), [2.734369] * (n+3), color='k', linestyle='--')
         ax.plot(range(-1,n+2), [-2.734369] * (n+3), color='k', linestyle='--')
     means = []
@@ -148,7 +149,7 @@ def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
 #############################################################################
 # PLOT ALL CHAINS FROM A DATA MATRIX
 
-def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
+def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, conf_bonf=False):
     fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
     colours = ["#2E578C","#5D9648","#E7A13D","#BC2D30"]
     n = len(matrix[0])
@@ -156,6 +157,7 @@ def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False):
     if conf == True:
         ax.plot(range(0,n+1), [1.959964] * (n+1), color='gray', linestyle=':')
         ax.plot(range(0,n+1), [-1.959964] * (n+1), color='gray', linestyle=':')
+    if conf_bonf == True
         ax.plot(range(0,n+1), [2.734369] * (n+1), color='k', linestyle='--')
         ax.plot(range(0,n+1), [-2.734369] * (n+1), color='k', linestyle='--')
     for i in range(0,len(matrix)):
