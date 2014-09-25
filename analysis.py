@@ -149,9 +149,10 @@ def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, c
 #############################################################################
 # PLOT ALL CHAINS FROM A DATA MATRIX
 
-def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, conf_bonf=False):
+def plotAll(matrix, start=1, x_label="Generation number", y_label="Score", miny=0.0, maxy=1.0, conf=False, conf_bonf=False):
     fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
     colours = ["#2E578C","#5D9648","#E7A13D","#BC2D30"]
+    plt.rcParams['font.sans-serif']='Arial'
     n = len(matrix[0])
     xvals = range(start, n+start)
     if conf == True:
@@ -168,7 +169,7 @@ def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, co
     plt.ylim(miny, maxy) 
     plt.xticks(xvals, labels, fontsize=14)
     plt.yticks(fontsize=14)
-    plt.xlabel("Generation number", fontsize=22)
+    plt.xlabel(x_label, fontsize=22)
     plt.ylabel(y_label, fontsize=22)
     plt.show()
 
@@ -536,6 +537,7 @@ def sizeShapePlot(experiment, chain, generation, use_clustering=False, clusters=
     colours = ["#2E578C","#5D9648","#E7A13D","black","#BC2D30","gray","purple","aqua"]
     i = 0
     fig, ax = plt.subplots(figsize=plt.figaspect(0.75))
+    plt.rcParams['font.sans-serif']='Arial'
     if use_clustering == True:
         clustered_words = cluster(words, clusters)
         L=[]
@@ -543,7 +545,7 @@ def sizeShapePlot(experiment, chain, generation, use_clustering=False, clusters=
             P = [perimeters[x] for x in c]
             R = [areas[x] for x in c]
             L.append(set([words[x] for x in c]))
-            ax.scatter(P, R, color=colours[i], s=40, marker="^")
+            ax.scatter(P, R, color=colours[i], s=40, marker="o")
             i += 1
         clust_labels = []
         print L
@@ -557,11 +559,11 @@ def sizeShapePlot(experiment, chain, generation, use_clustering=False, clusters=
         for word in matrix.keys():
             P = [perimeters[x] for x in matrix[word]]
             R = [areas[x] for x in matrix[word]]
-            ax.scatter(P, R, color=colours[i], s=40, marker="^")
+            ax.scatter(P, R, color=colours[i], s=40, marker="o")
             i += 1    
         l = plt.legend(matrix.keys(), loc=2, scatterpoints=1)
     l.draw_frame(False)
-    ax.plot(range(100,1401), [(p**2)/(12*sqrt(3)) for p in range(100,1401)], color='k', linestyle='-')
+    ax.plot(range(100,1401), [(p**2)/(12*sqrt(3)) for p in range(100,1401)], color='k', linestyle='-', linewidth=2.0)
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)
     plt.xlabel("Perimeter", fontsize=22)
