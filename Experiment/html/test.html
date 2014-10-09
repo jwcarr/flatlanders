@@ -1,0 +1,41 @@
+<div id='stimulus'>
+  <canvas id='rectangle' width='<?php echo $canvas_width; ?>' height='<?php echo $canvas_height; ?>'></canvas>
+  <div id='stimulus-label'></div>
+</div>
+
+<div id='message'>
+  <form id='send_word' name='f' method='post' action='index.php'<?php echo $check_script; ?>>
+    <input name='page' type='hidden' value='experiment' />
+    <input name='map' type='hidden' value='<?php echo $new_map; ?>' />
+    <input name='chain' type='hidden' value='<?php echo $_REQUEST["chain"]; ?>' />
+    <input name='cond' type='hidden' value='<?php echo $_REQUEST["cond"]; ?>' />
+    <input name='gen' type='hidden' value='<?php echo $_REQUEST["gen"]; ?>' />
+    <input name='current' type='hidden' value='<?php echo $item_info; ?>' />
+    <input name='last_x1' type='hidden' value='<?php echo $xy[0]; ?>' />
+    <input name='last_x2' type='hidden' value='<?php echo $xy[1]; ?>' />
+    <input name='last_x3' type='hidden' value='<?php echo $xy[2]; ?>' />
+    <input name='last_y1' type='hidden' value='<?php echo $xy[3]; ?>' />
+    <input name='last_y2' type='hidden' value='<?php echo $xy[4]; ?>' />
+    <input name='last_y3' type='hidden' value='<?php echo $xy[5]; ?>' />
+    <input name='overuse' type='hidden' value='<?php echo $_REQUEST["overuse"]; ?>' />
+    <input id='sender' type='hidden' name='subject' value='<?php echo $_REQUEST["subject"]; ?>' />
+    <input id='coordinates' type='hidden' value='<?php echo $xy[0]; ?>,<?php echo $xy[1]; ?>,<?php echo $xy[2]; ?>,<?php echo $xy[3]; ?>,<?php echo $xy[4]; ?>,<?php echo $xy[5]; ?>' />
+    <input name='a' type='text' value='' id='testtext' autocomplete='off' size='27' />
+  </form>
+</div>
+
+<div id='instruction'>
+  Type in the word for this triangle and press Enter
+</div>
+
+<?php
+
+if ($_REQUEST["cond"] == 3) {
+
+    echo "
+    <script src='js/node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js'></script>
+    <script src='js/nodeClient.js'></script>
+    ";
+}
+
+?>

@@ -1,0 +1,53 @@
+<div id='title'>
+  Stage 2: Communication
+</div>
+
+<div id='subhead'>
+  Stage 2 will begin once both you and your partner are ready.
+</div>
+
+<div id='long-instructions'>
+
+  <p>
+    You and your partner will take it in turns to communicate about triangles.
+  </p>
+
+  <p>
+    When it’s your turn to communicate, you’ll be presented with a triangle. You must type
+    in the word for this triangle and press Enter to send it to your partner. You must only
+    communicate using the Flatlander language that you and your partner just learned.
+  </p>
+
+  <p>
+    The word you use will show up on your partner’s screen. He or she will see a selection of
+    six triangles (including the one that you’re trying to convey). Your partner will have
+    to figure out which triangle you’re talking about by clicking on it with the mouse.
+  </p>
+
+  <p>
+    You may find it very difficult to remember the words for the different triangles.
+    Go with your instinct and type in a word that feels right. Your partner may
+    still be able to identify it even if it’s only partially correct.
+  </p>
+
+  <p>
+    When you’re ready to start, click the button below. You may need to
+    wait a little while for your partner to be ready too.
+  </p>
+
+</div>
+
+<div id='message'>
+
+  <form id='ready' name='f'>
+      <input id='sender' type='hidden' name='sender' value='<?php echo $_REQUEST["subject"]; ?>' />
+      <input type='submit' name='ready' id='button' value='I’m ready' />
+  </form>
+
+</div>
+
+<div id='instruction'></div>
+
+<script src='js/jquery.js'></script>
+<script src='js/node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js'></script>
+<script src='js/nodeClient.js'></script>

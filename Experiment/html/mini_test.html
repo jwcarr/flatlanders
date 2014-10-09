@@ -1,0 +1,18 @@
+<div id='stimulus'>
+  <canvas id='rectangle' width='<?php echo $canvas_width; ?>' height='<?php echo $canvas_height; ?>'></canvas>
+</div>
+
+<div id='message'>
+  <form id='testing' name='f' onsubmit='return GiveFeedback()'>
+    <img id='space' src='images/spacer.gif' width='40' height='40' alt='feedback' />
+    <input name='a' type='text' value='' id='testtext' autocomplete='off' size='27' />
+    <img id='feedback' src='images/spacer.gif' width='40' height='40' alt='feedback' />
+  </form>
+</div>
+
+<div id='instruction'>
+  Type in the word for this triangle and press Enter
+</div>
+
+<audio id='tink' src='sounds/tink.m4a' preload='auto'></audio>
+<audio id='funk' src='sounds/funk.m4a' preload='auto'></audio>

@@ -1,0 +1,36 @@
+<div id='title'>
+  Settings
+</div>
+
+
+
+<form name='f' method='post' action='index.php'>
+
+  <div id='parameters'>
+
+    <input name='page' type='hidden' value='validation' />
+
+    <div id='parameter'>
+      Experiment<br />
+      <input name='condition' type='radio' value='1' /> 1<br />
+      <input name='condition' type='radio' value='2' /> 2<br />
+      <input name='condition' type='radio' value='3' checked /> 3
+    </div>
+
+    <div id='parameter'>
+      Diffusion chain<br />
+      <input name='chain' type='text' id='chain' autocomplete='off' size='4' />
+    </div>
+
+    <div id='parameter'>
+      Generation<br />
+      <input name='gen' type='text' id='generation' autocomplete='off' size='4' />
+    </div>
+
+  </div>
+
+  <div id='message'>
+    <input type='submit' name='submit' id='button' value='Next' />
+  </div>
+
+</form>
