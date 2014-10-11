@@ -5,7 +5,7 @@ var next_page_location = '<?php echo $window_location; ?>';
 var answer = '';
 var server_ip = '<?php echo $server_ip; ?>';
 var node_port = '<?php echo $node_port; ?>';
-var feedback_time = "<?php echo $feedback_time; ?>";
+var feedback_time = "<?php echo $communication_feedback_time; ?>";
 var s = "<?php echo $_REQUEST['subject']; ?>";
 var array_size = <?php echo $triangle_array_size[0]*$triangle_array_size[1]; ?>;
 var canvas_width = <?php echo $canvas_size[0]; ?>;
@@ -66,7 +66,7 @@ function GiveFeedback() {
       document.getElementById('feedback').src = 'images/check.png';
       document.f.a.style.color = '<?php if($colourblind==True){echo "#008CED";} else {echo"#67C200";} ?>';
       answer = document.f.a.value;
-      setTimeout("SaveMTResponse()", <?php echo $feedback_time; ?>);
+      setTimeout("SaveMTResponse()", <?php echo $mini_test_feedback_time; ?>);
     }
     else {
       document.getElementById('funk').play();
@@ -74,7 +74,7 @@ function GiveFeedback() {
       document.f.a.style.color = '#FF2F00';
       document.f.a.style.fontStyle = 'oblique';
       answer = document.f.a.value;
-      setTimeout("SaveMTResponse()", <?php echo $feedback_time; ?>);
+      setTimeout("SaveMTResponse()", <?php echo $mini_test_feedback_time; ?>);
       document.f.a.value = '<?php echo $correct_answer; ?>';
     }
     return false;

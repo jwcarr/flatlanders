@@ -15,8 +15,11 @@ $time_per_training_item = 5000;
 // Delay before showing the training word in milliseconds (default = 1000)
 $word_delay = 1000;
 
-// Length of time to show feedback in milliseconds (default = 2000)
-$feedback_time = 2000;
+// Length of time to show mini-test feedback in milliseconds (default = 1000)
+$mini_test_feedback_time = 1000;
+
+// Length of time to show communication feedback in milliseconds (default = 5000)
+$communication_feedback_time = 5000;
 
 // Amount of time for the break between training and testing in seconds (default = 30)
 $break_time = 30;
