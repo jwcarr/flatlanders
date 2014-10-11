@@ -61,12 +61,39 @@ table{
   height: 30px
 }
 
-#stimulus{
+#stimuli-container{
   top: 10%;
+  width: 1010px;
+  height: 700px;
 }
 
-#stimulus-label{
-  font-size: 40px;
+#target-stim-container{
+  width: 500px;
+  height: 500px;
+  position: static;
+}
+
+#feedback-stim-container{
+  width: 500px;
+  height: 500px;
+  position: static;
+  float: right;
+}
+
+#target-stim{
+  position: static;
+}
+
+#feedback-stim{
+  position: static;
+}
+
+#stim-label{
+  font-size: 20px;
+  font-style: italic;
+  position: static;
+  width: 500px;
+  float: left;
 }
 
 #array{

@@ -3,19 +3,19 @@
 // Generate a random triangle stimulus
 function generateTriangle() {
     // Import global parameters
-    global $canvas_width, $canvas_height, $canvas_border;
+    global $canvas_size, $canvas_border;
 
     // Choose coordinates for point A
-    $x1 = rand($canvas_border+1, $canvas_width-$canvas_border);
-    $y1 = rand($canvas_border+1, $canvas_height-$canvas_border);
+    $x1 = rand($canvas_border+1, $canvas_size[0]-$canvas_border);
+    $y1 = rand($canvas_border+1, $canvas_size[1]-$canvas_border);
 
     // Choose coordinates for point B
-    $x2 = rand($canvas_border+1, $canvas_width-$canvas_border);
-    $y2 = rand($canvas_border+1, $canvas_height-$canvas_border);
+    $x2 = rand($canvas_border+1, $canvas_size[0]-$canvas_border);
+    $y2 = rand($canvas_border+1, $canvas_size[1]-$canvas_border);
 
     // Choose coordinates for point C
-    $x3 = rand($canvas_border+1, $canvas_width-$canvas_border);
-    $y3 = rand($canvas_border+1, $canvas_height-$canvas_border);
+    $x3 = rand($canvas_border+1, $canvas_size[0]-$canvas_border);
+    $y3 = rand($canvas_border+1, $canvas_size[1]-$canvas_border);
 
     // Return an array containing the chosen X and Y coordinates
     return array($x1, $x2, $x3, $y1, $y2, $y3);

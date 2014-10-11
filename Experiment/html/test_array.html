@@ -9,9 +9,7 @@ for ($i=0; $i<$triangle_array_size[1]; $i++) {
     for ($j=0; $j<$triangle_array_size[0]; $j++) {
         echo "
             <td>
-                <a onclick='SelectTriangle(". (($triangle_array_size[0]*$i)+$j) .")'>
-                  <canvas id='box". (($triangle_array_size[0]*$i)+$j) ."' width='". $canvas_width ."' height='". $canvas_height ."'></canvas>
-                </a>
+              <canvas id='match". (($triangle_array_size[0]*$i)+$j) ."' width='". $canvas_size[0] ."' height='". $canvas_size[1] ."'></canvas>
             </td>
         ";
     }
@@ -32,29 +30,5 @@ for ($i=0; $i<$triangle_array_size[1]; $i++) {
   Waiting for your partner...
 </div>
 
-
-<form id='send_feedback' name='f' action='index.php' method='post'>
-  <input name='page' type='hidden' value='experiment' />
-  <input name='map' type='hidden' value='<?php echo $new_map; ?>' />
-  <input name='chain' type='hidden' value='<?php echo $_REQUEST["chain"]; ?>' />
-  <input name='cond' type='hidden' value='<?php echo $_REQUEST["cond"]; ?>' />
-  <input name='gen' type='hidden' value='<?php echo $_REQUEST["gen"]; ?>' />
-  <input name='current' type='hidden' value='<?php echo $item_info; ?>' />
-  <input name='last_x1' type='hidden' value='' />
-  <input name='last_x2' type='hidden' value='' />
-  <input name='last_x3' type='hidden' value='' />
-  <input name='last_y1' type='hidden' value='' />
-  <input name='last_y2' type='hidden' value='' />
-  <input name='last_y3' type='hidden' value='' />
-  <input id='word' name='a' type='hidden' value='' />
-  <input id='sender' type='hidden' name='subject' value='<?php echo $_REQUEST["subject"]; ?>' />
-  <input id='response' type='hidden' name='response' value='' />
-  <input id='target' type='hidden' name='correct' value='' />
-  <div id='bottom-button'>
-    
-  </div>
-</form>
-
-<script src='js/jquery.js'></script>
 <script src='js/node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js'></script>
 <script src='js/nodeClient.js'></script>

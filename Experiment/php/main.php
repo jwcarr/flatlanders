@@ -3,7 +3,7 @@
 // Generate MAP if one hasn't been set up yet
 if ($_REQUEST["map"] == "") {
     include("php/generateMap.php");
-    $map = generateMap();
+    $map = generateMap($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"]);
 }
 else {
     $map = $_REQUEST["map"];

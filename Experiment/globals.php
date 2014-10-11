@@ -21,11 +21,8 @@ $feedback_time = 2000;
 // Amount of time for the break between training and testing in seconds (default = 30)
 $break_time = 30;
 
-// Canvas width in pixels for the triangle stimuli (default = 500)
-$canvas_width = 500;
-
-// Canvas height in pixels for the triangle stimuli (default = 500)
-$canvas_height = 500;
+// Canvas size in pixels for the triangle stimuli (width by height) (default = 500x500)
+$canvas_size = array(500, 500);
 
 // Width of the unusable boarder area around the canvas in pixels (default = 10)
 $canvas_border = 10;
@@ -47,7 +44,7 @@ $mini_test_frequency = 3;
 $triangle_array_size = array(3, 2);
 
 // IP address for the webserver (experiment 3 only)
-$server_ip = 'localhost';
+$server_ip = '192.168.1.70';
 
 // Port to use for the node.js server (experiment 3 only)
 $node_port = '8080';

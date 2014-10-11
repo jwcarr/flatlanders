@@ -1,6 +1,6 @@
 <?php
 
-function generateMap() {
+function generateMap($condition, $chain, $generation) {
     // Import required global variables
     global $set_size, $mini_test_frequency;
 
@@ -87,7 +87,6 @@ function generateMap() {
         $c=$c+1;
     }
 
-    $condition = 3;
     if ($condition == 3) {
         $map = $map ."||MT-". $mini_test_numbers[$set_size-1] ."||WAIT";
     }
@@ -95,8 +94,6 @@ function generateMap() {
         // Add on one final mini test and the break page
         $map = $map ."||MT-". $mini_test_numbers[$set_size-1] ."||BREAK";
     }
-
-    $map = "WAIT"; // REMOVE THIS LINE TO BRING BACK TRAINING
 
     if ($_REQUEST["subject"] == "") {$_REQUEST["subject"] = "SubA";}
 
@@ -112,7 +109,7 @@ function generateMap() {
             $mapB = $mapB ."||TA-d.". $dynamic_set[$i] ."||TS-d.". $dynamic_set[$i+1] ."||TA-s.". $stable_set[$i] ."||TS-s.". $stable_set[$i+1];
         }
         $map = $mapA;
-        writeFile("data/client", "page=experiment&subject=SubB&cond=3&chain=I&gen=1&map=".$mapB);
+        writeFile("data/client", "page=experiment&subject=SubB&cond={$condition}&chain={$chain}&gen={$generation}&map={$mapB}||END");
     }
     else {
         // Add the test pages to the map, interleaving the dynamic flow and stable flow
