@@ -80,13 +80,13 @@ elseif ($page == "experiment") {
   }
 
   else {
-    echo "<h1>Map error</h1><p>Please inform the experiment supervisor.</p>";
+    echo "<div id='title'>Map error</div><div id='subhead'>Please inform the experiment supervisor.</div>";
   }
 
 }
 
 else {
-  echo "<h1>Page error</h1><p>Please inform the experiment supervisor.</p>";
+  echo "<div id='title'>Page error</div><div id='subhead'>Please inform the experiment supervisor.</div>";
 }
 
 ?>
