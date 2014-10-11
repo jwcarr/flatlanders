@@ -74,7 +74,6 @@ socket.on( 'feedback', function( data ) {
 		$("#stim-label" ).html( "your triangle" );
 		$("#stimuli-container").append("<div id='feedback-stim-container'><div id='feedback-stim'><canvas id='feedback_box' width='" + canvas_width + "' height='" + canvas_height + "' style='border: solid #3B6C9D 1px; background-color: #E6ECF3;'></canvas></div><div id='stim-label'>partner’s selection</div></div>");
 		DrawTriangle("feedback_box", cord);
-
 		setTimeout('NextPage()' , feedback_time);
 	}
 });

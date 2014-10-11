@@ -4,17 +4,17 @@
 <?php
 
 for ($i=0; $i<$triangle_array_size[1]; $i++) {
-    echo "<tr>";
+  echo "<tr>";
 
-    for ($j=0; $j<$triangle_array_size[0]; $j++) {
-        echo "
-            <td>
-              <canvas id='match". (($triangle_array_size[0]*$i)+$j) ."' width='". $canvas_size[0] ."' height='". $canvas_size[1] ."'></canvas>
-            </td>
-        ";
-    }
+  for ($j=0; $j<$triangle_array_size[0]; $j++) {
+    echo "
+    <td>
+      <canvas id='match". (($triangle_array_size[0]*$i)+$j) ."' width='". $canvas_size[0] ."' height='". $canvas_size[1] ."'></canvas>
+    </td>
+    ";
+  }
 
-    echo "</tr>";
+  echo "</tr>";
 }
 
 ?>

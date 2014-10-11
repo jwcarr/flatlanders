@@ -4,11 +4,7 @@
 
 <div id='validation'>
 
-<?php
-
-include("php/validation.php");
-
-?>
+<?php include("php/validation.php"); ?>
 
 </div>
 
@@ -18,17 +14,17 @@ include("php/validation.php");
 
 // If the above validation functions produce no errors, display the "Begin experiment" button and embed the sound check file
 if ($error_count == 0) {
-    echo "
-    <form name='f' method='post' action='index.php'>
-      <input name='page' type='hidden' value='experiment' />
-      <input name='chain' type='hidden' value='". $_REQUEST["chain"] ."' />
-      <input name='cond' type='hidden' value='". $_REQUEST["condition"] ."' />
-      <input name='gen' type='hidden' value='". $_REQUEST["gen"] ."' />
-      <input name='subject' type='hidden' value='SubA' />
-      <input type='submit' name='submit' id='button' value='Begin' />
-    </form>
-    <audio id='alex' src='sounds/sound_check.m4a' preload='auto'></audio>
-    ";
+  echo "
+  <form name='f' method='post' action='index.php'>
+    <input name='page' type='hidden' value='experiment' />
+    <input name='chain' type='hidden' value='". $_REQUEST["chain"] ."' />
+    <input name='cond' type='hidden' value='". $_REQUEST["condition"] ."' />
+    <input name='gen' type='hidden' value='". $_REQUEST["gen"] ."' />
+    <input name='subject' type='hidden' value='SubA' />
+    <input type='submit' name='submit' id='button' value='Begin' />
+  </form>
+  <audio id='alex' src='sounds/sound_check.m4a' preload='auto'></audio>
+  ";
 }
 
 ?>

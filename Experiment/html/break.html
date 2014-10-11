@@ -7,6 +7,7 @@
 </div>
 
 <div id='long-instructions'>
+
   <p>
     You will shortly see a series of triangles. For each one, type in what you
     think it’s called based on the training you’ve just completed.
@@ -22,8 +23,12 @@
 
 // If the participant is in the second condition...
 if ($_REQUEST["cond"] == 2) {
-    // Add a reminder to say that they can't use the same word more than once
-    echo "<p>Remember: if you use a particular word too often, you will see a message asking you to use a different word.</p>";
+  // Add a reminder to say that they can't use the same word more than once
+  echo "
+  <p>
+    Remember: if you use a particular word too often, you will see a message asking you to use a different word.
+  </p>
+  ";
 }
 
 ?>

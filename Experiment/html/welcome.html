@@ -12,15 +12,21 @@
 
 <?php
 
-// If the participant is in the second condition...
+// If the participant is in the third condition...
 if ($_REQUEST["cond"] == 3) {
-    // Add a reminder to say that they can't use the same word more than once
-    echo "<p>Try to learn the words for the triangles as best as you can, as you will use them to
-      communicate with your partner later on.</p>";
+  echo "
+  <p>
+    Try to learn the words for the triangles as best as you can, as you will use them to
+    communicate with your partner later on.
+  </p>
+  ";
 }
 
 else {
-  echo "<p>Try to learn the words for the triangles as best as you can, as you will be tested on them later.</p>";
+  echo "
+  <p>
+    Try to learn the words for the triangles as best as you can, as you will be tested on them later.
+  </p>";
 }
 
 ?>
