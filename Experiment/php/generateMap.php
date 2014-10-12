@@ -1,5 +1,35 @@
 <?php
 
+// The map defines the route a participant will take through the experiment (i.e. the order
+// in which each page/stimulus will occur). A map is generated for each participant at the
+// beginning of their session and is passed from page to page as they move through it.
+
+// There are several pages that the map can reference, separated by || as outlined below:
+
+// BEGIN  Begin page - introduces the experiment; occurs once at the beginning
+// BREAK  Break page - provides a fixed-length break between training and testing
+// WAIT   Wait page - instructions for the communication task and waits for the partner to be ready
+// END    End page - advises the participant that the experiment has been completed
+
+// TR  Training page - displays a training stimulus from the previous gen's dynamic set
+// MT  Mini-test page - tests the participant on one of the last three stimuli
+// TS  Test page - displays a novel stimulus and requests a label for it
+// DR  Director page - displays a novel stimulus and requests a label for it, which is sent to the partner
+// MR  Matcher page - displays the word sent by the partner and requests a selection from a matcher array
+
+// The five pages above are concatenated with information about the stimulus to display. For example:
+
+// TR-13   means show training item 13 (i.e. item 13 from the previous participant's dynamic set)
+// MT-41   means do a mini-test on item 41 (i.e. item 41 from the previous participant's dynamic set)
+// TS-d.21 means test the participant on item 21 from their dynamic set of novel stimuli
+// TS-s.19 means test the participant on item 19 from the stable set of stimuli
+// DR-d.43 means show the director page for dynamic stimulus 43
+// MR-d.43 means show the matcher page for dynamic stimulus 43
+
+// For example, a map might look something like this:
+
+// BEGIN||TR-13||TR-34||TR-4||MT-13|| ... ||WAIT||MR-d.24||DR-d.34||MR-s.12||DR-s.15|| ... ||END
+
 function generateMap($condition, $chain, $generation) {
   // Import required global variables
   global $set_size, $mini_test_frequency;
@@ -7,7 +37,7 @@ function generateMap($condition, $chain, $generation) {
   // First we want to present the welcome page
   $map = "BEGIN";
 
-  $success = false;
+  $success = False;
   while ($success == False) {
     // Set up empty array for the training numbers
     $training_numbers = array();
@@ -87,28 +117,35 @@ function generateMap($condition, $chain, $generation) {
     $c=$c+1;
   }
 
+  // Add on one final mini test and then the BREAK page (or WAIT page if condition = 3)
   if ($condition == 3) {
     $map = $map ."||MT-". $mini_test_numbers[$set_size-1] ."||WAIT";
   }
   else {
-    // Add on one final mini test and the break page
     $map = $map ."||MT-". $mini_test_numbers[$set_size-1] ."||BREAK";
   }
-
-  if ($_REQUEST["subject"] == "") {$_REQUEST["subject"] = "SubA";}
 
   // Shuffle the order in which the test items in both the dynamic and stable sets will be presented
   $dynamic_set = range(0, $set_size-1); shuffle($dynamic_set);
   $stable_set = range(0, $set_size-1); shuffle($stable_set);
 
   if ($condition == 3) {
+    // If no subject ID has been assigned, then assume this is Subject A
+    if ($_REQUEST["subject"] == "") { $_REQUEST["subject"] = "SubA"; }
+
+    // Create two copies of the map, one for Subject A and one for Subject B
     $mapA = $map; $mapB = $map;
-    // Add the test pages to the map, interleaving the dynamic flow and stable flow
+
+    // Add the test pages to the maps, interleaving the dynamic flow and stable flow
     for ($i=0; $i < $set_size; $i+=2) {
       $mapA = $mapA ."||DR-d.". $dynamic_set[$i] ."||MR-d.". $dynamic_set[$i+1] ."||DR-s.". $stable_set[$i] ."||MR-s.". $stable_set[$i+1];
       $mapB = $mapB ."||MR-d.". $dynamic_set[$i] ."||DR-d.". $dynamic_set[$i+1] ."||MR-s.". $stable_set[$i] ."||DR-s.". $stable_set[$i+1];
     }
+
+    // This user will get mapA
     $map = $mapA;
+
+    // Write mapB to the client file for the other subject to pick up from their terminal
     writeFile("data/client", "page=experiment&subject=SubB&cond={$condition}&chain={$chain}&gen={$generation}&map={$mapB}||END");
   }
   else {
