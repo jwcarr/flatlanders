@@ -2,50 +2,54 @@
 
 // Open a file
 function openFile($filename) {
-  // If the file actually exists...
+  // If the file exists...
   if (file_exists($filename)) {
     // If the filesize > 0...
     if (filesize($filename) > 0) {
       // Open the file
       $file = fopen($filename, "r");
-      // If you can secure a lock on the file...
-      if (flock($file, LOCK_EX)) {
-        // Read the current data from the file...
+      // If you can secure a read lock on the file...
+      if (flock($file, LOCK_SH)) {
+        // Read the data from the file...
         $data = fread($file, filesize($filename));
-        // ... and then unlock it
+        // ... and then unlock, close, and return its contents
         flock($file, LOCK_UN);
+        fclose($file);
+        return $data;
       }
-      // Close the file
+      // Failure to obtain a lock on the file, so close file and return False
       fclose($file);
-      // Return the file's content
-      return $data;
+      return False;
     }
-    // If filesize is 0, return null
+    // Filesize is 0, so return null
     return "";
   }
-  // If the file does not exist, return False
+  // The file does not exist, so return False
   return False;
 }
 
 // Write data to a file
 function writeFile($filename, $data) {
-  // If the file actually exists...
+  // If the file exists and is writeable...
   if (is_writable($filename)) {
     // Open the file
     $file = fopen($filename, "w");
-    // If you can secure a lock on the file...
+    // If you can secure a write lock on the file...
     if (flock($file, LOCK_EX)) {
-      // Write data to the file...
-      fwrite($file, $data);
-      // ... and then unlock it
+      // If you succeed in writing the data to the file...
+      if (fwrite($file, $data)) {
+        // unlock, close, and return True
+        flock($file, LOCK_UN);
+        fclose($file);
+        return True;
+      }
+      // Failure to write to the file, so unlock
       flock($file, LOCK_UN);
     }
-    // Close the file
+    // Failure to obtain a lock on the file or to write to the file, so close
     fclose($file);
-    // Return True to indicate success
-    return True;
   }
-  // If the file does not exist, return False
+  // The file does not exist or cannot write or cannot obtain lock, so return False
   return False;
 }
 
@@ -53,9 +57,9 @@ function writeFile($filename, $data) {
 function loadFile($condition, $chain_code, $generation, $set) {
   // Get the data from that file
   $data = openFile("data/". $condition ."/". $chain_code ."/". $generation . $set);
-  // Read the file line by line
+  // Separate the raw data at line breaks
   $lines = explode("\n", $data);
-  // Return the lines in an array
+  // Return the lines as an array
   return $lines;
 }
 
@@ -63,14 +67,12 @@ function loadFile($condition, $chain_code, $generation, $set) {
 function getWords($condition, $chain_code, $generation) {
   // Load in the file for a specific participant's dynamic set file
   $lines = loadFile($condition, $chain_code, $generation, "d");
-  // How many lines are there?
-  $n = count($lines);
   // Set up an empty array in which to dump the words
   $words = array();
   // For each line in the data file...
-  for ($i=0; $i < $n; $i++) {
+  foreach ($lines as $line) {
     // Separate out the columns delimited by tabs
-    $columns = explode("\t", $lines[$i]);
+    $columns = explode("\t", $line);
     // Dump the first column (the word) into the $words array
     array_push($words, $columns[0]);
   }
@@ -96,7 +98,7 @@ function saveLogData($new_data) {
 
 // Save a test answer to a participant's dynamic or stable set file
 function saveAnswer($condition, $chain_code, $generation, $position, $answer, $xy) {
-  // Parse the map position into a set type ("d" or "s") and the stimulus number (0–49)
+  // Parse the map position into a set type ("d" or "s") and the stimulus number
   $position = explode(".", $position);
   // If saving a dynamic file...
   if ($position[0] == "d") {
@@ -122,7 +124,7 @@ function saveAnswer($condition, $chain_code, $generation, $position, $answer, $x
 function saveFinalAnswer($condition, $chain_code, $generation, $position, $answer, $xy) {
   // Import the global variable $set_size
   global $set_size;
-  // Parse the map position into a set type ("d" or "s") and the stimulus number (0–47)
+  // Parse the map position into a set type ("d" or "s") and the stimulus number
   $position = explode(".", $position);
   // Load in the lines from a specific stable set file
   $lines = loadFile($condition, $chain_code, $generation, "s");
