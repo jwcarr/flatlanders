@@ -71,12 +71,10 @@ function DrawTriangle(canvasID, cords) {
 function DrawTriangleArray(target_coordinates) {
   var distractor_triangles = [<?php echo $triangle_array_JS; ?>];
   position = Math.floor(Math.random()*array_size);
-  triangles = distractor_triangles.slice( 0, position*6 ).concat( target_coordinates ).concat( distractor_triangles.slice( position*6 ) );
-
+  triangles = distractor_triangles.slice(0, position*6).concat(target_coordinates).concat(distractor_triangles.slice(position*6));
   n = <?php echo $triangle_array_size[1]*$triangle_array_size[0]; ?>;
-
   for (i=0; i<(n*6); i+=6) {
-    DrawTriangle('match'+(i/6), [triangles[i], triangles[i+1], triangles[i+2], triangles[i+3], triangles[i+4], triangles[i+5]]);
+    DrawTriangle('match'+(i/6), triangles.slice(i, i+6));
   }
 }
 

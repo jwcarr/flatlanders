@@ -5,12 +5,18 @@ var feedback_time = "<?php echo $communication_feedback_time; ?>";
 var s = "<?php echo $_REQUEST['subject']; ?>";
 var canvas_width = <?php echo $canvas_size[0]; ?>;
 var canvas_height = <?php echo $canvas_size[1]; ?>;
-var target_triangle = [<?php echo $xy[0] .",". $xy[1] .",". $xy[2] .",". $xy[3] .",". $xy[4] .",". $xy[5]; ?>]
+var target_triangle = [<?php echo $xy[0] .",". $xy[1] .",". $xy[2] .",". $xy[3] .",". $xy[4] .",". $xy[5]; ?>];
 var server_ip = '<?php echo $server_ip; ?>';
 var node_port = '<?php echo $node_port; ?>';
 
 // Establish connection with the Node server
 var socket = io.connect( 'http://' + server_ip + ':' + node_port );
+
+// On page load...
+$( document ).ready( function() {
+  DrawTriangle('rectangle', target_triangle);
+  $("#testtext").focus();
+});
 
 // On submit of a test answer...
 $( "#send_word" ).submit( function() {
@@ -18,7 +24,7 @@ $( "#send_word" ).submit( function() {
   if (w != "") {
     var c = target_triangle;
     socket.emit( 'word', { name: s, word: w, coordinates: c } );
-    document.getElementById("message").innerHTML = "<img src='images/loading.gif' width='33' height='33' />";
+    $("#message").html("<img src='images/loading.gif' width='33' height='33' />");
     $("#instruction").html( "Waiting for your partner’s response..." );
   }
   return false;
@@ -41,12 +47,6 @@ socket.on( 'feedback', function( data ) {
 // Send to next page
 function NextPage() {
   window.location = next_page_location;
-}
-
-//When the testing page loads, draw the triangle, and then give focus to the response textbox
-function TestingLoad() {
-  DrawTriangle('rectangle', target_triangle);
-  document.f.a.focus();
 }
 
 // Draw a triangle on the canvas

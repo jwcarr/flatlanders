@@ -1,8 +1,14 @@
 <script>
 
-// Location of the next_page_location page
 var next_page_location = '<?php echo $window_location; ?>';
-var target_triangle = [<?php echo $xy[0] .",". $xy[1] .",". $xy[2] .",". $xy[3] .",". $xy[4] .",". $xy[5]; ?>]
+var target_triangle = [<?php echo $xy[0] .",". $xy[1] .",". $xy[2] .",". $xy[3] .",". $xy[4] .",". $xy[5]; ?>];
+
+// On page load...
+$( document ).ready( function() {
+  DrawTriangle('rectangle', target_triangle);
+  setTimeout("ShowWord()", <?php echo $word_delay; ?>);
+  setTimeout("NextPage()", <?php echo $time_per_training_item; ?>);
+});
 
 // Send to next page
 function NextPage() {
@@ -13,13 +19,6 @@ function NextPage() {
 function ShowWord() {
   document.getElementById('alex').play();
   $("#message").html("<?php echo $training_word; ?>");
-}
-
-// When the training page loads, draw the triangle, set delay for showing the training item, and set delay for moving to next page
-function TrainingLoad() {
-  DrawTriangle('rectangle', target_triangle);
-  setTimeout("ShowWord()", <?php echo $word_delay; ?>);
-  setTimeout("NextPage()", <?php echo $time_per_training_item; ?>);
 }
 
 // Draw a triangle on the canvas

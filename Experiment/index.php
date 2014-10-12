@@ -31,7 +31,7 @@ elseif ($experiment_page == "DR" OR $experiment_page == "MR" OR $experiment_page
 ?>
 
 </head>
-<body<?php echo $js_onload; ?>>
+<body>
 
 <?php
 

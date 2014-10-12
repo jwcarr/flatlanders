@@ -21,7 +21,7 @@ io.sockets.on( 'connection', function( client ) {
 		if (SubA == true && SubB == true) {
 			SubA = false;
 			SubB = false;
-			io.sockets.emit( 'sync' );
+			io.sockets.emit( 'start' );
 		}
 	});
 

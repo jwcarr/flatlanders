@@ -48,8 +48,6 @@ elseif ($experiment_page == "TR") {
     saveLogData($_REQUEST["correct_answer"] ."\t". $_REQUEST["a"]);
   }
 
-  // Set JavaScript onload to TrainingLoad()
-  $js_onload = " onload='TrainingLoad()'";
 }
 
 // If this is a MINI TEST PAGE
@@ -58,8 +56,6 @@ elseif ($experiment_page == "MT") {
   $xy = loadTriangle($_REQUEST["cond"], $_REQUEST["chain"], ($_REQUEST["gen"]-1), "d", $item_info);
   // Get the correct word for the randomly chosen stimulus
   $correct_answer = getWord($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"]-1, $item_info);
-  // Set JavaScript onload to TestingLoad()
-  $js_onload = " onload='TestingLoad()'";
 }
 
 // If this is a TEST PAGE
@@ -68,9 +64,6 @@ elseif ($experiment_page == "TS" OR $experiment_page == "DR") {
   $stimulus_info = explode(".", $item_info);
   $stimulus_set = $stimulus_info[0];
   $stimulus_number = $stimulus_info[1];
-
-  // Set JavaScript onload to TestingLoad()
-  $js_onload = " onload='TestingLoad()'";
 
   // If the current test item belongs to the dynamic flow...
   if ($stimulus_set == "d") {
@@ -118,17 +111,7 @@ elseif ($experiment_page == "TS" OR $experiment_page == "DR") {
     // Save the previous answer to the relevant file
     saveAnswer($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"], $_REQUEST["current"], $_REQUEST["a"], $last_xy);
   }
-
-  // If the participant is in condition 1
-  if ($_REQUEST["cond"] == 1) {
-    // Set the check javascript to CheckAnswer()
-    $check_script = " onsubmit='CheckAnswer()'";
-  }
-  // If the participant is in condition 2
-  elseif ($_REQUEST["cond"] == 2) {
-    // Set the check javascript to CheckDuplicates()
-    $check_script = " onsubmit='CheckDuplicates()'";
-  }
+  
 }
 
 elseif ($experiment_page == "MR") {

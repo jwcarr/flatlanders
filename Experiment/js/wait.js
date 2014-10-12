@@ -11,19 +11,14 @@ var socket = io.connect( 'http://' + server_ip + ':' + node_port );
 // On submit of the ready button...
 $( "#ready" ).submit( function() {
   socket.emit( 'ready', { name: s } );
-  document.getElementById("message").innerHTML = "<img src='images/loading.gif' width='33' height='33' />";
-  $("#instruction").html( "Waiting for your partner..." );
+  $("#message").html("<img src='images/loading.gif' width='33' height='33' />");
+  $("#instruction").html("Waiting for your partner...");
   return false;
 });
 
-// On reception of a 'sync' transmission from the Node server...
-socket.on( 'sync', function( ) {
-  NextPage();
-});
-
-// Send to next page
-function NextPage() {
+// On reception of a 'start' transmission from the Node server...
+socket.on( 'start', function( ) {
   window.location = next_page_location;
-}
+});
 
 </script>

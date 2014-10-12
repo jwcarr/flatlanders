@@ -1,43 +1,40 @@
 <script>
 
-var target_triangle = [<?php echo $xy[0] .",". $xy[1] .",". $xy[2] .",". $xy[3] .",". $xy[4] .",". $xy[5]; ?>]
-
-// Location of the next_page_location page
+var target_triangle = [<?php echo $xy[0] .",". $xy[1] .",". $xy[2] .",". $xy[3] .",". $xy[4] .",". $xy[5]; ?>];
 var next_page_location = '<?php echo $window_location; ?>';
 var answer = '';
 
-//When the testing page loads, draw the triangle, and then give focus to the response textbox
-function TestingLoad() {
+// On page load...
+$( document ).ready( function() {
   DrawTriangle('rectangle', target_triangle);
-  document.f.a.focus();
-}
+  $("#testtext").focus();
+});
 
-// Give feedback on whether the participant got the mini test right or wrong
-function GiveFeedback() {
-  if (document.f.a.value == '') {
+// On submit of a mini-test answer...
+$( "#send_word" ).submit( function() {
+  answer = $("#testtext").val()
+  if (answer == "") {
     return false;
   }
   else {
-    document.f.a.blur();
-    if (document.f.a.value == '<?php echo $correct_answer; ?>') {
+    $("#testtext").prop("disabled", true);
+    if (answer == '<?php echo $correct_answer; ?>') {
       document.getElementById('tink').play();
-      document.getElementById('feedback').src = 'images/check.png';
-      document.f.a.style.color = '<?php if($colourblind==True){echo "#008CED";} else {echo"#67C200";} ?>';
-      answer = document.f.a.value;
+      $("#feedback").attr("src", "images/check.png");
+      $("#testtext").css("color", "#008CED");
       setTimeout("SaveMTResponse()", <?php echo $mini_test_feedback_time; ?>);
     }
     else {
       document.getElementById('funk').play();
-      document.getElementById('feedback').src = 'images/cross.png';
-      document.f.a.style.color = '#FF2F00';
-      document.f.a.style.fontStyle = 'oblique';
-      answer = document.f.a.value;
+      $("#feedback").attr("src", "images/cross.png");
+      $("#testtext").val("<?php echo $correct_answer; ?>");
+      $("#testtext").css("color", "#FF2F00");
+      $("#testtext").css("font-style", "italic");
       setTimeout("SaveMTResponse()", <?php echo $mini_test_feedback_time; ?>);
-      document.f.a.value = '<?php echo $correct_answer; ?>';
     }
     return false;
   }
-}
+});
 
 // Send to next page, saving the mini test answer
 function SaveMTResponse() {

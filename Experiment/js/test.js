@@ -1,21 +1,32 @@
 <script>
 
-var target_triangle = [<?php echo $xy[0] .",". $xy[1] .",". $xy[2] .",". $xy[3] .",". $xy[4] .",". $xy[5]; ?>]
+var target_triangle = [<?php echo $xy[0] .",". $xy[1] .",". $xy[2] .",". $xy[3] .",". $xy[4] .",". $xy[5]; ?>];
+var used_words = [<?php echo $overused_words; ?>];
+var cond = <?php echo $_REQUEST["cond"]; ?>
 
-//When the testing page loads, draw the triangle, and then give focus to the response textbox
-function TestingLoad() {
+// On page load...
+$( document ).ready( function() {
   DrawTriangle('rectangle', target_triangle);
-  document.f.a.focus();
-}
+  $("#testtext").focus();
+});
 
-// Check that the participant has not given a blank answer
-function CheckAnswer() {
-  if (document.f.a.value == '') {
+// On submit of a test answer...
+$( "#send_word" ).submit( function() {
+  if ($("#testtext").val() == "") {
     return false;
   }
-  document.f.a.blur();
-  return true;
-}
+  else {
+    if (cond == 2 && used_words.indexOf(document.f.a.value) != -1) {
+      $("#instruction").html("Ooops! You’ve used this word too often. Please use another word.");
+      $("#instruction").css("color", "#FF2F00");
+      $("#testtext").val("");
+      $("#overuse").val(<?php echo $_REQUEST["overuse"]+1; ?>);
+      return false;
+    }
+    $("#testtext").prop("disabled", true);
+    return true;
+  }
+});
 
 // Draw a triangle on the canvas
 function DrawTriangle(canvasID, cords) {
@@ -36,23 +47,6 @@ function DrawTriangle(canvasID, cords) {
   c.lineWidth = 1;
   c.strokeStyle = 'black';
   c.stroke();
-}
-
-// Check for duplicates in a participant's answers
-function CheckDuplicates() {
-  if (document.f.a.value == '') {
-    return false;
-  }
-  var used_words = [<?php echo $overused_words; ?>];
-  if (used_words.indexOf(document.f.a.value) != -1) {
-    document.getElementById('instruction').innerHTML = 'Ooops! You’ve used this word too often. Please use another word.';
-    document.getElementById('instruction').style.color = '#FF2F00';
-    document.f.a.value = '';
-    document.f.overuse.value = <?php echo $_REQUEST["overuse"]+1; ?>;
-    return false;
-  }
-  document.f.a.blur();
-  return true;
 }
 
 </script>
