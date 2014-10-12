@@ -68,6 +68,7 @@ function DrawTriangle(canvasID, cords) {
   c.stroke();
 }
 
+// Draw all the distractor triangles + the target triangle (in a random position) on the matcher array
 function DrawTriangleArray(target_coordinates) {
   var distractor_triangles = [<?php echo $triangle_array_JS; ?>];
   position = Math.floor(Math.random()*array_size);

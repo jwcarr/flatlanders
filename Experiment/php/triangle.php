@@ -33,12 +33,17 @@ function loadTriangle($condition, $chain_code, $generation, $stimulus_set, $stim
   return array($xy1[0], $xy2[0], $xy3[0], $xy1[1], $xy2[1], $xy3[1]);
 }
 
+// Generate a set of distractor triangles for the matcher array
 function generateTriangleArray() {
+  // Import global variable
   global $triangle_array_size;
+  // Create an empty array to put the triangles into
   $triangle_array = array();
+  // Generate array_size minus 1 triangles
   for ($i=0; $i<($triangle_array_size[0]*$triangle_array_size[1])-1; $i++) {
     $triangle_array[] = generateTriangle();
   }
+  // Return the set of distractor triangles
   return $triangle_array;
 }
 
