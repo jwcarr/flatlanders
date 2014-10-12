@@ -3,14 +3,11 @@
 include("globals.php");
 include("php/file.php");
 
-// If a specific page has been specified, set that as the current page; otherwise, goto the parameters page
+// If a specific page has been requested, set that as the current page; otherwise default to the parameters page
 if ($_REQUEST["page"] != "") { $page = $_REQUEST["page"]; } else { $page = "parameters"; }
 
 // If we are currently in the experiment...
-if ($page == "experiment") {
-  include("php/triangle.php");
-  include("php/main.php");
-}
+if ($page == "experiment") { include("php/triangle.php"); include("php/main.php"); }
 
 ?>
 <!DOCTYPE HTML>
@@ -22,8 +19,12 @@ if ($page == "experiment") {
 
 <?php
 
-if ($experiment_page == "BREAK") { echo "<script src='js/countdown.js'></script>"; }
+// If the break page has been requested, add JavaScript for the countdown timer
+if ($experiment_page == "BREAK") {
+  echo "<script src='js/countdown.js'></script>";
+}
 
+// If a communnication page has been requested, add JavaScript for connecting to the node.js server
 elseif ($experiment_page == "DR" OR $experiment_page == "MR" OR $experiment_page == "WAIT") {
   echo "<script src='js/node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js'></script>";
 }
@@ -35,6 +36,7 @@ elseif ($experiment_page == "DR" OR $experiment_page == "MR" OR $experiment_page
 
 <?php
 
+// Include the relevant HTML and JavaScript files for the requested page
 if ($page == "experiment") {
 
   if ($experiment_page == "TR") { include("html/training.html"); include("js/training.js"); }
@@ -55,9 +57,7 @@ if ($page == "experiment") {
 
   elseif ($experiment_page == "END") { include("html/end.html"); }
 
-  else {
-    echo "<div id='title'>Map error</div><div id='subhead'>Please inform the experiment supervisor.</div>";
-  }
+  else { include("html/error.html"); }
 
 }
 
@@ -65,9 +65,7 @@ elseif ($page == "parameters") { include("html/parameters.html"); }
 
 elseif ($page == "validation") { include("html/validation.html"); }
 
-else {
-  echo "<div id='title'>Page error</div><div id='subhead'>Please inform the experiment supervisor.</div>";
-}
+else { include("html/error.html"); }
 
 ?>
 
