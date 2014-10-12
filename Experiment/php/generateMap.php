@@ -105,8 +105,8 @@ function generateMap($condition, $chain, $generation) {
     $mapA = $map; $mapB = $map;
     // Add the test pages to the map, interleaving the dynamic flow and stable flow
     for ($i=0; $i < $set_size; $i+=2) {
-      $mapA = $mapA ."||TS-d.". $dynamic_set[$i] ."||TA-d.". $dynamic_set[$i+1] ."||TS-s.". $stable_set[$i] ."||TA-s.". $stable_set[$i+1];
-      $mapB = $mapB ."||TA-d.". $dynamic_set[$i] ."||TS-d.". $dynamic_set[$i+1] ."||TA-s.". $stable_set[$i] ."||TS-s.". $stable_set[$i+1];
+      $mapA = $mapA ."||DR-d.". $dynamic_set[$i] ."||MR-d.". $dynamic_set[$i+1] ."||DR-s.". $stable_set[$i] ."||MR-s.". $stable_set[$i+1];
+      $mapB = $mapB ."||MR-d.". $dynamic_set[$i] ."||DR-d.". $dynamic_set[$i+1] ."||MR-s.". $stable_set[$i] ."||DR-s.". $stable_set[$i+1];
     }
     $map = $mapA;
     writeFile("data/client", "page=experiment&subject=SubB&cond={$condition}&chain={$chain}&gen={$generation}&map={$mapB}||END");

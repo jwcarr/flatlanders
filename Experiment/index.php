@@ -22,11 +22,11 @@ if ($page == "experiment") {
 
 <?php
 
-if ($page == "experiment" AND $experiment_page == "BREAK") {
-  echo "<script src='js/countdown.js' type='text/javascript'></script>";
-}
+if ($experiment_page == "BREAK") { echo "<script src='js/countdown.js'></script>"; }
 
-include("js/functions.js");
+elseif ($experiment_page == "DR" OR $experiment_page == "MR" OR $experiment_page == "WAIT") {
+  echo "<script src='js/node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js'></script>";
+}
 
 ?>
 
@@ -35,55 +35,35 @@ include("js/functions.js");
 
 <?php
 
-if ($set_size % $mini_test_frequency != 0) { echo "WARNING: Global parameter mini_test_frequency must be a divisor of set_size"; }
+if ($page == "experiment") {
 
-if ($page == "parameters") {
-  include("html/parameters.html");
-}
+  if ($experiment_page == "TR") { include("html/training.html"); include("js/training.js"); }
 
-elseif ($page == "validation") {
-  include("html/validation.html");
-}
+  elseif ($experiment_page == "MT") { include("html/mini_test.html"); include("js/mini_test.js"); }
 
-elseif ($page == "experiment") {
+  elseif ($experiment_page == "TS") { include("html/test.html"); include("js/test.js"); }
 
-  if ($experiment_page == "BEGIN") {
-    include("html/welcome.html");
-  }
+  elseif ($experiment_page == "DR") { include("html/director.html"); include("js/director.js"); }
 
-  elseif ($experiment_page == "TR") {
-    include("html/training.html");
-  }
+  elseif ($experiment_page == "MR") { include("html/matcher.html"); include("js/matcher.js"); }
 
-  elseif ($experiment_page == "MT") {
-    include("html/mini_test.html");
-  }
+  elseif ($experiment_page == "BEGIN") { include("html/begin.html"); include("js/begin.js"); }
 
-  elseif ($experiment_page == "TS") {
-    include("html/test.html");
-  }
+  elseif ($experiment_page == "WAIT") { include("html/wait.html"); include("js/wait.js"); }
 
-  elseif ($experiment_page == "TA") {
-    include("html/test_array.html");
-  }
+  elseif ($experiment_page == "BREAK") { include("html/break.html"); }
 
-  elseif ($experiment_page == "BREAK") {
-    include("html/break.html");
-  }
-
-  elseif ($experiment_page == "WAIT") {
-    include("html/wait.html");
-  }
-
-  elseif ($experiment_page == "END") {
-    include("html/end.html");
-  }
+  elseif ($experiment_page == "END") { include("html/end.html"); }
 
   else {
     echo "<div id='title'>Map error</div><div id='subhead'>Please inform the experiment supervisor.</div>";
   }
 
 }
+
+elseif ($page == "parameters") { include("html/parameters.html"); }
+
+elseif ($page == "validation") { include("html/validation.html"); }
 
 else {
   echo "<div id='title'>Page error</div><div id='subhead'>Please inform the experiment supervisor.</div>";

@@ -122,7 +122,7 @@ function saveAnswer($condition, $chain_code, $generation, $position, $answer, $x
 function saveFinalAnswer($condition, $chain_code, $generation, $position, $answer, $xy) {
   // Import the global variable $set_size
   global $set_size;
-  // Parse the map position into a set type ("d" or "s") and the stimulus number (0–49)
+  // Parse the map position into a set type ("d" or "s") and the stimulus number (0–47)
   $position = explode(".", $position);
   // Load in the lines from a specific stable set file
   $lines = loadFile($condition, $chain_code, $generation, "s");

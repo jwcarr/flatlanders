@@ -63,7 +63,7 @@ elseif ($experiment_page == "MT") {
 }
 
 // If this is a TEST PAGE
-elseif ($experiment_page == "TS") {
+elseif ($experiment_page == "TS" OR $experiment_page == "DR") {
   // Parse the test item information into its set (either "d" or "s") and the stimulus number from that set (number between 0 and 47)
   $stimulus_info = explode(".", $item_info);
   $stimulus_set = $stimulus_info[0];
@@ -131,7 +131,7 @@ elseif ($experiment_page == "TS") {
   }
 }
 
-elseif ($experiment_page == "TA") {
+elseif ($experiment_page == "MR") {
 
   $stimulus_info = explode(".", $item_info);
   $stimulus_set = $stimulus_info[0];

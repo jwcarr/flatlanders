@@ -1,10 +1,5 @@
 <div id='stimuli-container'>
-
-  <div id='target-stim-container'>
-    <div id='target-stim'>
       <canvas id='rectangle' width='<?php echo $canvas_size[0]; ?>' height='<?php echo $canvas_size[1]; ?>'></canvas>
-    </div>
-    <div id='stim-label'></div>
   </div>
 
 </div>
@@ -24,8 +19,6 @@
     <input name='last_y2' type='hidden' value='<?php echo $xy[4]; ?>' />
     <input name='last_y3' type='hidden' value='<?php echo $xy[5]; ?>' />
     <input name='overuse' type='hidden' value='<?php echo $_REQUEST["overuse"]; ?>' />
-    <input id='sender' type='hidden' name='subject' value='<?php echo $_REQUEST["subject"]; ?>' />
-    <input id='coordinates' type='hidden' value='<?php echo $xy[0]; ?>,<?php echo $xy[1]; ?>,<?php echo $xy[2]; ?>,<?php echo $xy[3]; ?>,<?php echo $xy[4]; ?>,<?php echo $xy[5]; ?>' />
     <input name='a' type='text' value='' id='testtext' autocomplete='off' size='27' />
   </form>
 </div>
@@ -33,15 +26,3 @@
 <div id='instruction'>
   Type in the word for this triangle and press Enter
 </div>
-
-<?php
-
-if ($_REQUEST["cond"] == 3) {
-
-  echo "
-  <script src='js/node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js'></script>
-  <script src='js/nodeClient.js'></script>
-  ";
-}
-
-?>
