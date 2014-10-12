@@ -11,4 +11,6 @@ function KeyCheck() {
   }
 }
 
+document.onkeypress = KeyCheck;
+
 </script>
