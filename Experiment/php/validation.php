@@ -42,6 +42,12 @@ function checkSoundFiles($words) {
   return $missing_words;
 }
 
+// Check $mini_test_frequency is a divisor of $set_size
+function checkSetSize() {
+  global $set_size, $mini_test_frequency;
+  if ($set_size % $mini_test_frequency == 0) { return True; } else { return False; }
+}
+
 // Function to output a row on the validation page
 function validationTableRow($colour, $message) {
   return "<div id='parameter'><img src='images/". $colour .".png' width='16' height='16' alt='light' /> ". $message ."</div>";
@@ -79,6 +85,10 @@ else {
   echo validationTableRow("red", "The following sound files are missing: " . substr($missing_words_list, 0, -2));
   $error_count ++;
 }
+
+// Check $mini_test_frequency is a divisor of $set_size
+if (checkSetSize() == True) { echo validationTableRow("green", "Valid set parameters"); }
+else { echo validationTableRow("red", "Global parameter mini_test_frequency must be a divisor of set_size"); $error_count ++; }
 
 // If the above validation functions produce no errors, display messages to check the volume level and keyboard layout
 if ($error_count == 0) {

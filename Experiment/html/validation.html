@@ -1,7 +1,3 @@
-<?php
-if ($set_size % $mini_test_frequency != 0) { echo "WARNING: Global parameter mini_test_frequency must be a divisor of set_size"; }
-?>
-
 <div id='title'>
   Validation
 </div>
@@ -16,7 +12,7 @@ if ($set_size % $mini_test_frequency != 0) { echo "WARNING: Global parameter min
 
 <?php
 
-// If the above validation functions produce no errors, display the "Begin experiment" button and embed the sound check file
+// If the validation functions produce no errors, display the "Begin experiment" button and embed the sound check file
 if ($error_count == 0) {
   echo "
   <form name='f' method='post' action='index.php'>
