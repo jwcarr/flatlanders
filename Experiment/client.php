@@ -2,16 +2,18 @@
 
 include("php/file.php");
 
-$map = openFile("data/client");
+// Read in the client file which details all the info needed to run the experiment
+$client = openFile("data/client");
 
-writeFile("data/client", "");
-
-if ($map != "" OR $map != false) {
-	header("Location: index.php?".$map);
+// If openFile() hasn't failed and the client file isn't blank...
+if ($client != false AND $client != "") {
+	// Clear the client file...
+	writeFile("data/client", "");
+	// and redirect the client terminal to the correct position in the experiment
+	header("Location: index.php?".$client);
 }
 
 ?>
-
 <!DOCTYPE HTML>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
