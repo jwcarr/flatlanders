@@ -54,8 +54,8 @@ elseif ($experiment_page == "MT") {
   $correct_answer = getWord($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"]-1, $item_info);
 }
 
-// If this is a TEST PAGE or DIRECTOR PAGE
-elseif ($experiment_page == "TS" OR $experiment_page == "DR") {
+// If this is a TEST PAGE
+elseif ($experiment_page == "TS") {
   // Parse the test item information into its set (either "d" or "s") and the stimulus number from that set
   $stimulus_info = explode(".", $item_info);
   $stimulus_set = $stimulus_info[0];
@@ -110,6 +110,24 @@ elseif ($experiment_page == "TS" OR $experiment_page == "DR") {
 
 }
 
+elseif ($experiment_page == "DR") {
+  // Parse the test item information into its set (either "d" or "s") and the stimulus number from that set
+  $stimulus_info = explode(".", $item_info);
+  $stimulus_set = $stimulus_info[0];
+  $stimulus_number = $stimulus_info[1];
+
+  // If the current test item belongs to the dynamic flow...
+  if ($stimulus_set == "d") {
+    // Generate random XY coordinates
+    $xy = generateTriangle();
+  }
+  // Otherwise, if the current test item belongs to the stable flow...
+  else {
+    // Load the XY coordinates for the relevant triangle from the stable set file
+    $xy = loadTriangle($_REQUEST["cond"], $_REQUEST["chain"], ($_REQUEST["gen"]-1), "s", $stimulus_number);
+  }
+}
+
 // If this is a MATCHER PAGE
 elseif ($experiment_page == "MR") {
   // Parse the test item information into its set (either "d" or "s") and the stimulus number from that set
@@ -126,6 +144,16 @@ elseif ($experiment_page == "MR") {
     $triangle_array_JS .= implode(",", $triangle).",";
   }
 
+  // If this is not the first test item (indicated by the fact that $current is set to nothing), do the following...
+  if ($_REQUEST["current"] != "") {
+    // Create an XY array from the previous XY coordinates
+    $last_xy = array($_REQUEST["last_x1"], $_REQUEST["last_x2"], $_REQUEST["last_x3"], $_REQUEST["last_y1"], $_REQUEST["last_y2"], $_REQUEST["last_y3"]);
+
+    $sel_xy = array($_REQUEST["cord_x1"], $_REQUEST["cord_x2"], $_REQUEST["cord_x3"], $_REQUEST["cord_y1"], $_REQUEST["cord_y2"], $_REQUEST["cord_y3"]);
+
+    // Save the previous answer to the relevant file
+    saveCommAnswer($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"], $_REQUEST["current"], $_REQUEST["a"], $last_xy, $_REQUEST["sub"], $sel_xy);
+  }
 }
 
 // If this is a BREAK PAGE or WAIT PAGE

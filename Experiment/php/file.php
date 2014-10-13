@@ -121,6 +121,30 @@ function saveAnswer($condition, $chain_code, $generation, $position, $answer, $x
  	writeFile($filename, trim($new_data));
 }
 
+// Save a test answer to a participant's dynamic or stable set file
+function saveCommAnswer($condition, $chain_code, $generation, $position, $answer, $xy, $subject, $sel_xy) {
+  // Parse the map position into a set type ("d" or "s") and the stimulus number
+  $position = explode(".", $position);
+  // If saving a dynamic file...
+  if ($position[0] == "d") {
+    // Concatenate the answer, XY coordinates, and timestamp (delimited by tabs)
+    $answer = trim($answer) ."\t". $xy[0] .",". $xy[3] ."\t". $xy[1] .",". $xy[4] ."\t". $xy[2] .",". $xy[5] ."\t". date("H:i:s") ."\t". $subject ."\t". $sel_xy[0] .",". $sel_xy[3] ."\t". $sel_xy[1] .",". $sel_xy[4] ."\t". $sel_xy[2] .",". $sel_xy[5];
+  }
+  // If saving a stable file...
+  else {
+    // Concatenate the stimulus number, answer, XY coordinates, and timestamp (delimited by tabs)
+    $answer = $position[1] ."|||". trim($answer) ."\t". $xy[0] .",". $xy[3] ."\t". $xy[1] .",". $xy[4] ."\t". $xy[2] .",". $xy[5] ."\t". date("H:i:s") ."\t". $subject ."\t". $sel_xy[0] .",". $sel_xy[3] ."\t". $sel_xy[1] .",". $sel_xy[4] ."\t". $sel_xy[2] .",". $sel_xy[5];
+  }
+  // Determine the filename you want to write to
+  $filename = "data/". $condition ."/". $chain_code ."/". $generation . $position[0];
+  // Read the content of that file as it currently stands
+  $current_data = openFile($filename);
+  // The new content of the file is the old data + the new answer
+  $new_data = $current_data ."\n". $answer;
+  // Write this new data to the file
+   writeFile($filename, trim($new_data));
+}
+
 // Save the final test item, and then sort the stable set into its unshuffled order
 function saveFinalAnswer($condition, $chain_code, $generation, $position, $answer, $xy) {
   // Import the global variable $set_size

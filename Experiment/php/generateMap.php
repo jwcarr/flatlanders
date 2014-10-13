@@ -32,7 +32,7 @@
 
 function generateMap($condition, $chain, $generation) {
   // Import required global variables
-  global $set_size, $mini_test_frequency;
+  global $set_size, $mini_test_frequency, $skip_training;
 
   // First we want to present the welcome page
   $map = "BEGIN";
