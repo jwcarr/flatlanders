@@ -55,6 +55,9 @@ $server_ip = 'localhost';
 // Port to use for the node.js server (experiment 3 only)
 $node_port = '8080';
 
+// Skip over the training section of the experiment (for testing purposes only)
+$skip_training = True;
+
 // Set timezone for timestamps (default = UTC)
 date_default_timezone_set('UTC');
 

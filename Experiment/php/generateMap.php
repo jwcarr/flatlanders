@@ -125,6 +125,10 @@ function generateMap($condition, $chain, $generation) {
     $map = $map ."||MT-". $mini_test_numbers[$set_size-1] ."||BREAK";
   }
 
+  if ($skip_training == True) {
+    $map = "WAIT";
+  }
+
   // Shuffle the order in which the test items in both the dynamic and stable sets will be presented
   $dynamic_set = range(0, $set_size-1); shuffle($dynamic_set);
   $stable_set = range(0, $set_size-1); shuffle($stable_set);
