@@ -31,7 +31,7 @@ def vocalize(matrix):
     for i in matrix:
         path = "Experiment/temp/" + i[0] + ".m4a"
         phon = "\"[[inpt PHON]]" + i[1] + "\""
-        call(["say", "-o", path, phon])
+        call(["say", "-v", "Alex", "-o", path, phon])
     return
 
 ########################################################################
