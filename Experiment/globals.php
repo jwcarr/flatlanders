@@ -46,8 +46,11 @@ $mini_test_frequency = 3;
 // Number of trianlges to show in the matcher array (columns by rows) (experiment 3 only)
 $triangle_array_size = array(3, 2);
 
+// Show a running score on the director/matcher pages for the number of stimuli correctly matched (default = True)
+$show_score = True;
+
 // IP address for the webserver (experiment 3 only)
-$server_ip = '192.168.1.70';
+$server_ip = 'localhost';
 
 // Port to use for the node.js server (experiment 3 only)
 $node_port = '8080';

@@ -8,6 +8,8 @@ var canvas_height = <?php echo $canvas_size[1]; ?>;
 var target_triangle = [<?php echo $xy[0] .",". $xy[1] .",". $xy[2] .",". $xy[3] .",". $xy[4] .",". $xy[5]; ?>];
 var server_ip = '<?php echo $server_ip; ?>';
 var node_port = '<?php echo $node_port; ?>';
+var trials = <?php echo $_REQUEST['trials']; ?>;
+var score = <?php echo $_REQUEST['score']; ?>;
 
 // Establish connection with the Node server
 var socket = io.connect( 'http://' + server_ip + ':' + node_port );
@@ -35,6 +37,12 @@ socket.on( 'feedback', function( data ) {
   if (data.name != s) {
     var cord = data.coordinates;
     var corr = data.correct;
+    if (corr == true) {
+      score += 1;
+    }
+    trials += 1;
+    var percentage_score = ((score / trials) * 100).toFixed(0);
+    $("#score").html("Score: " + percentage_score + "%")
     $("#instruction").html( "Please wait..." );
     $("#target-stim-container").css("float", "left")
     $("#stim-label" ).html( "your triangle" );
@@ -46,7 +54,7 @@ socket.on( 'feedback', function( data ) {
 
 // Send to next page
 function NextPage() {
-  window.location = next_page_location;
+  window.location = next_page_location + "&trials=" + trials + "&score=" + score;
 }
 
 // Draw a triangle on the canvas

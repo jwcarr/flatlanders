@@ -139,3 +139,14 @@ table{
   text-align: left;
   position: static;
 }
+
+#score{
+  position: absolute;
+  bottom: 30px;
+  width: 150px;
+  height: 30px;
+  margin-left: 30px;
+  margin-right: auto;
+  font-size: 22px;
+  text-align: left;
+}

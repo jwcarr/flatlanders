@@ -18,7 +18,7 @@ $( "#ready" ).submit( function() {
 
 // On reception of a 'start' transmission from the Node server...
 socket.on( 'start', function( ) {
-  window.location = next_page_location;
+  window.location = next_page_location + "&trials=0&score=0";
 });
 
 </script>
