@@ -123,7 +123,7 @@ elseif ($experiment_page == "MR") {
   // For each distractor triangle
   foreach ($triangle_array as $triangle) {
     // add its coordinates to the
-    $triangle_array_JS .= implode(",", $triangle);
+    $triangle_array_JS .= implode(",", $triangle).",";
   }
 
 }
