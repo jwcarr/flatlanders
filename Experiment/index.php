@@ -1,3 +1,11 @@
+<!DOCTYPE HTML>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Infinity</title>
+<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
+<script src='js/jquery.js'></script>
+
 <?php
 
 include("globals.php");
@@ -7,31 +15,25 @@ include("php/file.php");
 if ($_REQUEST["page"] != "") { $page = $_REQUEST["page"]; } else { $page = "parameters"; }
 
 // If we are currently in the experiment...
-if ($page == "experiment") { include("php/triangle.php"); include("php/main.php"); }
+if ($page == "experiment") {
+  include("php/triangle.php");
+  include("php/main.php");
 
-?>
-<!DOCTYPE HTML>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Infinity</title>
-<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
-<script src='js/jquery.js'></script>
+  // If a communnication page has been requested, add JavaScript for connecting to the node.js server
+  if ($experiment_page == "DR" OR $experiment_page == "MR" OR $experiment_page == "WAIT") {
+    echo "<script src='js/node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js'></script>";
+  }
 
-<?php
+  // If the break page has been requested, add JavaScript for the countdown timer
+  elseif ($experiment_page == "BREAK") {
+    echo "<script src='js/countdown.js'></script>";
+  }
 
-// If the break page has been requested, add JavaScript for the countdown timer
-if ($experiment_page == "BREAK") {
-  echo "<script src='js/countdown.js'></script>";
-}
-
-// If a communnication page has been requested, add JavaScript for connecting to the node.js server
-elseif ($experiment_page == "DR" OR $experiment_page == "MR" OR $experiment_page == "WAIT") {
-  echo "<script src='js/node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js'></script>";
 }
 
 ?>
-
 </head>
+
 <body>
 
 <?php
@@ -70,4 +72,5 @@ else { include("html/error.html"); }
 ?>
 
 </body>
+
 </html>
