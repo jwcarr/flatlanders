@@ -10,6 +10,7 @@ var triangles = [];
 var position = -1;
 var trials = <?php echo $_REQUEST['trials']; ?>;
 var score = <?php echo $_REQUEST['score']; ?>;
+var show_score = <?php echo json_encode($show_score); ?>;
 
 // Establish connection with the Node server
 var socket = io.connect( 'http://' + server_ip + ':' + node_port );
@@ -30,8 +31,10 @@ $( "canvas[id^='match']" ).click( function() {
       $(targ_id).css({"border": "solid #3B6C9D 1px", "background-color": "#E6ECF3"});
     }
     trials += 1;
-    var percentage_score = ((score / trials) * 100).toFixed(0);
-    $("#score").html("Score: " + percentage_score + "%")
+    if (show_score == true) {
+      var percentage_score = ((score / trials) * 100).toFixed(1);
+      $("#score").html("Score: " + percentage_score + "%")
+    }
     position = -1;
     cord = triangles.slice(resp*6, (resp*6)+6);
     socket.emit( 'feedback', { name: s, correct: corr, coordinates: cord } );

@@ -10,6 +10,7 @@ var server_ip = '<?php echo $server_ip; ?>';
 var node_port = '<?php echo $node_port; ?>';
 var trials = <?php echo $_REQUEST['trials']; ?>;
 var score = <?php echo $_REQUEST['score']; ?>;
+var show_score = <?php echo json_encode($show_score); ?>;
 
 // Establish connection with the Node server
 var socket = io.connect( 'http://' + server_ip + ':' + node_port );
@@ -41,8 +42,10 @@ socket.on( 'feedback', function( data ) {
       score += 1;
     }
     trials += 1;
-    var percentage_score = ((score / trials) * 100).toFixed(0);
-    $("#score").html("Score: " + percentage_score + "%")
+    if (show_score == true) {
+      var percentage_score = ((score / trials) * 100).toFixed(1);
+      $("#score").html("Score: " + percentage_score + "%")
+    }
     $("#instruction").html( "Please wait..." );
     $("#target-stim-container").css("float", "left")
     $("#stim-label" ).html( "your triangle" );
