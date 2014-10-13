@@ -89,11 +89,12 @@ function getWord($condition, $chain_code, $generation, $word_number) {
 }
 
 // Save log data to the log file
-function saveLogData($new_data) {
+function saveLogData($condition, $chain_code, $generation, $subject='', $new_data) {
   // Open the log file as it stands
-  $data = openFile("data/log");
+  $data = openFile("data/". $condition ."/". $chain_code ."/". $generation ."log". $subject);
+  if ($data == "") { $data = $new_data; } else { $data = $data ."\n". $new_data; }
   // Write out the new log file
-  writeFile("data/log", $data ."\n". $new_data);
+  writeFile("data/". $condition ."/". $chain_code ."/". $generation ."log". $subject, $data);
 }
 
 // Save a test answer to a participant's dynamic or stable set file

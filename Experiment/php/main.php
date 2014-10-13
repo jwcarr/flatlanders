@@ -35,13 +35,13 @@ elseif ($experiment_page == "TR") {
   // If is the first training item...
   if ($_REQUEST["first_training_item"] == "yes") {
     // Write log to the "training" file
-    saveLogData("Cond.\tChain\tGen.\tTimestamp\n". $_REQUEST["cond"]. "\t". $_REQUEST["chain"] ."\t". $_REQUEST["gen"] ."\t". date("d/m/Y H:i:s") ."\n\n". $map ."\n");
+    saveLogData($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"], $_REQUEST["subject"], "Cond.\tChain\tGen.\tSub.\tTimestamp\n". $_REQUEST["cond"]. "\t". $_REQUEST["chain"] ."\t". $_REQUEST["gen"] ."\t". $_REQUEST["subject"] ."\t". date("d/m/Y H:i:s") . "\n\n" . $map ."\n");
   }
 
   // If a mini test answer has been provided...
   if ($_REQUEST["a"] != "") {
     // Write it to the log along with the correct answer
-    saveLogData($_REQUEST["correct_answer"] ."\t". $_REQUEST["a"]);
+    saveLogData($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"], $_REQUEST["subject"], $_REQUEST["correct_answer"] ."\t". $_REQUEST["a"]);
   }
 
 }
@@ -131,7 +131,7 @@ elseif ($experiment_page == "MR") {
 // If this is a BREAK PAGE or WAIT PAGE
 elseif ($experiment_page == "BREAK" OR $experiment_page == "WAIT") {
   // Write the final mini-test answer to the log
-  saveLogData($_REQUEST["correct_answer"] ."\t". $_REQUEST["a"]);
+  saveLogData($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"], $_REQUEST["subject"], $_REQUEST["correct_answer"] ."\t". $_REQUEST["a"]);
 }
 
 // If this is an END PAGE
@@ -144,10 +144,10 @@ elseif ($experiment_page == "END") {
 
   // Write time at whcih the experiment ended to log along with overuse count if condition 2
   if ($_REQUEST["cond"] == 2) {
-    saveLogData("\nOveruse count = ". $_REQUEST["overuse"] ."\n\nEND AT " . date("d/m/Y H:i:s") . "\n-------------------------------------------------------\n\n");
+    saveLogData($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"], $_REQUEST["subject"], "\nOveruse count = ". $_REQUEST["overuse"] ."\n\nEND AT " . date("d/m/Y H:i:s") . "\n-------------------------------------------------------\n\n");
   }
   else {
-    saveLogData("\nEND AT " . date("d/m/Y H:i:s") . "\n-------------------------------------------------------\n\n");
+    saveLogData($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"], $_REQUEST["subject"], "\nEND AT " . date("d/m/Y H:i:s") . "\n-------------------------------------------------------\n\n");
   }
 }
 
