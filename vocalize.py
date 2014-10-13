@@ -11,7 +11,7 @@ rules = [['ei', 'EY'],['oo','UW'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
 ########################################################################
 ### Produce the missing vocalizations for a participant
 
-def produceVocaliaztionsFor(condition, chain_code, generation):
+def produceVocalizationsFor(condition, chain_code, generation):
     words = missingWords(condition, chain_code, generation-1)
     n = len(words)
     print("%s missing words" % n)
