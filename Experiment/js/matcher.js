@@ -23,12 +23,17 @@ $( "canvas[id^='match']" ).click( function() {
     if (resp == position) {
       var corr = true;
       score += 1;
+      document.getElementById('tink').play();
       $(resp_id).css({"border": "solid #3B6C9D 1px", "background-color": "#E6ECF3"});
+      $(resp_id).fadeIn(75).fadeOut(75).fadeIn(75).fadeOut(75).fadeIn(75).fadeOut(75).fadeIn(75).fadeOut(75).fadeIn(75);
     }
     else {
       var corr = false;
+      document.getElementById('funk').play();
+      $(resp_id).css({"border": "solid black 1px", "background-color": "#EFEFEF"});
       var targ_id = "#match" + position;
       $(targ_id).css({"border": "solid #3B6C9D 1px", "background-color": "#E6ECF3"});
+      $(targ_id).fadeIn(75).fadeOut(75).fadeIn(75).fadeOut(75).fadeIn(75).fadeOut(75).fadeIn(75).fadeOut(75).fadeIn(75);
     }
     trials += 1;
     if (show_score == true) {
