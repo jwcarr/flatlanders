@@ -30,6 +30,7 @@ $( "#send_word" ).submit( function() {
   if (w != "") {
     var c = target_triangle;
     socket.emit( 'word', { name: s, word: w, coordinates: c } );
+    $("#stim-label").html("You called it: <strong>" + w + "</strong>");
     $("#message").html("<img src='images/loading.gif' width='33' height='33' />");
     $("#instruction").html( "Waiting for your partner’s response..." );
   }
@@ -43,6 +44,10 @@ socket.on( 'feedback', function( data ) {
     var corr = data.correct;
     if (corr == true) {
       score += 1;
+      document.getElementById('tink').play();
+    }
+    else {
+      document.getElementById('funk').play();
     }
     trials += 1;
     if (show_score == true) {
@@ -51,8 +56,7 @@ socket.on( 'feedback', function( data ) {
     }
     $("#instruction").html( "Please wait..." );
     $("#target-stim-container").css("float", "left")
-    $("#stim-label" ).html( "your triangle" );
-    $("#stimuli-container").append("<div id='feedback-stim-container'><div id='feedback-stim'><canvas id='feedback_box' width='" + canvas_width + "' height='" + canvas_height + "' style='border: solid #3B6C9D 1px; background-color: #E6ECF3;'></canvas></div><div id='stim-label'>partner’s selection</div></div>");
+    $("#stimuli-container").append("<div id='feedback-stim-container'><div id='feedback-stim'><canvas id='feedback_box' width='" + canvas_width + "' height='" + canvas_height + "'></canvas></div><div id='stim-label'>Your partner selected</div></div>");
     DrawTriangle("feedback_box", cord);
     setTimeout('NextPage()' , feedback_time);
   }
