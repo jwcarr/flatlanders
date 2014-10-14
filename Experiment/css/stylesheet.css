@@ -94,6 +94,8 @@ table{
   position: static;
   width: 500px;
   float: left;
+  height: 100px;
+  line-height: 100px;
 }
 
 #array{
