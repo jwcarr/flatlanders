@@ -174,6 +174,35 @@ function saveFinalAnswer($condition, $chain_code, $generation, $position, $answe
   writeFile("data/". $condition ."/" . $chain_code ."/". $generation."s", $new_data);
 }
 
+// Save a test answer to a participant's dynamic or stable set file
+function saveFinalCommAnswer($condition, $chain_code, $generation, $position, $answer, $xy, $subject, $sel_xy) {
+  // Import the global variable $set_size
+  global $set_size;
+  // Parse the map position into a set type ("d" or "s") and the stimulus number
+  $position = explode(".", $position);
+  // Load in the lines from a specific stable set file
+  $lines = loadFile($condition, $chain_code, $generation, "s");
+  // Concatenate the stimulus number, answer, XY coordinates, and timestamp (delimited by tabs) for the final test item
+  $answer = $position[1] ."|||". trim($answer) ."\t". $xy[0] .",". $xy[3] ."\t". $xy[1] .",". $xy[4] ."\t". $xy[2] .",". $xy[5] ."\t". date("H:i:s") ."\t". $subject ."\t". $sel_xy[0] .",". $sel_xy[3] ."\t". $sel_xy[1] .",". $sel_xy[4] ."\t". $sel_xy[2] .",". $sel_xy[5];
+  // Add the final answer to the lines array
+  array_push($lines, $answer);
+  // Set up an empty array in which to dump the parsed lines
+  $mappings = array();
+  // For each line in the file...
+  for ($i=0; $i < $set_size; $i++) {
+    // Parse the line into its stimulus number and recorded data
+    $parsed_line = explode("|||", $lines[$i]);
+    // Put the recorded data into the $mappings array with a key equal to the stimulus number (also, append the order number (i) to the recorded data)
+    $mappings[$parsed_line[0]] = $parsed_line[1] ."\t". ($i+1);
+  }
+  // Sorts the $mappings array by key
+  ksort($mappings);
+  // Implode the $mappings array, using a line break as the glue
+  $new_data = implode("\n", $mappings);
+  // Write the new data to the data file
+  writeFile("data/". $condition ."/" . $chain_code ."/". $generation."s", $new_data);
+}
+
 // Clear the data files for a specific participant
 function clearFiles($condition, $chain_code, $generation) {
   // Overwrite the dynamic set file with "" (null)

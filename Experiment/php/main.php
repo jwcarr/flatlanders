@@ -167,8 +167,17 @@ elseif ($experiment_page == "END") {
   // Create an XY array from the previous XY coordinates
   $last_xy = array($_REQUEST["last_x1"], $_REQUEST["last_x2"], $_REQUEST["last_x3"], $_REQUEST["last_y1"], $_REQUEST["last_y2"], $_REQUEST["last_y3"]);
 
-  // Save the final answer (and sort the stable data file back to its unshuffled order)
-  saveFinalAnswer($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"], $_REQUEST["current"], $_REQUEST["a"], $last_xy);
+  $sel_xy = array($_REQUEST["cord_x1"], $_REQUEST["cord_x2"], $_REQUEST["cord_x3"], $_REQUEST["cord_y1"], $_REQUEST["cord_y2"], $_REQUEST["cord_y3"]);
+
+  if ($_REQUEST["cond"] == 3) {
+    if ($_REQUEST["sub"] == "SubB") {
+      saveFinalCommAnswer($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"], $_REQUEST["current"], $_REQUEST["a"], $last_xy, $_REQUEST["sub"], $sel_xy);
+    }
+  }
+  else {
+    // Save the final answer (and sort the stable data file back to its unshuffled order)
+    saveFinalAnswer($_REQUEST["cond"], $_REQUEST["chain"], $_REQUEST["gen"], $_REQUEST["current"], $_REQUEST["a"], $last_xy);
+  }
 
   // Write time at whcih the experiment ended to log along with overuse count if condition 2
   if ($_REQUEST["cond"] == 2) {
