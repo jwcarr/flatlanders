@@ -12,9 +12,16 @@ var position = -1;
 var trials = <?php echo $_REQUEST['trials']; ?>;
 var score = <?php echo $_REQUEST['score']; ?>;
 var show_score = <?php echo json_encode($show_score); ?>;
+var failsafe = 0;
 
 // Establish connection with the Node server
 var socket = io.connect( 'http://' + server_ip + ':' + node_port );
+
+// On page load...
+$( document ).ready( function() {
+  failsafe = setTimeout("socket.emit( 'ready', { name: s } )", 11500);
+  socket.emit( 'ready', { name: s } );
+});
 
 // On click of a triangle from the matcher array...
 $( "canvas[id^='match']" ).click( function() {
@@ -38,20 +45,28 @@ $( "canvas[id^='match']" ).click( function() {
     }
     trials += 1;
     if (show_score == true) {
-      var percentage_score = ((score / trials) * 100).toFixed(1);
-      $("#score").html("Score: " + percentage_score + "%")
+      var points = score * 10;
+      $("#score").html("<img src='images/star.png' width='33' height='33' /> " + points)
     }
     position = -1;
     cord = triangles.slice(resp*6, (resp*6)+6);
     socket.emit( 'feedback', { name: s, correct: corr, coordinates: cord } );
+    $("#instruction").html("Please wait...");
     setTimeout('NextPage()' , feedback_time);
   }
+});
+
+socket.on( 'start', function( ) {
+  clearTimeout(failsafe);
 });
 
 // On reception of a 'word' transmission from the Node server...
 socket.on( 'word', function( data ) {
   if (data.name != s) {
+    $("#message").fadeOut(0);
+    $("#message").css("background-image", "url(images/message_box_right.png)");
     $("#message").html( data.word );
+    $("#message").fadeIn(350);
     $("#instruction").html( "Which triangle is your partner seeing?" );
     DrawTriangleArray(data.coordinates);
   }

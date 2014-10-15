@@ -15,13 +15,31 @@ var current = '<?php echo $item_info; ?>';
 var s = "<?php echo $_REQUEST['subject']; ?>";
 var w = ''
 var cord = [];
+var failsafe = 0;
 
 // Establish connection with the Node server
 var socket = io.connect( 'http://' + server_ip + ':' + node_port );
 
 // On page load...
 $( document ).ready( function() {
+  failsafe = setTimeout("socket.emit( 'ready', { name: s } )", 9500);
+  socket.emit( 'ready', { name: s } );
+});
+
+// On loss of focus from the input box...
+$( document ).on('blur', '#testtext', function() {
+  $("#testtext").focus();
+});
+
+// On reception of a 'start' transmission from the Node server...
+socket.on( 'start', function( ) {
+  clearTimeout(failsafe);
   DrawTriangle('rectangle', target_triangle);
+  $("#message").fadeOut(0);
+  $("#message").css("background-image", "url(images/message_box_left.png)");
+  $("#message").html("<input name='a' type='text' value='' id='testtext' autocomplete='off' size='27' />");
+  $("#message").fadeIn(350);
+  $("#instruction").html("Type in the word for this triangle and press Enter");
   $("#testtext").focus();
 });
 
@@ -31,6 +49,7 @@ $( "#send_word" ).submit( function() {
   if (w != "") {
     var c = target_triangle;
     socket.emit( 'word', { name: s, word: w, coordinates: c } );
+    $("#message").css("background-image", "none");
     $("#stim-label").html("You called it: <strong>" + w + "</strong>");
     $("#message").html("<img src='images/loading.gif' width='33' height='33' />");
     $("#instruction").html( "Waiting for your partner’s response..." );
@@ -52,8 +71,8 @@ socket.on( 'feedback', function( data ) {
     }
     trials += 1;
     if (show_score == true) {
-      var percentage_score = ((score / trials) * 100).toFixed(1);
-      $("#score").html("Score: " + percentage_score + "%")
+      var points = score * 10;
+      $("#score").html("<img src='images/star.png' width='33' height='33' /> " + points)
     }
     $("#instruction").html( "Please wait..." );
     $("#target-stim-container").css("float", "left")
