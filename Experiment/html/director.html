@@ -9,18 +9,18 @@
 
 </div>
 
-<div id='message'>
-  <form id='send_word' name='f'>
-    <input name='a' type='text' value='' id='testtext' autocomplete='off' size='27' />
-  </form>
-</div>
+<form id='send_word' name='f'>
+  <div id='message'>
+    <img src='images/loading.gif' width='33' height='33' />
+  </div>
+</form>
 
 <div id='instruction'>
-  Type in the word for this triangle and press Enter
+  Please wait...
 </div>
 
 <div id='score'>
-  <?php if ($show_score == True) { echo "Score: {$percentage_score}%"; } ?>
+  <img src='images/star.png' width='33' height='33' /> <?php if ($show_score == True) { echo $points; } ?>
 </div>
 
 <audio id='tink' src='sounds/tink.m4a' preload='auto'></audio>
