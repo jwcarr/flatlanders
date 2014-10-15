@@ -1,8 +1,8 @@
 <script>
 
-var target_triangle = [<?php echo $xy[0] .",". $xy[1] .",". $xy[2] .",". $xy[3] .",". $xy[4] .",". $xy[5]; ?>];
-var used_words = [<?php echo $overused_words; ?>];
-var cond = <?php echo $_REQUEST["cond"]; ?>
+var target_triangle = <?php echo json_encode($xy); ?>;
+var used_words = <?php echo json_encode($overused_words); ?>;
+var cond = <?php echo $_REQUEST['cond']; ?>
 
 // On page load...
 $( document ).ready( function() {

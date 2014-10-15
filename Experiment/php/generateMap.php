@@ -35,7 +35,7 @@ function generateMap($condition, $chain, $generation) {
   global $set_size, $mini_test_frequency, $skip_training;
 
   // First we want to present the welcome page
-  $map = "BEGIN";
+  $map = 'BEGIN';
 
   $success = False;
   while ($success == False) {
@@ -110,23 +110,23 @@ function generateMap($condition, $chain, $generation) {
   // Add the training pages to the map in this shuffled order with a mini test every x items
   for ($i=0, $c=0; $i < $set_size*$mini_test_frequency; $i++) {
     if ($c == $mini_test_frequency) {
-      $map = $map ."||MT-". $mini_test_numbers[($i/$mini_test_frequency)-1];
+      $map = $map .'||MT-'. $mini_test_numbers[($i/$mini_test_frequency)-1];
       $c=0;
     }
-    $map = $map ."||TR-". $training_numbers[$i];
+    $map = $map .'||TR-'. $training_numbers[$i];
     $c=$c+1;
   }
 
   // Add on one final mini test and then the BREAK page (or WAIT page if condition = 3)
   if ($condition == 3) {
-    $map = $map ."||MT-". $mini_test_numbers[$set_size-1] ."||WAIT";
+    $map = $map .'||MT-'. $mini_test_numbers[$set_size-1] .'||WAIT';
   }
   else {
-    $map = $map ."||MT-". $mini_test_numbers[$set_size-1] ."||BREAK";
+    $map = $map .'||MT-'. $mini_test_numbers[$set_size-1] .'||BREAK';
   }
 
   if ($skip_training == True) {
-    $map = "WAIT";
+    $map = 'WAIT';
   }
 
   // Shuffle the order in which the test items in both the dynamic and stable sets will be presented
@@ -135,32 +135,32 @@ function generateMap($condition, $chain, $generation) {
 
   if ($condition == 3) {
     // If no subject ID has been assigned, then assume this is Subject A
-    if ($_REQUEST["subject"] == "") { $_REQUEST["subject"] = "SubA"; }
+    if ($_REQUEST['subject'] == '') { $_REQUEST['subject'] = 'SubA'; }
 
     // Create two copies of the map, one for Subject A and one for Subject B
     $mapA = $map; $mapB = $map;
 
     // Add the test pages to the maps, interleaving the dynamic flow and stable flow
     for ($i=0; $i < $set_size; $i+=2) {
-      $mapA = $mapA ."||DR-d.". $dynamic_set[$i] ."||MR-d.". $dynamic_set[$i+1] ."||DR-s.". $stable_set[$i] ."||MR-s.". $stable_set[$i+1];
-      $mapB = $mapB ."||MR-d.". $dynamic_set[$i] ."||DR-d.". $dynamic_set[$i+1] ."||MR-s.". $stable_set[$i] ."||DR-s.". $stable_set[$i+1];
+      $mapA = $mapA .'||DR-d.'. $dynamic_set[$i] .'||MR-d.'. $dynamic_set[$i+1] .'||DR-s.'. $stable_set[$i] .'||MR-s.'. $stable_set[$i+1];
+      $mapB = $mapB .'||MR-d.'. $dynamic_set[$i] .'||DR-d.'. $dynamic_set[$i+1] .'||MR-s.'. $stable_set[$i] .'||DR-s.'. $stable_set[$i+1];
     }
 
     // This user will get mapA
     $map = $mapA;
 
     // Write mapB to the client file for the other subject to pick up from their terminal
-    writeFile("data/client", "page=experiment&subject=SubB&cond={$condition}&chain={$chain}&gen={$generation}&map={$mapB}||END");
+    writeFile('data/client', "page=experiment&subject=SubB&cond={$condition}&chain={$chain}&gen={$generation}&map={$mapB}||END");
   }
   else {
     // Add the test pages to the map, interleaving the dynamic flow and stable flow
     for ($i=0; $i < $set_size; $i++) {
-      $map = $map ."||TS-d.". $dynamic_set[$i] ."||TS-s.". $stable_set[$i];
+      $map = $map .'||TS-d.'. $dynamic_set[$i] .'||TS-s.'. $stable_set[$i];
     }
   }
 
   // Finally we want to add on the experiment completed page
-  return $map ."||END";
+  return $map .'||END';
 }
 
 ?>

@@ -1,7 +1,7 @@
 <script>
 
 var next_page_location = '<?php echo $window_location; ?>';
-var target_triangle = [<?php echo $xy[0] .",". $xy[1] .",". $xy[2] .",". $xy[3] .",". $xy[4] .",". $xy[5]; ?>];
+var target_triangle = <?php echo json_encode($xy); ?>;
 
 // On page load...
 $( document ).ready( function() {

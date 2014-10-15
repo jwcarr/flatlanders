@@ -1,16 +1,16 @@
 <?php
 
-include("php/file.php");
+include('php/file.php');
 
 // Read in the client file which details all the info needed to run the experiment
-$client = openFile("data/client");
+$client = openFile('data/client');
 
 // If openFile() hasn't failed and the client file isn't blank...
-if ($client != false AND $client != "") {
+if ($client != false AND $client != '') {
 	// Clear the client file...
-	writeFile("data/client", "");
+	writeFile('data/client', '');
 	// and redirect the client terminal to the correct position in the experiment
-	header("Location: index.php?".$client);
+	header('Location: index.php?'. $client);
 }
 
 ?>

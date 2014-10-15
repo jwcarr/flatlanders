@@ -24,11 +24,11 @@ function loadTriangle($condition, $chain_code, $generation, $stimulus_set, $stim
   // Break the particular line we need into columns using the tab as a delimiter
   $columns = explode("\t", $lines[$stimulus_number]);
   // Extract the XY coordinates for point A
-  $xy1 = explode(",", $columns[1]);
+  $xy1 = explode(',', $columns[1]);
   // Extract the XY coordinates for point B
-  $xy2 = explode(",", $columns[2]);
+  $xy2 = explode(',', $columns[2]);
   // Extract the XY coordinates for point C
-  $xy3 = explode(",", $columns[3]);
+  $xy3 = explode(',', $columns[3]);
   // Return the loaded coordinates
   return array($xy1[0], $xy2[0], $xy3[0], $xy1[1], $xy2[1], $xy3[1]);
 }

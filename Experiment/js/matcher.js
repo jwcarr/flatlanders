@@ -1,5 +1,6 @@
 <script>
 
+// Global variables
 var next_page_location = '<?php echo $window_location; ?>';
 var server_ip = '<?php echo $server_ip; ?>';
 var node_port = '<?php echo $node_port; ?>';

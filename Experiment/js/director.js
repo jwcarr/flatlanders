@@ -1,5 +1,6 @@
 <script>
 
+// Global variables
 var next_page_location = '<?php echo $window_location; ?>';
 var feedback_time = <?php echo $communication_feedback_time; ?>;
 var canvas_width = <?php echo $canvas_size[0]; ?>;

@@ -22,13 +22,13 @@
 <?php
 
 // If the participant is in the second condition...
-if ($_REQUEST["cond"] == 2) {
+if ($_REQUEST['cond'] == 2) {
   // Add a reminder to say that they can't use the same word more than once
-  echo "
+  echo '
   <p>
     Remember: if you use a particular word too often, you will see a message asking you to use a different word.
   </p>
-  ";
+  ';
 }
 
 ?>
@@ -38,7 +38,7 @@ if ($_REQUEST["cond"] == 2) {
 <!--
 <div id='timer'>
   <script type='application/javascript'>
-    var myCountdown2 = new Countdown({style: 'flip', time: ". $break_time .", width:100, height:80, onComplete: NextPage, rangeHi:'second', labels: {color: '#FFFFFF'}});
+    var myCountdown2 = new Countdown({style: 'flip', time: <?php echo $break_time; ?>, width:100, height:80, onComplete: NextPage, rangeHi:'second', labels: {color: '#FFFFFF'}});
   </script>
 </div>
 -->

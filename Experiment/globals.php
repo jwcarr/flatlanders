@@ -1,7 +1,7 @@
 <?php
 
 // List of valid chain codes for each experiment (default = [A, B, C, D], [E, F, G, H], and [I, J, K, L])
-$chain_codes = array(array("A", "B", "C", "D"), array("E", "F", "G", "H"), array("I", "J", "K", "L"));
+$chain_codes = array(array('A', 'B', 'C', 'D'), array('E', 'F', 'G', 'H'), array('I', 'J', 'K', 'L'));
 
 // Maximum generation number (default = 10)
 $max_generation_number = 10;
