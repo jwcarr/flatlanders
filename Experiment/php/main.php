@@ -187,12 +187,7 @@ elseif ($experiment_page == 'END') {
 
 if ($show_score == True) {
   if ($experiment_page == 'DR' OR $experiment_page == 'MR') {
-    if ($_REQUEST['trials'] > 0) {
-      $percentage_score = number_format(($_REQUEST['score'] / $_REQUEST['trials']) * 100, 1);
-    }
-    else {
-      $percentage_score = 0;
-    }
+    $points = $_REQUEST['score'] * 10;
   }
 }
 
