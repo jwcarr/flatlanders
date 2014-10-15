@@ -50,8 +50,11 @@ table{
 #message{
   font-size: 40px;
   position: absolute;
-  bottom: 80px;
-  height: 60px;
+  bottom: 70px;
+  height: 100px;
+  line-height: 100px;
+  width: 600px;
+  background-size: 600px 100px;
 }
 
 #instruction{
@@ -111,6 +114,7 @@ table{
   font-size: 40px;
   text-align: center;
   outline: none;
+  background-color: transparent;
 }
 
 #button{
@@ -149,6 +153,8 @@ table{
   height: 30px;
   margin-left: 30px;
   margin-right: auto;
-  font-size: 22px;
+  font-size: 36px;
   text-align: left;
+  color: #FBC33C;
+  font-weight: bold;
 }
