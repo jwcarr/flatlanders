@@ -57,6 +57,15 @@ table{
   background-size: 600px 100px;
 }
 
+#mt-message{
+  font-size: 40px;
+  position: absolute;
+  bottom: 70px;
+  height: 100px;
+  line-height: 100px;
+  width: 700px;
+}
+
 #instruction{
   font-size: 14px;
   position: absolute;
