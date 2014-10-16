@@ -150,11 +150,12 @@ table{
   position: absolute;
   bottom: 30px;
   width: 150px;
-  height: 30px;
+  height: 33px;
   margin-left: 30px;
   margin-right: auto;
-  font-size: 36px;
+  font-size: 29px;
   text-align: left;
   color: #FBC33C;
   font-weight: bold;
+  vertical-align: top;
 }
