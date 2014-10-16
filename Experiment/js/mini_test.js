@@ -21,7 +21,7 @@ $( "#send_word" ).submit( function() {
     if (answer == '<?php echo $correct_answer; ?>') {
       document.getElementById('tink').play();
       $("#feedback").attr("src", "images/check.png");
-      $("#testtext").css("color", "#008CED");
+      $("#testtext").css("color", "#67C200");
       setTimeout("SaveMTResponse()", <?php echo $mini_test_feedback_time; ?>);
     }
     else {
