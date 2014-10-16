@@ -10,6 +10,11 @@ $( document ).ready( function() {
   $("#testtext").focus();
 });
 
+// On loss of focus from the input box...
+$( document ).on('blur', '#testtext', function() {
+  $("#testtext").focus();
+});
+
 // On submit of a mini-test answer...
 $( "#send_word" ).submit( function() {
   answer = $("#testtext").val()
