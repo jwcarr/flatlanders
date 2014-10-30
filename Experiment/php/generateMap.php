@@ -141,9 +141,9 @@ function generateMap($condition, $chain, $generation) {
     $mapA = $map; $mapB = $map;
 
     // Add the test pages to the maps, interleaving the dynamic flow and stable flow
-    for ($i=0; $i < $set_size; $i+=2) {
-      $mapA = $mapA .'||DR-d.'. $dynamic_set[$i] .'||MR-d.'. $dynamic_set[$i+1] .'||DR-s.'. $stable_set[$i] .'||MR-s.'. $stable_set[$i+1];
-      $mapB = $mapB .'||MR-d.'. $dynamic_set[$i] .'||DR-d.'. $dynamic_set[$i+1] .'||MR-s.'. $stable_set[$i] .'||DR-s.'. $stable_set[$i+1];
+    for ($i=0; $i < $set_size; $i++) {
+      $mapA = $mapA .'||DR-d.'. $dynamic_set[$i] .'||MR-s.'. $stable_set[$i+1];
+      $mapB = $mapB .'||MR-d.'. $dynamic_set[$i] .'||DR-s.'. $stable_set[$i+1];
     }
 
     // This user will get mapA
