@@ -149,7 +149,7 @@ elseif ($experiment_page == 'MR') {
     $sel_xy = array($_REQUEST['cord_x1'], $_REQUEST['cord_x2'], $_REQUEST['cord_x3'], $_REQUEST['cord_y1'], $_REQUEST['cord_y2'], $_REQUEST['cord_y3']);
 
     // Save the previous answer to the relevant file
-    saveCommAnswer($_REQUEST['cond'], $_REQUEST['chain'], $_REQUEST['gen'], $_REQUEST['current'], $_REQUEST['a'], $last_xy, $_REQUEST['sub'], $sel_xy);
+    saveCommAnswer($_REQUEST['cond'], $_REQUEST['chain'], $_REQUEST['gen'], $_REQUEST['current'], $_REQUEST['a'], $last_xy, $sel_xy);
   }
 }
 
@@ -168,7 +168,7 @@ elseif ($experiment_page == 'END') {
 
   if ($_REQUEST['cond'] == 3) {
     if ($_REQUEST['sub'] == 'SubB') {
-      saveFinalCommAnswer($_REQUEST['cond'], $_REQUEST['chain'], $_REQUEST['gen'], $_REQUEST['current'], $_REQUEST['a'], $last_xy, $_REQUEST['sub'], $sel_xy);
+      saveFinalCommAnswer($_REQUEST['cond'], $_REQUEST['chain'], $_REQUEST['gen'], $_REQUEST['current'], $_REQUEST['a'], $last_xy, $sel_xy);
     }
   }
   else {
