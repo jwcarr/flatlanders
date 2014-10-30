@@ -22,20 +22,22 @@ io.sockets.on( 'connection', function( client ) {
 			SubA = false;
 			SubB = false;
 			io.sockets.emit( 'start' );
-			console.log( "Issued start command.");
+			console.log( "Server issued start command.");
 		}
 	});
 
 	client.on( 'word', function( data ) {
 		io.sockets.emit( 'word', { name: data.name, word: data.word, coordinates: data.coordinates } );
-		console.log( 'Word received from ' + data.name + ": " + data.word + ": " + data.coordinates );
+		console.log( 'Word transmitted from ' + data.name + ": " + data.word + ": " + data.coordinates );
 	});
 
 	client.on( 'feedback', function( data ) {
 		io.sockets.emit( 'feedback', { name: data.name, correct: data.correct, coordinates: data.coordinates } );
-		console.log( 'Feedback received from ' + data.name + ": " + data.correct + ": " + data.coordinates );
+		console.log( 'Feedback transmitted from ' + data.name + ": " + data.correct + ": " + data.coordinates );
 	});
 
 });
 
 server.listen( 8080 );
+
+console.log( 'The node server has started successfully. Awaiting communication from the clients...' );
