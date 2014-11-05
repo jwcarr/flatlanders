@@ -142,8 +142,8 @@ function generateMap($condition, $chain, $generation) {
 
     // Add the test pages to the maps, interleaving the dynamic flow and stable flow
     for ($i=0; $i < $set_size; $i++) {
-      $mapA = $mapA .'||DR-d.'. $dynamic_set[$i] .'||MR-s.'. $stable_set[$i+1];
-      $mapB = $mapB .'||MR-d.'. $dynamic_set[$i] .'||DR-s.'. $stable_set[$i+1];
+      $mapA = $mapA .'||DR-d.'. $dynamic_set[$i] .'||MR-s.'. $stable_set[$i];
+      $mapB = $mapB .'||MR-d.'. $dynamic_set[$i] .'||DR-s.'. $stable_set[$i];
     }
 
     // This user will get mapA
@@ -162,5 +162,5 @@ function generateMap($condition, $chain, $generation) {
   // Finally we want to add on the experiment completed page
   return $map .'||END';
 }
-
+generateMap(3,'I', 1);
 ?>
