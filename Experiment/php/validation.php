@@ -48,6 +48,12 @@ function checkSetSize() {
   if ($set_size % $mini_test_frequency == 0) { return True; } else { return False; }
 }
 
+function checkIP() {
+  global $server_ip;
+  if ($server_ip == $_SERVER['SERVER_ADDR']) { return True; }
+  return False;
+}
+
 // Function to output a row on the validation page
 function validationTableRow($colour, $message) {
   return "<div id='parameter'><img src='images/". $colour .".png' width='16' height='16' alt='light' /> ". $message ."</div>";
@@ -89,6 +95,16 @@ else {
 // Check $mini_test_frequency is a divisor of $set_size
 if (checkSetSize() == True) { echo validationTableRow('green', 'Valid set parameters'); }
 else { echo validationTableRow('red', 'Global parameter mini_test_frequency must be a divisor of set_size'); $error_count ++; }
+
+// If condition 3, check that the gloabl $server_ip is set correctly
+if ($_REQUEST['condition'] == 3) {
+  if (checkIP() == True) {
+    echo validationTableRow('green', 'Server IP correct: ' . $_SERVER['SERVER_ADDR']);
+  }
+  else {
+    echo validationTableRow('red', 'Incorrect server IP. Should be ' . $_SERVER['SERVER_ADDR']); $error_count ++;
+  }
+}
 
 // If the above validation functions produce no errors, display messages to check the volume level and keyboard layout
 if ($error_count == 0) {
