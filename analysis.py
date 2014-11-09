@@ -693,7 +693,12 @@ def drawTriangles(triangles, colours, filename):
     svg = ""
     for i in range(0,len(triangles)):
         c = geometry.centroid(triangles[i])
-        svg = svg + "  <g id='triangle "+str(i)+"'>\n    <polygon points='"+str(triangles[i][0][0])+","+str(triangles[i][0][1])+" "+str(triangles[i][1][0])+","+str(triangles[i][1][1])+" "+str(triangles[i][2][0])+","+str(triangles[i][2][1])+"' style='fill:none;stroke:"+colours[i]+";stroke-width:3;stroke-linejoin:miter;'/>\n    <circle cx='"+str(triangles[i][0][0])+"' cy='"+str(triangles[i][0][1])+"' r='8' style='stroke:"+colours[i]+";fill:"+colours[i]+";'/>\n  </g>\n"
+        svg += '''
+<g id='triangle %s'>
+<polygon points='%s,%s %s,%s %s,%s' style='fill:none;stroke:%s;stroke-width:3;stroke-linejoin:miter;'/>
+<circle cx='%s' cy='%s' r='8' style='stroke:%s;fill:%s;'/>
+</g>
+''' % (i, triangles[i][0][0], triangles[i][0][1], triangles[i][1][0], triangles[i][1][1], triangles[i][2][0], triangles[i][2][1], colours[i], triangles[i][0][0], triangles[i][0][1], colours[i], colours[i])
     writeOutSVG(svg, filename)
     return
 
