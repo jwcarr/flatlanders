@@ -11,7 +11,7 @@ var SubB = false;
 io.sockets.on( 'connection', function( client ) {
 
 	client.on( 'ready', function( data ) {
-		console.log( data.name + " is ready.");
+		console.log( "Trial " + data.trial_num + "  " +data.name + " is ready.");
 		if (data.name == "SubA") {
 			SubA = true;
 		}

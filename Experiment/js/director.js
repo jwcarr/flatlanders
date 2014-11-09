@@ -23,7 +23,7 @@ var socket = io.connect( 'http://' + server_ip + ':' + node_port );
 // On page load...
 $( document ).ready( function() {
   failsafe = setTimeout("socket.emit( 'ready', { name: s } )", 9500);
-  socket.emit( 'ready', { name: s } );
+  socket.emit( 'ready', { name: s, trial_num: trials+1 } );
 });
 
 // On loss of focus from the input box...

@@ -20,7 +20,7 @@ var socket = io.connect( 'http://' + server_ip + ':' + node_port );
 // On page load...
 $( document ).ready( function() {
   failsafe = setTimeout("socket.emit( 'ready', { name: s } )", 11500);
-  socket.emit( 'ready', { name: s } );
+  socket.emit( 'ready', { name: s, trial_num: trials+1 } );
 });
 
 // On click of a triangle from the matcher array...

@@ -10,7 +10,7 @@ var socket = io.connect( 'http://' + server_ip + ':' + node_port );
 
 // On submit of the ready button...
 $( "#ready" ).submit( function() {
-  socket.emit( 'ready', { name: s } );
+  socket.emit( 'ready', { name: s, trial_num: 0 } );
   $("#message").html("<img src='images/loading.gif' width='33' height='33' />");
   $("#instruction").html("Waiting for your partner...");
   return false;
