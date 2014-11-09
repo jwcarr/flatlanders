@@ -19,7 +19,7 @@ $word_delay = 1000;
 $mini_test_feedback_time = 1000;
 
 // Length of time to show communication feedback in milliseconds (default = 5000)
-$communication_feedback_time = 5000;
+$communication_feedback_time = 3000;
 
 // Amount of time for the break between training and testing in seconds (default = 30)
 $break_time = 30;
