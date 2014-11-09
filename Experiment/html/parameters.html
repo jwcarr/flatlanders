@@ -10,19 +10,22 @@
 
     <div id='parameter'>
       Experiment<br />
-      <input name='condition' type='radio' value='1' /> 1<br />
-      <input name='condition' type='radio' value='2' /> 2<br />
-      <input name='condition' type='radio' value='3' checked /> 3
+      <select name='condition' id='condition'>
+        <option value=''></option>
+        <option value='1'>1</option>
+        <option value='2'>2</option>
+        <option value='3'>3</option>
+      </select>
     </div>
 
     <div id='parameter'>
       Diffusion chain<br />
-      <input name='chain' type='text' id='chain' autocomplete='off' size='4' />
+      <select name='chain' id='chain' disabled='True'></select>
     </div>
 
     <div id='parameter'>
       Generation<br />
-      <input name='gen' type='text' id='generation' autocomplete='off' size='4' />
+      <select name='gen' id='gen' disabled='True'></select>
     </div>
 
   </div>

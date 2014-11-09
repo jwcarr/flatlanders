@@ -63,7 +63,7 @@ if ($page == 'experiment') {
 
 }
 
-elseif ($page == 'parameters') { include('html/parameters.html'); }
+elseif ($page == 'parameters') { include('html/parameters.html'); include('js/parameters.js'); }
 
 elseif ($page == 'validation') { include('html/validation.html'); }
 
