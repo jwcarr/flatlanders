@@ -50,7 +50,7 @@ $triangle_array_size = array(3, 2);
 $show_score = True;
 
 // IP address for the webserver (experiment 3 only)
-$server_ip = '192.168.1.70';
+$server_ip = 'localhost';
 
 // Port to use for the node.js server (experiment 3 only)
 $node_port = '8080';
