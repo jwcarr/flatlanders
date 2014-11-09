@@ -33,7 +33,7 @@ io.sockets.on( 'connection', function( client ) {
 
 	client.on( 'feedback', function( data ) {
 		io.sockets.emit( 'feedback', { name: data.name, correct: data.correct, coordinates: data.coordinates } );
-		console.log( 'Feedback transmitted from ' + data.name + ": " + data.correct + ": " + data.coordinates );
+		console.log( 'Feedback transmitted from ' + data.name + ": " + data.correct + ": " + data.coordinates + "\n" );
 	});
 
 });
