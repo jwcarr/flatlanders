@@ -37,7 +37,7 @@ socket.on( 'start', function( ) {
   DrawTriangle('rectangle', target_triangle);
   $("#message").fadeOut(0);
   $("#message").css("background-image", "url(images/message_box_left.png)");
-  $("#message").html("<input name='a' type='text' value='' id='testtext' autocomplete='off' size='27' maxlength='16' />");
+  $("#message").html("<input name='a' type='text' value='' id='testtext' autocomplete='off' size='27' maxlength='20' />");
   $("#message").fadeIn(350);
   $("#instruction").html("Type in the word for this triangle and press Enter");
   $("#testtext").focus();
