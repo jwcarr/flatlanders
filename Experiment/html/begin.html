@@ -1,0 +1,38 @@
+<div id='title'>
+  Stage 1: Training
+</div>
+
+<div id='long-instructions'>
+
+  <p>
+    You will see a series of triangles along with the words used to describe them.
+    After every third triangle, you will see one of those three triangles again, and you
+    must type in the word you just learned for it. You will be told whether or not you got it right.
+  </p>
+
+<?php
+
+// If the participant is in the third condition...
+if ($_REQUEST["cond"] == 3) {
+  echo "
+  <p>
+    Try to learn the words for the triangles as best as you can, as you will use them to
+    communicate with your partner later on.
+  </p>
+  ";
+}
+
+else {
+  echo "
+  <p>
+    Try to learn the words for the triangles as best as you can, as you will be tested on them later.
+  </p>";
+}
+
+?>
+
+  <p>
+    Press the Enter key when you’re ready to begin training
+  </p>
+
+</div>

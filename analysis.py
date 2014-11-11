@@ -1,4 +1,7 @@
-﻿from datetime import timedelta
+#! /usr/bin/env python
+# encoding: unicode
+
+from datetime import timedelta
 import geometry
 import Levenshtein
 import MantelTest
@@ -10,7 +13,7 @@ from scipy import log, log2, mean, polyfit, sqrt, stats, std
 import scipy.cluster
 import re
 
-chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"]]
+chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
 
 #############################################################################
 # MEASURE LEARNABILITY: CALCULATE TRANSMISSION ERROR AND THEN COMPARE THE
@@ -81,8 +84,11 @@ def allTransmissionErrors(experiment):
     for chain in chain_codes[experiment-1]:
         scores = []
         for generation in range(1, 11):
-            score = transmissionError(experiment, chain, generation)
-            scores.append(score)
+        	try:
+	            score = transmissionError(experiment, chain, generation)
+	            scores.append(score)
+	        except:
+	        	scores.append("N/A")
         results.append(scores)
     return results
 
@@ -93,11 +99,13 @@ def allLearnability(experiment, sims=100000):
     results = []
     for chain in chain_codes[experiment-1]:
         print "Chain " + chain + "..."
-        seed(RandomDotOrg().get_seed())
         scores = []
         for generation in range(1, 11):
-            score = learnability(experiment, chain, generation, sims)[3]
-            scores.append(score)
+        	try: 
+	            score = learnability(experiment, chain, generation, sims)[3]
+	            scores.append(score)
+	        except:
+	          	scores.append("N/A")
         results.append(scores)
     return results
 
@@ -109,8 +117,11 @@ def allTrainingErrors(experiment):
     for chain in chain_codes[experiment-1]:
         scores = []
         for generation in range(1, 11):
-            score = trainingError(experiment, chain, generation)
-            scores.append(score)
+        	try:
+	            score = trainingError(experiment, chain, generation)
+	            scores.append(score)
+	        except:
+	        	scores.append("N/A")
         results.append(scores)
     return results
 
@@ -128,7 +139,7 @@ def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, c
         ax.plot(range(-1,n+2), [2.734369] * (n+3), color='k', linestyle='--')
         ax.plot(range(-1,n+2), [-2.734369] * (n+3), color='k', linestyle='--')
     means = []
-    errors = []    
+    errors = []
     for i in range(0,n):
         column = [row[i] for row in matrix if row[i] != None]
         means.append(mean(column))
@@ -166,7 +177,7 @@ def plotAll(matrix, start=1, x_label="Generation number", y_label="Score", miny=
         ax.plot(x_vals, matrix[i], color=colours[i], linewidth=2.0)
     labels = range(start, start+n)
     plt.xlim(start, n+start-1)
-    plt.ylim(miny, maxy) 
+    plt.ylim(miny, maxy)
     plt.xticks(xvals, labels, fontsize=14)
     plt.yticks(fontsize=14)
     plt.xlabel(x_label, fontsize=22)
@@ -184,17 +195,17 @@ def runStats(data_matrix, hypothesis="d", include_gen_zero=True):
             matrix.append([row[i] for i in range(1,len(row))])
     else:
         matrix = data_matrix
-    
+
     page_results = page.ptt(matrix, hypothesis)
     print('''Page's trend test
 L = %s, m = %s, n = %s, p %s, one-tailed''' % page_results)
     print("")
-    
+
     pearson_results = pearson(matrix)
     print('''Correlation between scores and generation numbers
 r = %s, n = %s, p = %s, one-tailed''' % pearson_results)
     print("")
-    
+
     student_results = student(matrix, hypothesis)
     print('''Paired t-test between first and last generations
 diff = %s, t (%s) = %s, p = %s, one-tailed''' % student_results)
@@ -468,7 +479,7 @@ rules = [['zwac','zwAA'],['wac', 'wAA'],['ei', 'EY'],['oo','UW'],['or', 'AOr'],[
 def segment(words, start_stop=False):
     segmented_words = []
     for i in range(0,len(words)):
-        for rule in rules:            
+        for rule in rules:
             words[i] = words[i].replace(rule[0], rule[1]+"|")
         if words[i][-1] == "|":
             words[i] = words[i][:-1]
@@ -555,12 +566,12 @@ def sizeShapePlot(experiment, chain, generation, use_clustering=False, clusters=
             else:
                 clust_labels.append(str(L[x-1])[6:-3])
         l = plt.legend(clust_labels, loc=2, scatterpoints=1)
-    else:        
+    else:
         for word in matrix.keys():
             P = [perimeters[x] for x in matrix[word]]
             R = [areas[x] for x in matrix[word]]
             ax.scatter(P, R, color=colours[i], s=40, marker="o")
-            i += 1    
+            i += 1
         l = plt.legend(matrix.keys(), loc=2, scatterpoints=1)
     l.draw_frame(False)
     ax.plot(range(100,1401), [(p**2)/(12*sqrt(3)) for p in range(100,1401)], color='k', linestyle='-', linewidth=2.0)
@@ -575,7 +586,7 @@ def sizeShapePlot(experiment, chain, generation, use_clustering=False, clusters=
     plt.show()
 
 #############################################################################
-# CLUSTER WORDS AND RETURN 
+# CLUSTER WORDS AND RETURN
 
 def cluster(words, clusters):
     linkage_matrix = clusterWords(words)
@@ -600,7 +611,7 @@ def clusterWords(words):
 # GET BUILDING BLOCKS GIVEN A LINKAGE MATRIX AND SPECIFIC NUMBER OF BLOCKS
 
 def getClusters(linkage_matrix, clusters, n):
-    blocks = [[x] for x in range(0,n)]        
+    blocks = [[x] for x in range(0,n)]
     for i in linkage_matrix:
         if len([value for value in blocks if value != None]) == clusters:
             break
@@ -667,7 +678,7 @@ def triangleOverlayGraphic(experiment, chain, generation, word, col, spot_based=
                 elif min_ang == 'c':
                     t = numpy.array([[t[2][0], t[2][1]], [t[0][0], t[0][1]], [t[1][0], t[1][1]]])
                 t = geometry.rotate(t)
-            
+
             if t[1][0] > t[2][0]:
                 t = numpy.array([t[0],t[2],t[1]])
             T_new.append(t)
@@ -693,7 +704,12 @@ def drawTriangles(triangles, colours, filename):
     svg = ""
     for i in range(0,len(triangles)):
         c = geometry.centroid(triangles[i])
-        svg = svg + "  <g id='triangle "+str(i)+"'>\n    <polygon points='"+str(triangles[i][0][0])+","+str(triangles[i][0][1])+" "+str(triangles[i][1][0])+","+str(triangles[i][1][1])+" "+str(triangles[i][2][0])+","+str(triangles[i][2][1])+"' style='fill:none;stroke:"+colours[i]+";stroke-width:3;stroke-linejoin:miter;'/>\n    <circle cx='"+str(triangles[i][0][0])+"' cy='"+str(triangles[i][0][1])+"' r='8' style='stroke:"+colours[i]+";fill:"+colours[i]+";'/>\n  </g>\n"
+        svg += '''
+<g id='triangle %s'>
+<polygon points='%s,%s %s,%s %s,%s' style='fill:none;stroke:%s;stroke-width:3;stroke-linejoin:miter;'/>
+<circle cx='%s' cy='%s' r='8' style='stroke:%s;fill:%s;'/>
+</g>
+''' % (i, triangles[i][0][0], triangles[i][0][1], triangles[i][1][0], triangles[i][1][1], triangles[i][2][0], triangles[i][2][1], colours[i], triangles[i][0][0], triangles[i][0][1], colours[i], colours[i])
     writeOutSVG(svg, filename)
     return
 

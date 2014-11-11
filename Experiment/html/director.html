@@ -1,0 +1,27 @@
+<div id='stimuli-container'>
+
+  <div id='target-stim-container'>
+    <div id='target-stim'>
+      <canvas id='rectangle' width='<?php echo $canvas_size[0]; ?>' height='<?php echo $canvas_size[1]; ?>'></canvas>
+    </div>
+    <div id='stim-label'></div>
+  </div>
+
+</div>
+
+<form id='send_word' name='f'>
+  <div id='message'>
+    <img src='images/loading.gif' width='33' height='33' />
+  </div>
+</form>
+
+<div id='instruction'>
+  Please wait...
+</div>
+
+<div id='score'>
+  <img src='images/star.png' width='33' height='33' /> <?php if ($show_score == True) { echo $points; } ?>
+</div>
+
+<audio id='tink' src='sounds/tink.m4a' preload='auto'></audio>
+<audio id='funk' src='sounds/funk.m4a' preload='auto'></audio>

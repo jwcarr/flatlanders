@@ -4,14 +4,14 @@ import os.path
 rules = [['ei', 'EY'],['oo','UW'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
          ['au', 'AW'], ['oi', 'OY'], ['iu', 'IWUW'], ['oa', 'OWAA'],
          ['o', 'OW'], ['ia', 'IYAA'], ['ua', 'UWAA'], ['ou', 'OWUW'],
-         ['i', 'IY'], ['a', 'AA'],['e', 'EH'], ['u', 'UW'], ['ch', 'C'],
+         ['i', 'IY'], ['a', 'AA'],['e', 'EY'], ['u', 'UW'], ['ch', 'C'],
          ['j', 'J'], ['c', 'k'], ['ng', 'N'], ['sh', 'S'], ['th', 'T'],
          ['zz', 'z'], ['pp', 'p'], ['kk','k'],['dd','d']]
 
 ########################################################################
 ### Produce the missing vocalizations for a participant
 
-def produceVocaliaztionsFor(condition, chain_code, generation):
+def produceVocalizationsFor(condition, chain_code, generation):
     words = missingWords(condition, chain_code, generation-1)
     n = len(words)
     print("%s missing words" % n)
@@ -31,7 +31,7 @@ def vocalize(matrix):
     for i in matrix:
         path = "Experiment/temp/" + i[0] + ".m4a"
         phon = "\"[[inpt PHON]]" + i[1] + "\""
-        call(["say", "-o", path, phon])
+        call(["say", "-v", "Alex", "-o", path, phon])
     return
 
 ########################################################################
