@@ -81,8 +81,11 @@ def allTransmissionErrors(experiment):
     for chain in chain_codes[experiment-1]:
         scores = []
         for generation in range(1, 11):
-            score = transmissionError(experiment, chain, generation)
-            scores.append(score)
+        	try:
+	            score = transmissionError(experiment, chain, generation)
+	            scores.append(score)
+	        except:
+	        	scores.append("N/A")
         results.append(scores)
     return results
 
@@ -95,8 +98,11 @@ def allLearnability(experiment, sims=100000):
         print "Chain " + chain + "..."
         scores = []
         for generation in range(1, 11):
-            score = learnability(experiment, chain, generation, sims)[3]
-            scores.append(score)
+        	try: 
+	            score = learnability(experiment, chain, generation, sims)[3]
+	            scores.append(score)
+	        except:
+	          	scores.append("N/A")
         results.append(scores)
     return results
 
@@ -108,8 +114,11 @@ def allTrainingErrors(experiment):
     for chain in chain_codes[experiment-1]:
         scores = []
         for generation in range(1, 11):
-            score = trainingError(experiment, chain, generation)
-            scores.append(score)
+        	try:
+	            score = trainingError(experiment, chain, generation)
+	            scores.append(score)
+	        except:
+	        	scores.append("N/A")
         results.append(scores)
     return results
 
