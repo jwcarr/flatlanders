@@ -1,4 +1,7 @@
-﻿from datetime import timedelta
+#! /usr/bin/env python
+# encoding: unicode
+
+from datetime import timedelta
 import geometry
 import Levenshtein
 import MantelTest
