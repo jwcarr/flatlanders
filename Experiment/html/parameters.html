@@ -1,0 +1,37 @@
+<div id='title'>
+  Settings
+</div>
+
+<form name='f' method='post' action='index.php'>
+
+  <div id='parameters'>
+
+    <input name='page' type='hidden' value='validation' />
+
+    <div id='parameter'>
+      Experiment<br />
+      <select name='condition' id='condition'>
+        <option value=''></option>
+        <option value='1'>1</option>
+        <option value='2'>2</option>
+        <option value='3'>3</option>
+      </select>
+    </div>
+
+    <div id='parameter'>
+      Diffusion chain<br />
+      <select name='chain' id='chain' disabled='True'></select>
+    </div>
+
+    <div id='parameter'>
+      Generation<br />
+      <select name='gen' id='gen' disabled='True'></select>
+    </div>
+
+  </div>
+
+  <div id='message'>
+    <input type='submit' name='submit' id='button' value='Next' />
+  </div>
+
+</form>

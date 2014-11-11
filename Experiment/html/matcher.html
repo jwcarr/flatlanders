@@ -1,0 +1,39 @@
+<div id='array'>
+  <table>
+
+<?php
+
+// Create an HTML table for the matcher array
+for ($i=0; $i<$triangle_array_size[1]; $i++) {
+  echo '<tr>';
+
+  for ($j=0; $j<$triangle_array_size[0]; $j++) {
+    echo '
+    <td>
+      <canvas id="match'. (($triangle_array_size[0]*$i)+$j) .'" width="'. $canvas_size[0] .'" height="'. $canvas_size[1] .'"></canvas>
+    </td>
+    ';
+  }
+
+  echo '</tr>';
+}
+
+?>
+
+  </table>
+</div>
+
+<div id='message'>
+  <img src='images/loading.gif' width='33' height='33' />
+</div>
+
+<div id='instruction'>
+  Waiting for your partner...
+</div>
+
+<div id='score'>
+  <img src='images/star.png' width='33' height='33' /> <?php if ($show_score == True) { echo $points; } ?>
+</div>
+
+<audio id='tink' src='sounds/tink.m4a' preload='auto'></audio>
+<audio id='funk' src='sounds/funk.m4a' preload='auto'></audio>
