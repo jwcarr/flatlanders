@@ -93,7 +93,6 @@ def allLearnability(experiment, sims=100000):
     results = []
     for chain in chain_codes[experiment-1]:
         print "Chain " + chain + "..."
-        seed(RandomDotOrg().get_seed())
         scores = []
         for generation in range(1, 11):
             score = learnability(experiment, chain, generation, sims)[3]
