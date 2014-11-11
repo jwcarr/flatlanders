@@ -10,7 +10,7 @@ from scipy import log, log2, mean, polyfit, sqrt, stats, std
 import scipy.cluster
 import re
 
-chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"]]
+chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
 
 #############################################################################
 # MEASURE LEARNABILITY: CALCULATE TRANSMISSION ERROR AND THEN COMPARE THE
