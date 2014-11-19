@@ -358,7 +358,7 @@ def structureScore(experiment, chain, generation, metric='dt', simulations=1000,
   if meaning_distances == None:
     meanings = getTriangles(experiment, chain, generation, 's')
     meaning_distances = meaningDistances(meanings, metric)
-  z = MantelTest.MT(string_distances, meaning_distances, 'v', simulations)
+  z = MantelTest.MantelTest(string_distances, meaning_distances, simulations)[3]
   return z
 
 # FOR EACH PAIR OF STRINGS, CALCULATE THE NORMALIZED LEVENSHTEIN DISTANCE
