@@ -340,7 +340,7 @@ def allStructureScores(experiment, metric='dt', sims=1000):
     print "  Chain " + chain + "..."
     scores = []
     for generation in range(0, 11):
-      if uniqueStrings(experiment, chain, generation)[1] > 3:
+      if uniqueStrings(experiment, chain, generation)[1] > 1:
         scores.append(structureScore(experiment, chain, generation, metric, sims, meaning_distances))
       else:
         scores.append(None)
