@@ -22,7 +22,7 @@ var socket = io.connect( 'http://' + server_ip + ':' + node_port );
 
 // On page load...
 $( document ).ready( function() {
-  failsafe = setTimeout("socket.emit( 'ready', { name: s } )", 9500);
+  failsafe = setTimeout("socket.emit( 'ready', { name: s, trial_num: trials+1+' (failsafe)' } )", 9500);
   socket.emit( 'ready', { name: s, trial_num: trials+1 } );
 });
 
