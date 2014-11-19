@@ -63,7 +63,7 @@ def trainingError(experiment, chain, generation, subject=''):
     filename = 'logSub' + subject
   else:
     filename = 'log'
-  data = load(experiment, chain, generation, subject)
+  data = load(experiment, chain, generation, filename)
   words_A = [data[x][0] for x in range(5,53)]
   words_B = [data[x][1] for x in range(5,53)]
   x = meanNormLevenshtein(words_A, words_B)
