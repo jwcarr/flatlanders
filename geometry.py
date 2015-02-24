@@ -1,4 +1,4 @@
-from numpy import arccos, array, cos, dot, sin, sqrt
+from numpy import arccos, array, cos, dot, mean, sin, sqrt, std
 
 #############################################################################
 #   CALCULATE THE EUCLIDEAN DISTANCE BETWEEN TWO POINTS
@@ -31,6 +31,16 @@ def area(A):
 
 def perimeter(A):
     return ED(A[0],A[1])+ED(A[1],A[2])+ED(A[2],A[0])
+
+#############################################################################
+#   CALCULATE THE CENTROID SIZE OF TRIANGLE A
+
+def centroid_size(A):
+  c = centroid(A)
+  centroid_size = 0.0
+  for vertex in A:
+    centroid_size += ED(vertex, c)**2
+  return sqrt(centroid_size)
 
 #############################################################################
 #   FIND THE CENTROID OF TRIANGLE A
@@ -68,6 +78,99 @@ def scale(A):
     f = 750.0/perimeter(A)
     c = centroid(A)
     return ((A-c)*f)+c
+
+#############################################################################
+# RETURN THE SMALLEST ANGLE IN RADIANS
+
+def smallest_angle(A):
+    smallest_ang = 10.0
+    for vertex in range(1, 4):
+        ang = angle(A, vertex)
+        if ang < smallest_ang:
+            smallest_ang = ang
+    return smallest_ang
+
+#############################################################################
+# RETURN THE LARGEST ANGLE IN RADIANS
+
+def largest_angle(A):
+    largest_ang = 0.0
+    for vertex in range(1, 4):
+        ang = angle(A, vertex)
+        if ang > largest_ang:
+            largest_ang = ang
+    return largest_ang
+
+#############################################################################
+# RETURN THE MEAN ANGLE IN RADIANS
+
+def mean_angle(A):
+    angles = []
+    for vertex in range(1, 4):
+        angles.append(angle(A, vertex))
+    return mean(angles)
+
+#############################################################################
+# RETURN THE STANDARD DEVIATION OF ANGLES
+
+def std_angle(A):
+    angles = []
+    for vertex in range(1, 4):
+        angles.append(angle(A, vertex))
+    return std(angles)
+
+#############################################################################
+# RETURN THE RADIAL DISTANCE FROM NORTH FOR TRIANGLE A BY ORIENTING SPOT
+
+def rotation(A):
+    c = centroid(A)
+    if A[0][0] == c[0]:
+        if A[0][1] > c[1]:
+            theta = 3.1415926535897931
+        else:
+            theta = 0.0
+    else:
+        p, q, r = ED(c,A[0]), ED(c,(c[0],0)), ED((c[0],0),A[0])
+        theta = arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
+        if A[0][0] > c[0]:
+            theta = 0.0-theta
+    return theta
+
+#############################################################################
+# RETURN THE RADIAL DISTANCE FROM NORTH FOR TRIANGLE A BY SMALLEST ANGLE
+
+def rotation_by_smallest_angle(A):
+    a, b, c = angle(A,1), angle(A,2), angle(A,3)
+    angles = {'a':a, 'b':b, 'c':c}
+    min_ang = min(angles, key=angles.get)
+    if min_ang == 'a':
+        A = array([[A[0][0], A[0][1]], [A[1][0], A[1][1]], [A[2][0], A[2][1]]])
+    elif min_ang == 'b':
+        A = array([[A[1][0], A[1][1]], [A[2][0], A[2][1]], [A[0][0], A[0][1]]])
+    elif min_ang == 'c':
+        A = array([[A[2][0], A[2][1]], [A[0][0], A[0][1]], [A[1][0], A[1][1]]])
+    return rotation(A)
+
+#############################################################################
+# Distance from a given vertex to the nearest corner
+
+def dist_to_nearest_corner(A, vertex):
+    corners = [(0,0), (0,500), (500,0), (500,500)]
+    smallest_dist = 99999999.9
+    for corner in corners:
+        dist = ED(A[vertex], corner)
+        if dist < smallest_dist:
+            smallest_dist = dist
+    return smallest_dist
+
+def dist_to_nearest_edge(A, vertex):
+    edges = [(A[vertex][0], 0), (0, A[vertex][1]), (A[vertex][0], 500), (500, A[vertex][1])]
+    smallest_dist = 99999999.9
+    for edge in edges:
+        dist = ED(A[vertex], edge)
+        if dist < smallest_dist:
+            smallest_dist = dist
+    return smallest_dist
 
 #############################################################################
 # TRIANGLE DISTANCE MEASURES
