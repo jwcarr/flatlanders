@@ -183,7 +183,7 @@ def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, c
 #############################################################################
 # PLOT ALL CHAINS FROM A DATA MATRIX
 
-def plotAll(matrix, start=1, x_label="Generation number", y_label="Score", miny=0.0, maxy=1.0, conf=False, conf_bonf=False):
+def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, conf_bonf=False):
   fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
   colours = ["#2E578C","#5D9648","#E7A13D","#BC2D30"]
   plt.rcParams['font.sans-serif']='Arial'
@@ -203,7 +203,7 @@ def plotAll(matrix, start=1, x_label="Generation number", y_label="Score", miny=
   plt.ylim(miny, maxy)
   plt.xticks(xvals, labels, fontsize=14)
   plt.yticks(fontsize=14)
-  plt.xlabel(x_label, fontsize=22)
+  plt.xlabel("Generation number", fontsize=22)
   plt.ylabel(y_label, fontsize=22)
   plt.show()
 
