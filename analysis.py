@@ -166,7 +166,7 @@ def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, c
   for i in range(0,n):
     column = [row[i] for row in matrix if row[i] != None]
     means.append(mean(column))
-    errors.append((std(column)/sqrt(m))*1.959964)
+    errors.append((std(column)/sqrt(len(column)))*1.959964)
   xvals = range(start, n+start)
   (_, caps, _) = ax.errorbar(xvals, means, yerr=errors, color='k', linestyle="-", linewidth=2.0, capsize=5.0, elinewidth=1.5)
   for cap in caps:
