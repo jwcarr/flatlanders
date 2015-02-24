@@ -572,7 +572,7 @@ def sizeShapePlot(experiment, chain, generation, use_clustering=False, clusters=
       if words[i] == word:
         dups.append(i)
     matrix[word] = dups
-  colours = ["#2E578C","#5D9648","#E7A13D","black","#BC2D30","gray","purple","aqua"]
+  colours = ["#2E578C", "#5D9648", "#E7A13D", "black",   "#BC2D30", "#7D807F", "#6F3D79", "#EC3D91", "#67C200", "#03A7FF", "#3F3AAB", "#FF2F00", 'gray']
   i = 0
   fig, ax = plt.subplots(figsize=plt.figaspect(0.75))
   plt.rcParams['font.sans-serif']='Arial'
