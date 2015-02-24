@@ -130,6 +130,25 @@ def allTrainingErrors(experiment):
   return results
 
 #############################################################################
+# CALCULATE COMMUNICATIVE ACCURACY
+
+def commAccuracy(experiment, chain, generation):
+  accuracy = 0
+  dynamic_set = load(experiment, chain, generation, "d")
+  for item in dynamic_set:
+    coord_target = item[1] + ',' + item[2] + ',' + item[3]
+    coord_select = item[5] + ',' + item[6] + ',' + item[7]
+    if coord_target == coord_select:
+      accuracy += 1
+  stable_set = load(experiment, chain, generation, "s")
+  for item in stable_set:
+    coord_target = item[1] + ',' + item[2] + ',' + item[3]
+    coord_select = item[5] + ',' + item[6] + ',' + item[7]
+    if coord_target == coord_select:
+      accuracy += 1
+  return accuracy
+
+#############################################################################
 # PLOT MEANS FOR EACH GENERATION WITH ERROR BARS (95% CI)
 
 def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, conf_bonf=False):
