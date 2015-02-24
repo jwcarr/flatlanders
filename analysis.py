@@ -12,6 +12,7 @@ from random import shuffle
 from scipy import log, log2, mean, polyfit, sqrt, stats, std
 import scipy.cluster
 import re
+import svg_polygons
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
 
@@ -673,42 +674,61 @@ def intergenCorr(experiment):
   plt.yticks(fontsize=14)
   plt.show()
 
-def triangleOverlayGraphic(experiment, chain, generation, word, col, spot_based=True):
-  colours = ["#2E578C","#5D9648","#E7A13D","black","#BC2D30","#7D807F","#6F3D79"]
-  washed_colours = ["#9AB4D0", "#AED4A7", "#F8D796", "#7F7F7F", "#EA949A", "#C6C8C8", "#C4A2C7"]
-  colour = colours[col]
-  w_colour = washed_colours[col]
+def allTriangleGraphics(experiment):
+  T = getTriangles(experiment, chain_codes[experiment-1][0], 0, "s")
+  for chain in chain_codes[experiment-1]:
+    for generation in range(0,11):
+      words = getWords(experiment, chain, generation, "s")
+      unique_words = set(words)
+      col = 0
+      for word in unique_words:
+        triangleGraphic(experiment, chain, generation, [word], True, False, col)
+        col += 1
+        if col == 11:
+          col = 0
+
+def triangleGraphic(experiment, chain, generation, target_words, show_prototype=True, spot_based=True, col=0):
+  colours =        ["#2E578C", "#5D9648", "#E7A13D", "black",   "#BC2D30", "#7D807F", "#6F3D79", "#EC3D91", "#67C200", "#03A7FF", "#3F3AAB", "#FF2F00"]
+  washed_colours = ["#9AB4D0", "#AED4A7", "#F8D796", "#7F7F7F", "#EA949A", "#C6C8C8", "#C4A2C7", "#F49FC9", "#B7E494", "#94D4FF", "#A2A0D5", "#FE9B91"]
   words = getWords(experiment, chain, generation, "s")
   T = getTriangles(experiment, chain, generation, "s")
-  svg = ""
-  T_new = []
+  proto_triangles = []
+  svg_file = svg_polygons.Canvas(500, 500)
   for i in range(0, len(words)):
-    if words[i] in word:
-      if words[i] == "mappakiki":
-        w_colour = "#7F7F7F"
-      else:
-        w_colour = "#EA949A"
-      svg = svg + "  <g id='word "+str(i)+"'>\n    <polygon points='"+str(T[i][0][0])+","+str(T[i][0][1])+" "+str(T[i][1][0])+","+str(T[i][1][1])+" "+str(T[i][2][0])+","+str(T[i][2][1])+"' style='fill:none;stroke:"+w_colour+";stroke-width:3;stroke-linejoin:miter;'/>\n    <circle cx='"+str(T[i][0][0])+"' cy='"+str(T[i][0][1])+"' r='8' style='stroke:"+w_colour+";fill:"+w_colour+";'/>\n  </g>\n"
+    if words[i] in target_words:
+      svg_file.polygon(T[i], washed_colours[col], None, 1.0)
+      proto_triangles.append(T[i])
+  if show_prototype == True:
+    P = trianglePrototype(proto_triangles, spot_based)
+    svg_file.polygon(P, None, colours[col], 0.7)
+  svg_file.save('images/' + str(experiment) + '/' + chain + '/' + str(generation) + '/' + target_words[0])
 
-      t = geometry.translate(T[i], numpy.array([[250.,250.],[250.,250.],[250.,250.]]))
-
-      if spot_based == True:
-        t = geometry.rotate(t)
-      else:
-        a, b, c = geometry.angle(t,1), geometry.angle(t,2), geometry.angle(t,3)
-        angles = {'a':a, 'b':b, 'c':c}
-        min_ang = min(angles, key=angles.get)
-        if min_ang == 'a':
-          t = numpy.array([[t[0][0], t[0][1]], [t[1][0], t[1][1]], [t[2][0], t[2][1]]])
-        elif min_ang == 'b':
-          t = numpy.array([[t[1][0], t[1][1]], [t[2][0], t[2][1]], [t[0][0], t[0][1]]])
-        elif min_ang == 'c':
-          t = numpy.array([[t[2][0], t[2][1]], [t[0][0], t[0][1]], [t[1][0], t[1][1]]])
-        t = geometry.rotate(t)
-
-      if t[1][0] > t[2][0]:
-        t = numpy.array([t[0],t[2],t[1]])
-      T_new.append(t)
+def trianglePrototype(T, spot_based=True):
+  T_new = []
+  for i in range(0, len(T)):
+    # translate to the center of the canvas
+    t = geometry.translate(T[i], numpy.array([[250.,250.],[250.,250.],[250.,250.]]))
+    if spot_based == True:
+      # if spot_based, just rotate t so that it points north
+      t = geometry.rotate(t)
+    else:
+      # otherwise, figure out the smallest angle and point that vertex north
+      a, b, c = geometry.angle(t,1), geometry.angle(t,2), geometry.angle(t,3)
+      angles = {'a':a, 'b':b, 'c':c}
+      min_ang = min(angles, key=angles.get)
+      if min_ang == 'a':
+        t = numpy.array([[t[0][0], t[0][1]], [t[1][0], t[1][1]], [t[2][0], t[2][1]]])
+      elif min_ang == 'b':
+        t = numpy.array([[t[1][0], t[1][1]], [t[2][0], t[2][1]], [t[0][0], t[0][1]]])
+      elif min_ang == 'c':
+        t = numpy.array([[t[2][0], t[2][1]], [t[0][0], t[0][1]], [t[1][0], t[1][1]]])
+      t = geometry.rotate(t)
+    # make sure that vertex 2 is to the left of vertex 3 to prevent cancelling out to a vertical line
+    if t[1][0] > t[2][0]:
+      t = numpy.array([t[0],t[2],t[1]])
+    # add the transformed triangle to T_new
+    T_new.append(t)
+  # average T_new together and return the prototype
   N = len(T_new)
   x1 = sum([T_new[x][0][0] for x in range(0,N)])/float(N)
   y1 = sum([T_new[x][0][1] for x in range(0,N)])/float(N)
@@ -716,29 +736,7 @@ def triangleOverlayGraphic(experiment, chain, generation, word, col, spot_based=
   y2 = sum([T_new[x][1][1] for x in range(0,N)])/float(N)
   x3 = sum([T_new[x][2][0] for x in range(0,N)])/float(N)
   y3 = sum([T_new[x][2][1] for x in range(0,N)])/float(N)
-  P = numpy.array([[x1,y1],[x2,y2],[x3,y3]])
-  svg = svg + "\n  <g id='prototype'>\n    <polygon points='"+str(P[0][0])+","+str(P[0][1])+" "+str(P[1][0])+","+str(P[1][1])+" "+str(P[2][0])+","+str(P[2][1])+"' style='fill:"+colour+";fill-opacity:0.9;stroke:"+colour+";stroke-width:3;stroke-join:miter'/>\n  </g>\n"
-  writeOutSVG(svg, word[0])
-  return
-
-def writeOutSVG(svg, name):
-  data = "<svg xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' version='1.1' width='500' height='500'>\n"+svg+"</svg>"
-  f = open('/Users/jon/Desktop/' + name + '.svg', 'w')
-  f.write(data)
-  f.close()
-
-def drawTriangles(triangles, colours, filename):
-  svg = ""
-  for i in range(0,len(triangles)):
-    c = geometry.centroid(triangles[i])
-    svg += '''
-<g id='triangle %s'>
-<polygon points='%s,%s %s,%s %s,%s' style='fill:none;stroke:%s;stroke-width:3;stroke-linejoin:miter;'/>
-<circle cx='%s' cy='%s' r='8' style='stroke:%s;fill:%s;'/>
-</g>
-''' % (i, triangles[i][0][0], triangles[i][0][1], triangles[i][1][0], triangles[i][1][1], triangles[i][2][0], triangles[i][2][1], colours[i], triangles[i][0][0], triangles[i][0][1], colours[i], colours[i])
-  writeOutSVG(svg, filename)
-  return
+  return numpy.array([[x1,y1],[x2,y2],[x3,y3]])
 
 def wordMemory(experiment, chain, generation):
   words_a = set(getWords(experiment, chain, generation, 'c'))
