@@ -20,6 +20,9 @@ class Rater {
     if ($rating_pair === False) {
       return False;
     }
+    if (count($rating_pair) === 1) {
+      return $rating_pair[0];
+    }
     if ($rating_pair[0] >= 0) {
       $triangle1 = $this->stable_set[$rating_pair[0]];
       $triangle2 = $this->stable_set[$rating_pair[1]];
@@ -45,6 +48,9 @@ class Rater {
     $rating_pair = $this->file->getLine($this->current);
     if ($rating_pair === False or is_null($rating_pair) === True) {
       return False;
+    }
+    if (count($rating_pair) === 1) {
+      return $rating_pair;
     }
     return array($rating_pair[0], $rating_pair[1]);
   }
