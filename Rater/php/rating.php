@@ -68,7 +68,7 @@ if ($rater->validate() !== False) {
       if ($page == 'end') {
         $id = $rater->id;
         unset($rater);
-        rename('data/started/' . $id, 'data/completed/' . $id);
+        rename('../../server_data/tst/started/' . $id, '../../server_data/tst/completed/' . $id);
       }
 
     }

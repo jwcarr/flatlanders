@@ -4,7 +4,7 @@
 if ($_REQUEST['q1'] == 4 and $_REQUEST['q2'] == 2 and $_REQUEST['q3'] == 4) {
 
   // Assign the rater with an available ID
-  $valid_id = new File('data/valid_id', True);
+  $valid_id = new File('../../server_data/tst/valid_id', True);
   $id = $valid_id->getLine(0);
   $valid_id->removeLine(0);
   $valid_id->overwrite();
@@ -12,7 +12,7 @@ if ($_REQUEST['q1'] == 4 and $_REQUEST['q2'] == 2 and $_REQUEST['q3'] == 4) {
   $id = $id[0];
 
   // Copy the data file for that ID from the 'raw_sets' directory to the 'started' directory
-  copy('data/raw_sets/' . $id, 'data/started/' . $id);
+  copy('../../server_data/tst/raw_sets/' . $id, '../../server_data/tst/started/' . $id);
 
   // Initalize Rater object
   $rater = new Rater($id);
@@ -39,7 +39,7 @@ if ($_REQUEST['q1'] == 4 and $_REQUEST['q2'] == 2 and $_REQUEST['q3'] == 4) {
 else {
 
   // Log IP address
-  $ip_log = new File('data/ip_log', True);
+  $ip_log = new File('../../server_data/tst/ip_log', True);
   $ip_log->addLine(array($_SERVER['REMOTE_ADDR']));
   $ip_log->overwrite();
   unset($ip_log);
