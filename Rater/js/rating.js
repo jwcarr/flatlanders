@@ -8,7 +8,6 @@ var canvas1 = document.getElementById("canvas1");
 var context1 = canvas1.getContext("2d");
 var canvas2 = document.getElementById("canvas2");
 var context2 = canvas2.getContext("2d");
-var scale_factor = getScalingFactor();
 var rating = null;
 
 function drawTriangle(triangle, context) {
@@ -27,15 +26,6 @@ function drawTriangle(triangle, context) {
   context.lineWidth = 1;
   context.strokeStyle = 'black';
   context.stroke();
-}
-
-function getScalingFactor() {
-  if ('devicePixelRatio' in window) {
-    if (window.devicePixelRatio > 1) {
-      return window.devicePixelRatio;
-    }
-  }
-  return 1;
 }
 
 function submitRating() {
@@ -77,14 +67,5 @@ $("#rating_slider").change( function() {
     pressEnter();
   }
 });
-
-if (scale_factor > 1) {
-  canvas1.setAttribute('width', 500*scale_factor);
-  canvas1.setAttribute('height', 500*scale_factor);
-  context1.scale(scale_factor, scale_factor);
-  canvas2.setAttribute('width', 500*scale_factor);
-  canvas2.setAttribute('height', 500*scale_factor);
-  context2.scale(scale_factor, scale_factor);
-}
 
 </script>
