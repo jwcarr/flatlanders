@@ -1,8 +1,10 @@
 <?php
 
+$data_directory = 'data/';
+
 include_once('php/class.rater.php');
 
-$ip_log = new File('../../server_data/tst/ip_log', False);
+$ip_log = new File($data_directory . 'ip_log', False);
 
 if (isset($_COOKIE['tst']) or in_array($_SERVER['REMOTE_ADDR'], $ip_log->data)) {
 

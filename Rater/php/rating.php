@@ -15,6 +15,7 @@ if ($rater->validate() !== False) {
 
     }
 
+    // If user takes less than 3 seconds to give a rating, block them.
     if ($rater->getTimeTaken() < 3) {
       $rater->blockRater();
       $rater->save();
@@ -57,7 +58,7 @@ if ($rater->validate() !== False) {
       if ($page == 'end') {
         $id = $rater->id;
         unset($rater);
-        rename('../../server_data/tst/started/' . $id, '../../server_data/tst/completed/' . $id);
+        rename($data_directory . 'started/' . $id, $data_directory . 'completed/' . $id);
       }
 
     }

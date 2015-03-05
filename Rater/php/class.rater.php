@@ -5,8 +5,9 @@ class Rater {
   private $valid_rater = False;
 
   function __construct($id) {
+    global $data_directory;
     $this->id = $id;
-    $this->file = new File('../../server_data/tst/started/' . $this->id, True);
+    $this->file = new File($data_directory . 'started/' . $this->id, True);
     $rater_parameters = $this->file->getLine(0);
     if ($rater_parameters !== False) {
       $this->valid_rater = True;
@@ -121,7 +122,7 @@ class Rater {
 
   public function blockRater() {
     // Log IP address
-    $ip_log = new File('../../server_data/tst/ip_log', True);
+    $ip_log = new File($data_directory . 'ip_log', True);
     $ip_log->addLine(array($_SERVER['REMOTE_ADDR']));
     $ip_log->overwrite();
     unset($ip_log);
