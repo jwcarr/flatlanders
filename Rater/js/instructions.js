@@ -19,7 +19,7 @@ $("#next_button").click( function() {
 
 $(document).ready( function() {
   disableNext();
-  setTimeout("enableNext()", 30000);
+  setTimeout("enableNext()", 20000);
 });
 
 </script>
