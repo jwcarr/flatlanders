@@ -15,17 +15,6 @@ if ($rater->validate() !== False) {
 
     }
 
-    if ($_REQUEST['triangle1'] == $_REQUEST['triangle2']) {
-
-      if ($rater->submitted_rating > 50) {
-        $rater->blockRater();
-        $rater->save();
-        $page = 'early_exit';
-        return;
-      }
-
-    }
-
     if ($rater->getTimeTaken() < 3) {
       $rater->blockRater();
       $rater->save();
