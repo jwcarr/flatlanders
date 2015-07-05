@@ -3,7 +3,7 @@
 import geometry
 import numpy
 from subprocess import call
-import MantelTest as mt
+import Mantel
 import Levenshtein
 from random import randrange
 
@@ -41,40 +41,40 @@ def getWords(experiment, chain, generation, set_type):
     data = load(experiment, chain, generation, set_type)
   return [data[x][0] for x in range(0,len(data))]
 
-def MakePCAMatrix(experiment, chain, generation, set_type, normalize=True):
+def MakeFeatureMatrix(experiment, chain, generation, set_type, normalize=True):
   T = getTriangles(experiment, chain, generation, set_type)
   matrix = []
   for t in T:
     vector = []
     # Size features
-    vector.append(geometry.area(t))             # Area (exp dist)
-    vector.append(geometry.perimeter(t))        # Perimeter (norm dist)
-    vector.append(geometry.centroid_size(t))    # Centroid size (norm dist)
+    vector.append(geometry.area(t))             # 0  Area (exp dist)
+    vector.append(geometry.perimeter(t))        # 1  Perimeter (norm dist)
+    vector.append(geometry.centroid_size(t))    # 2  Centroid size (norm dist)
 
     # Location features
-    vector.append(t[0][0])                      # Location of orienting spot on x-axis (uni dist)
-    vector.append(t[0][1])                      # Location of orienting spot on y-axis (uni dist)
-    vector.append(geometry.centroid(t)[0])      # Location of centroid on x-axis (uni dist)
-    vector.append(geometry.centroid(t)[1])      # Location of centroid on y-axis (uni dist)
+    vector.append(t[0][0])                      # 3  Location of orienting spot on x-axis (uni dist)
+    vector.append(t[0][1])                      # 4  Location of orienting spot on y-axis (uni dist)
+    vector.append(geometry.centroid(t)[0])      # 5  Location of centroid on x-axis (uni dist)
+    vector.append(geometry.centroid(t)[1])      # 6  Location of centroid on y-axis (uni dist)
 
     # Rotation features
-    vector.append(geometry.rotation(t))         # Radial distance from north by orienting spot (uni dist)
-    vector.append(geometry.rotation_by_smallest_angle(t)) # Radial distance from north by smallest angle (uni dist)
+    vector.append(geometry.rotation(t))         # 7  Radial distance from north by orienting spot (uni dist)
+    vector.append(geometry.rotation_by_smallest_angle(t)) # 8  Radial distance from north by smallest angle (uni dist)
 
     # Reflection features
-    vector.append(abs(geometry.rotation(t)))    # Absolute radial distance from north by orienting spot (uni dist)
-    vector.append(abs(geometry.rotation_by_smallest_angle(t))) # Absolute radial distance from north by smallest angle (uni dist)
+    vector.append(abs(geometry.rotation(t)))    # 9  Absolute radial distance from north by orienting spot (uni dist)
+    vector.append(abs(geometry.rotation_by_smallest_angle(t))) # 10 Absolute radial distance from north by smallest angle (uni dist)
 
     # Shape features
-    vector.append(geometry.smallest_angle(t))   # Angle of thinest vertex (exp-ish, bit weird)
-    vector.append(geometry.largest_angle(t))    # Angle of widest vertex (exp-ish, bit weird)
-    vector.append(geometry.std_angle(t))        # Stardard deviation of angles (sort of normal)
+    vector.append(geometry.smallest_angle(t))   # 11 Angle of thinnest vertex (exp-ish, bit weird)
+    vector.append(geometry.largest_angle(t))    # 12 Angle of widest vertex (exp-ish, bit weird)
+    vector.append(geometry.std_angle(t))        # 13 Standard deviation of angles (sort of normal)
 
     # Bounding box features
-    vector.append(geometry.dist_to_nearest_corner(t,0)) # Distance from orienting spot to nearest corner (norm dist)
-    vector.append(geometry.dist_to_nearest_edge(t,0)) # Distance from orienting spot to nearest edge (exp dist)
-    vector.append(numpy.mean([geometry.dist_to_nearest_corner(t,i) for i in range(0,3)])) # Mean distance from vertices to nearest corner (norm dist)
-    vector.append(numpy.mean([geometry.dist_to_nearest_edge(t,i) for i in range(0,3)])) # Mean distance from vertices to nearest edge (norm dist)
+    vector.append(geometry.dist_to_nearest_corner(t,0)) # 14 Distance from orienting spot to nearest corner (norm dist)
+    vector.append(geometry.dist_to_nearest_edge(t,0)) # 15 Distance from orienting spot to nearest edge (exp dist)
+    vector.append(numpy.mean([geometry.dist_to_nearest_corner(t,i) for i in range(0,3)])) # 16 Mean distance from vertices to nearest corner (norm dist)
+    vector.append(numpy.mean([geometry.dist_to_nearest_edge(t,i) for i in range(0,3)])) # 17 Mean distance from vertices to nearest edge (norm dist)
 
     matrix.append(vector)
 
@@ -139,12 +139,16 @@ def RunPCA(raw_scores, prop_var_scale=True):
   return pca_scores
 
 # Take a feature matrix and convert to a distance matrix for each pair of objects
-def DistanceMatrix(matrix, random_triangles=0):
-  n = len(matrix) - random_triangles
+def DistanceMatrix(matrix, normalize=True):
+  n = len(matrix)
   dist_matrix = []
   for i in range(0, n):
     for j in range(i+1, n):
       dist_matrix.append(ED(matrix[i], matrix[j]))
+  if normalize == True:
+    minimum = min(dist_matrix)
+    difference = float(max(dist_matrix) - minimum)
+    return [(dist_matrix[i] - minimum) / difference for i in range(len(dist_matrix))]
   return dist_matrix
 
 # Take strings, calculate normalized Levenshtein edit distance, and return distance matrix
@@ -157,25 +161,21 @@ def stringDistances(strings):
   return distances
 
 # For a given language, run everything and return the Mantel Test result
-def run(experiment, chain, generation, set_type='s', randomizations=1000, correlation_style='pearson', normalize=True, run_pca=True, prop_var_scale=True, random_triangles=0):
-  T = getTriangles(experiment, chain, generation, set_type)
-  if random_triangles > 0:
-    for i in xrange(0,random_triangles):
-      T.append(randomTriangle())
-  raw_scores = MakePCAMatrix(T, normalize)
+def run(experiment, chain, generation, set_type='s', randomizations=1000, normalize=True, run_pca=True, prop_var_scale=True):
+  raw_scores = MakeFeatureMatrix(experiment, chain, generation, set_type, normalize)
   if run_pca == True:
     raw_scores = RunPCA(raw_scores, prop_var_scale)
-  meaning_dists = DistanceMatrix(raw_scores, random_triangles)
+  meaning_dists = DistanceMatrix(raw_scores)
   words = getWords(experiment, chain, generation, "s")
   string_dists = stringDistances(words)
-  return mt.MantelTest(meaning_dists, string_dists, randomizations, correlation_style)
+  return Mantel.Test(meaning_dists, string_dists, randomizations)
 
 def run_all(experiment, randomizations=1000, normalize=True, run_pca=True, prop_var_scale=True):
   matrix = []
   for chain in chain_codes[experiment-1]:
     row = []
     for gen in range(0, 11):
-      row.append(run(experiment, chain, gen, 's', randomizations, 'pearson', normalize, run_pca, prop_var_scale)[4])
+      row.append(run(experiment, chain, gen, 's', randomizations, normalize, run_pca, prop_var_scale)[5])
     matrix.append(row)
   return matrix
 
