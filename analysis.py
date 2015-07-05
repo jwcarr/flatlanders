@@ -4,17 +4,23 @@
 from datetime import timedelta
 import geometry
 import Levenshtein
-import MantelTest
+import Mantel
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import numpy
-import page
+import Page
 from random import shuffle
 from scipy import log, log2, mean, polyfit, sqrt, stats, std
 import scipy.cluster
 import re
 import svg_polygons
+import math
+from string import ascii_uppercase
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
+
+#cols = [["#899DA4", "#C93312", "#FAEFD0", "#DC873A"], ["#F6C83C", "#4C5B28", "#DB4472", "#B77F60"], ["#CEBAC6", "#9F4F5C", "#C3BAB5", "#2D2E67"], ["#314857", "#ECBBAD", "#798881", "#9D5141"], ["#E6CA5D", "#D16B54", "#A9D8C8", "#433447"], ["#749BA8", "#F9E0A8", "#BC5E21", "#8B8378"], ["#89B151", "#F4DDBE", "#715A38", "#201A02"], ["#01AAE9", "#1B346C", "#F44B1A", "#E5C39E"], ["#CBB345", "#609F80", "#4B574D", "#AF420A"], ["#F1BB7B", "#FC6467", "#5B1A18", "#D67236"]]
+cols = [['#01AAE9', '#1B346C', '#F44B1A', '#E5C39E'], ['#F6C83C', '#4C5B28', '#DB4472', '#B77F60'], ['#CBB345', '#609F80', '#4B574D', '#AF420A']]
 
 #############################################################################
 # MEASURE LEARNABILITY: CALCULATE TRANSMISSION ERROR AND THEN COMPARE THE
@@ -106,7 +112,7 @@ def allLearnability(experiment, sims=100000):
     print "Chain " + chain + "..."
     scores = []
     for generation in range(1, 11):
-      try: 
+      try:
         score = learnability(experiment, chain, generation, sims)[3]
         scores.append(score)
       except:
@@ -137,6 +143,7 @@ def commAccuracy(experiment, chain, generation):
   accuracy = 0
   dynamic_set = load(experiment, chain, generation, "d")
   for item in dynamic_set:
+    print item
     coord_target = item[1] + ',' + item[2] + ',' + item[3]
     coord_select = item[5] + ',' + item[6] + ',' + item[7]
     if coord_target == coord_select:
@@ -152,61 +159,132 @@ def commAccuracy(experiment, chain, generation):
 #############################################################################
 # PLOT MEANS FOR EACH GENERATION WITH ERROR BARS (95% CI)
 
-def plotMean(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, conf_bonf=False):
+def plotMean(matrix, starting_gen=1, miny=0.0, maxy=1.0, y_label="Score", conf=False, save=False):
+  matrix = RemoveNaN(matrix)
   fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
+  fig.figurePatch.set_alpha(0.0)
+  ax.axesPatch.set_alpha(0.0)
+  font = {'fontname':'Frutiger Next Pro'}
   m = len(matrix)
   n = len(matrix[0])
   if conf == True:
     ax.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':')
-    ax.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':')
-  if conf_bonf == True:
-    ax.plot(range(-1,n+2), [2.734369] * (n+3), color='k', linestyle='--')
-    ax.plot(range(-1,n+2), [-2.734369] * (n+3), color='k', linestyle='--')
+    if miny < -2.0:
+      ax.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':')
   means = []
   errors = []
   for i in range(0,n):
     column = [row[i] for row in matrix if row[i] != None]
     means.append(mean(column))
     errors.append((std(column)/sqrt(len(column)))*1.959964)
-  xvals = range(start, n+start)
-  (_, caps, _) = ax.errorbar(xvals, means, yerr=errors, color='k', linestyle="-", linewidth=2.0, capsize=5.0, elinewidth=1.5)
+  xvals = range(starting_gen, n+starting_gen)
+  (_, caps, _) = ax.errorbar(xvals, means, yerr=errors, color='k', linestyle="-", linewidth=5.0, capsize=5.0, elinewidth=1.5)
   for cap in caps:
     cap.set_markeredgewidth(2)
-  labels = range(start, start+n)
-  plt.xticks(xvals, labels, fontsize=14)
-  plt.yticks(fontsize=14)
-  plt.xlim(start-0.5, n+start-0.5)
+  labels = range(starting_gen, starting_gen+n)
+  plt.xticks(xvals, labels, fontsize=14, **font)
+  plt.yticks(fontsize=14, **font)
+  plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
   plt.ylim(miny, maxy)
-  plt.xlabel("Generation number", fontsize=22)
-  plt.ylabel(y_label, fontsize=22)
-  plt.show()
+  plt.xlabel("Generation number", fontsize=22, **font)
+  plt.ylabel(y_label, fontsize=22, **font)
+  plt.tick_params(axis='x', which='both', bottom='off', top='off')
+  if save == False:
+    plt.show()
+  else:
+    plt.savefig(save)
+    plt.clf()
 
 #############################################################################
 # PLOT ALL CHAINS FROM A DATA MATRIX
 
-def plotAll(matrix, start=1, y_label="Score", miny=0.0, maxy=1.0, conf=False, conf_bonf=False):
-  fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
-  colours = ["#2E578C","#5D9648","#E7A13D","#BC2D30"]
-  plt.rcParams['font.sans-serif']='Arial'
+def plotAll(matrix, starting_gen=1, miny=0.0, maxy=1.0, y_label="Score", text=False, conf=False, col=0, text_pos='bottom', save=False, matrix_2=False, starting_gen_2=1, miny_2=0.0, maxy_2=1.0, y_label_2="Score", text_2=False, conf_2=False, col_2=0):
+  matrix = RemoveNaN(matrix)
+  font = {'fontname':'Arial'}
+  label_font_size = 10
+  axis_font_size = 8
+  line_thickness = 2.0
+
+  plt.figure(1)
+
+  if matrix_2 != False:
+    plt.subplots(figsize=(7.5, 2.5))
+    ax1 = plt.subplot2grid((6,2), (0,0), rowspan=5)
+  else:
+    plt.subplots(figsize=(3.8, 2.5))
+    ax1 = plt.subplot2grid((6,1), (0,0), rowspan=5)
+
   n = len(matrix[0])
-  xvals = range(start, n+start)
+  colours = cols[col]
+  xvals = range(starting_gen, n+starting_gen)
   if conf == True:
-    ax.plot(range(0,n+1), [1.959964] * (n+1), color='gray', linestyle=':')
-    ax.plot(range(0,n+1), [-1.959964] * (n+1), color='gray', linestyle=':')
-  if conf_bonf == True:
-    ax.plot(range(0,n+1), [2.734369] * (n+1), color='k', linestyle='--')
-    ax.plot(range(0,n+1), [-2.734369] * (n+1), color='k', linestyle='--')
+    plt.plot(range(0,n+1), [1.959964] * (n+1), color='gray', linestyle=':')
+    if miny < -2.0:
+      plt.plot(range(0,n+1), [-1.959964] * (n+1), color='gray', linestyle=':')
+  elif type(conf) == int:
+    plt.plot(range(0,n+1), [conf] * (n+1), color='gray', linestyle=':')
   for i in range(0,len(matrix)):
-    x_vals = range(start, len(matrix[i])+start)
-    ax.plot(x_vals, matrix[i], color=colours[i], linewidth=2.0)
-  labels = range(start, start+n)
-  plt.xlim(start, n+start-1)
+    x_vals = range(starting_gen, len(matrix[i])+starting_gen)
+    plt.plot(x_vals, [item for item in matrix[i]], color=colours[i], linewidth=line_thickness, label='Chain ' + ascii_uppercase[(col*4)+i:(col*4)+i+1])
+  labels = range(starting_gen, starting_gen+n)
+  plt.xlim(starting_gen, n+starting_gen-1)
   plt.ylim(miny, maxy)
-  plt.xticks(xvals, labels, fontsize=14)
-  plt.yticks(fontsize=14)
-  plt.xlabel("Generation number", fontsize=22)
-  plt.ylabel(y_label, fontsize=22)
-  plt.show()
+  plt.xticks(xvals, labels, fontsize=axis_font_size, **font)
+  plt.yticks(fontsize=axis_font_size, **font)
+  plt.xlabel("Generation number", fontsize=label_font_size, **font)
+  plt.ylabel(y_label, fontsize=label_font_size, **font)
+  plt.tick_params(axis='x', which='both', bottom='off', top='off')
+  if text != False:
+    if text_pos == 'bottom':
+      text_y = miny + ((maxy+abs(miny))/15.)
+    else:
+      text_y = maxy - (((maxy+abs(miny))/15.)*1.75)
+    plt.text(0.4, text_y, text, {'fontname':'Arial', 'fontsize':8})
+
+  if matrix_2 != False:
+    ax2 = plt.subplot2grid((6,2), (0,1), rowspan=5)
+    n = len(matrix_2[0])
+    colours = cols[col_2]
+    xvals = range(starting_gen_2, n+starting_gen_2)
+    if conf_2 == True:
+      plt.plot(range(0,n+1), [1.959964] * (n+1), color='gray', linestyle=':')
+      if miny_2 < -2.0:
+        plt.plot(range(0,n+1), [-1.959964] * (n+1), color='gray', linestyle=':')
+    elif type(conf_2) == int:
+      plt.plot(range(0,n+1), [conf_2] * (n+1), color='gray', linestyle=':')
+    for i in range(0,len(matrix_2)):
+      x_vals = range(starting_gen_2, len(matrix_2[i])+starting_gen_2)
+      plt.plot(x_vals, [item for item in matrix_2[i]], color=colours[i], linewidth=line_thickness)
+    labels = range(starting_gen_2, starting_gen_2+n)
+    plt.xlim(starting_gen_2, n+starting_gen_2-1)
+    plt.ylim(miny_2, maxy_2)
+    plt.xticks(xvals, labels, fontsize=axis_font_size, **font)
+    plt.yticks(fontsize=axis_font_size, **font)
+    plt.xlabel("Generation number", fontsize=label_font_size, **font)
+    plt.ylabel(y_label_2, fontsize=label_font_size, **font)
+    plt.tick_params(axis='x', which='both', bottom='off', top='off')
+    if text_2 != False:
+      if text_pos == 'bottom':
+        text_y = miny + ((maxy_2+abs(miny_2))/15.)
+      else:
+        text_y = maxy_2 - (((maxy_2+abs(miny_2))/15.)*1.75)
+      plt.text(0.4, text_y, text_2, {'fontname':'Arial', 'fontsize':8})
+
+  if matrix_2 != False:
+    ax3 = plt.subplot2grid((6,2), (5,0), colspan=2)
+  else:
+    ax3 = plt.subplot2grid((6,1), (5,0))
+  plt.axis('off')
+  handles, labels = ax1.get_legend_handles_labels()
+  ax3.legend(handles, labels, loc='upper center', frameon=False, prop={'family':'Arial', 'size':8}, ncol=4)
+
+  plt.tight_layout(pad=0.2, w_pad=1.0, h_pad=0.00)
+
+  if save == False:
+    plt.show()
+  else:
+    plt.savefig(save)
+    plt.clf()
 
 #############################################################################
 # RUN ALL THREE STATS
@@ -319,6 +397,23 @@ def timePerItem(experiment, chain, generation):
   time_per_item_set_d = difference.total_seconds() / 94.0
   return time_per_item_set_d
 
+def timeSpent(experiment, chain, generation, subject=False):
+  print experiment, chain, generation
+  if subject == False:
+    log_file = load(experiment, chain, generation, "log")
+  else:
+    log_file = load(experiment, chain, generation, 'logSub' + subject)
+  if experiment == 3:
+    start_time = stringToTimeStamp(log_file[1][4].split(" ")[1])
+  else:
+    start_time = stringToTimeStamp(log_file[1][3].split(" ")[1])
+  if experiment == 2:
+    end_time = stringToTimeStamp(log_file[56][0].split(" ")[3])
+  else:
+    end_time = stringToTimeStamp(log_file[54][0].split(" ")[3])
+  difference = end_time - start_time
+  return difference.total_seconds()
+
 def stringToTimeStamp(string):
   tim = string.split(":")
   timestamp = timedelta(hours=int(tim[0]), minutes=int(tim[1]), seconds=int(tim[2]))
@@ -378,7 +473,7 @@ def structureScore(experiment, chain, generation, metric='dt', simulations=1000,
   if meaning_distances == None:
     meanings = getTriangles(experiment, chain, generation, 's')
     meaning_distances = meaningDistances(meanings, metric)
-  z = MantelTest.MantelTest(string_distances, meaning_distances, simulations)[4]
+  z = Mantel.Test(string_distances, meaning_distances, simulations)[4]
   return z
 
 # FOR EACH PAIR OF STRINGS, CALCULATE THE NORMALIZED LEVENSHTEIN DISTANCE
@@ -499,10 +594,17 @@ def bisyllableProbabilities(experiment, chain, generation, start_stop=True):
 #############################################################################
 # SEGMENT WORDS INTO THEIR COMPONENT SYLLABLES
 
-rules = [['zwac','zwAA'],['wac', 'wAA'],['ei', 'EY'],['oo','UW'],['or', 'AOr'],['ai', 'AY'],['ae', 'AY'],
-       ['au', 'AW'],['oi', 'OY'],['o', 'OW'],['i', 'IY'],['a', 'AA'],
-       ['e', 'EH'],['u', 'UW'],['ch', 'C'],['j', 'J'],['ck', 'k'],
-       ['c', 'k'],['ng', 'N'],['sh', 'S'],['th', 'T']]
+#rules = [['zwac','zwAA'],['wac', 'wAA'],['ei', 'EY'],['oo','UW'],['or', 'AOr'],['ai', 'AY'],['ae', 'AY'],
+ #      ['au', 'AW'],['oi', 'OY'],['o', 'OW'],['i', 'IY'],['a', 'AA'],
+ #      ['e', 'EH'],['u', 'UW'],['ch', 'C'],['j', 'J'],['ck', 'k'],
+  #     ['c', 'k'],['ng', 'N'],['sh', 'S'],['th', 'T']]
+
+rules = [['ei', 'EY'],['oo','UW'], ['or', 'AOr'], ['ai', 'AY'], ['ae', 'AY'],
+         ['au', 'AW'], ['oi', 'OY'], ['iu', 'IWUW'], ['oa', 'OWAA'],
+         ['o', 'OW'], ['ia', 'IYAA'], ['ua', 'UWAA'], ['ou', 'OWUW'],
+         ['i', 'IY'], ['a', 'AA'],['e', 'EY'], ['u', 'UW'], ['ch', 'C'],
+         ['c', 'k'], ['ng', 'N'], ['sh', 'S'], ['th', 'T'],
+         ['zz', 'z'], ['pp', 'p'], ['kk','k'],['dd','d']]
 
 def segment(words, start_stop=False):
   segmented_words = []
@@ -560,7 +662,7 @@ def readIn(filename):
 #############################################################################
 # PLOT A SHAPE-SIZE SCATTER PLOT
 
-def sizeShapePlot(experiment, chain, generation, use_clustering=False, clusters=5):
+def sizeShapePlot(experiment, chain, generation, use_clustering=False, clusters=5, save=False):
   triangles = getTriangles(experiment, chain, generation, 's')
   perimeters = [geometry.perimeter(T) for T in triangles]
   areas = [geometry.area(T) for T in triangles]
@@ -573,10 +675,13 @@ def sizeShapePlot(experiment, chain, generation, use_clustering=False, clusters=
       if words[i] == word:
         dups.append(i)
     matrix[word] = dups
-  colours = ["#2E578C", "#5D9648", "#E7A13D", "black",   "#BC2D30", "#7D807F", "#6F3D79", "#EC3D91", "#67C200", "#03A7FF", "#3F3AAB", "#FF2F00", 'gray']
+  #colours = ["#2E578C", "#5D9648", "#E7A13D", "black",   "#BC2D30", "#7D807F", "#6F3D79", "#EC3D91", "#67C200", "#03A7FF", "#3F3AAB", "#FF2F00", 'gray']
+  colours = ["#3F3AAB","#03A7FF","#67C200","#EC3D91", "#FFB200", "#FF2F00", "#06C5C7", "#AB3DAB"]
   i = 0
   fig, ax = plt.subplots(figsize=plt.figaspect(0.75))
-  plt.rcParams['font.sans-serif']='Arial'
+  fig.figurePatch.set_alpha(0.0)
+  ax.axesPatch.set_alpha(0.0)
+  font = {'fontname':'Frutiger Next Pro'}
   if use_clustering == True:
     clustered_words = cluster(words, clusters)
     L=[]
@@ -603,15 +708,17 @@ def sizeShapePlot(experiment, chain, generation, use_clustering=False, clusters=
     l = plt.legend(matrix.keys(), loc=2, scatterpoints=1)
   l.draw_frame(False)
   ax.plot(range(100,1401), [(p**2)/(12*sqrt(3)) for p in range(100,1401)], color='k', linestyle='-', linewidth=2.0)
-  plt.xticks(fontsize=14)
-  plt.yticks(fontsize=14)
-  plt.xlabel("Perimeter", fontsize=22)
-  plt.ylabel("Area (log scale)", fontsize=22)
+  plt.xticks(fontsize=14, **font)
+  plt.yticks(fontsize=14, **font)
+  plt.xlabel("Perimeter", fontsize=22, **font)
+  plt.ylabel("Area (log scale)", fontsize=22, **font)
   plt.xlim(100,1400)
   plt.ylim(100,100000)
   plt.semilogy()
-  #plt.savefig(chain+str(generation)+".pdf", transparent=True)
-  plt.show()
+  if save != False:
+    plt.savefig(save, transparent=True)
+  else:
+    plt.show()
 
 #############################################################################
 # CLUSTER WORDS AND RETURN
@@ -687,21 +794,28 @@ def allTriangleGraphics(experiment):
         if col == 11:
           col = 0
 
-def triangleGraphic(experiment, chain, generation, target_words, show_prototype=True, spot_based=True, col=0):
-  colours =        ["#2E578C", "#5D9648", "#E7A13D", "black",   "#BC2D30", "#7D807F", "#6F3D79", "#EC3D91", "#67C200", "#03A7FF", "#3F3AAB", "#FF2F00"]
-  washed_colours = ["#9AB4D0", "#AED4A7", "#F8D796", "#7F7F7F", "#EA949A", "#C6C8C8", "#C4A2C7", "#F49FC9", "#B7E494", "#94D4FF", "#A2A0D5", "#FE9B91"]
+def triangleGraphic(experiment, chain, generation, target_words, show_prototype=True, spot_based=True, col=0, save=False):
+  #colours =        ["#2E578C", "#5D9648", "#E7A13D", "black",   "#BC2D30", "#7D807F", "#6F3D79", "#EC3D91", "#67C200", "#03A7FF", "#3F3AAB", "#FF2F00"]
+  #colours =       ["#3F3AAB","#03A7FF","#67C200","#EC3D91", "#FFB200", "#FF2F00", "#06C5C7", "#AB3DAB", "black",   "#2E578C", "#5D9648", "#E7A13D"]
+  #washed_colours = ["#9AB4D0", "#AED4A7", "#F8D796", "#7F7F7F", "#EA949A", "#C6C8C8", "#C4A2C7", "#F49FC9", "#B7E494", "#94D4FF", "#A2A0D5", "#FE9B91"]
+  #washed_colours =["#6C69D1","#3AD7FF","#9FE558","#FF6AA7", "#FFDB61", "#FF884A", "#78EEEB", "#D675DA", "#7F7F7F", "#9AB4D0", "#AED4A7", "#F8D796"]
+  colours = [['#01AAE9', '#1B346C', '#F44B1A', '#E5C39E'], ['#F6C83C', '#4C5B28', '#DB4472', '#B77F60'], ['#CBB345', '#609F80', '#4B574D', '#AF420A']]
   words = getWords(experiment, chain, generation, "s")
   T = getTriangles(experiment, chain, generation, "s")
   proto_triangles = []
   svg_file = svg_polygons.Canvas(500, 500)
   for i in range(0, len(words)):
     if words[i] in target_words:
-      svg_file.polygon(T[i], washed_colours[col], None, 1.0)
+      svg_file.polygon(T[i], colours[experiment-1][col], None, 1.0)
       proto_triangles.append(T[i])
   if show_prototype == True:
     P = trianglePrototype(proto_triangles, spot_based)
-    svg_file.polygon(P, None, colours[col], 0.7)
-  svg_file.save('images/' + str(experiment) + '/' + chain + '/' + str(generation) + '/' + target_words[0])
+    svg_file.polygon(P, None, colours[experiment-1][col], 1.0)
+  svg_file.bounding_box("gray", 6)
+  if save == False:
+    return svg_file.canvas
+  else:
+    svg_file.save(save + chain + str(generation) + '_' + target_words[0])
 
 def trianglePrototype(T, spot_based=True):
   T_new = []
@@ -766,7 +880,7 @@ def pointedness(T):
   perimeter = geometry.perimeter(T)
   area = geometry.area(T)
   expected_area = (perimeter**2)/20.784609691
-  return log(expected_area/area)
+  return log(expected_area)/log(area)
 
 def allSoundSymbolism(experiment,start_gen, end_gen):
   import pointedness
@@ -814,3 +928,18 @@ def plotSoundSymbolism(matrix, y_label="Pointedness", miny=0.0, maxy=2, baseline
   plt.xlabel("Sounds", fontsize=22)
   plt.ylabel(y_label, fontsize=22)
   plt.show()
+
+def RemoveNaN(matrix):
+  new_matrix = []
+  for row in matrix:
+    new_row = []
+    for cell in row:
+      if cell != None:
+        if math.isnan(cell) == True:
+          new_row.append(None)
+        elif math.isinf(cell) == True:
+          new_row.append(None)
+        else:
+          new_row.append(cell)
+    new_matrix.append(new_row)
+  return new_matrix
