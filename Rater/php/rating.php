@@ -27,14 +27,13 @@ if ($rater->validate() !== False) {
 
   $triangle_pair = $rater->getCurrentTriangles();
 
-  if (gettype($triangle_pair) != 'array') {
+  if ($triangle_pair === False) {
     // Task is complete
 
     $rater->blockRater();
 
-    // Issue completion code and set completion secret
-    $completion_code = $rater->generateCompletionCode();
-    $completion_secret = $triangle_pair;
+    // Issue completion code
+    $completion_code = $rater->id . '-' . $rater->generateCompletionCode();
 
     // Send to end page
     $page = 'end';
