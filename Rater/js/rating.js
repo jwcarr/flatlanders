@@ -29,7 +29,7 @@ function drawTriangle(triangle, context) {
 }
 
 function submitRating() {
-  window.location.replace('index.php?page=rating&id=<?php echo $rater->id; ?>&rating_num=<?php echo $rater->current; ?>&triangle1=<?php echo $triangle1_id; ?>&triangle2=<?php echo $triangle2_id; ?>&rating=' + rating);
+    window.location.replace('index.php?page=rating&id=<?php echo $rater->id; ?>&rating_num=<?php echo $rater->current; ?>&triangle1=<?php echo $triangle1_id; ?>&triangle2=<?php echo $triangle2_id; ?>&rating=' + rating);
 }
 
 function timeElapsed() {
@@ -54,9 +54,14 @@ $(document).keypress( function(event) {
     var keycode = (event.keyCode ? event.keyCode : event.which);
     if (keycode == '13') {
       rating = $("#rating_slider").val();
-      $("#next_box").html('');
-      $("#canvas_area").html('<button id="submit_button" class="purple" onclick="submitRating()">NEXT</button>');
-      $("#slider_area").html('');
+      if ($.isNumeric(rating) == false) {
+        alert('Invalid rating. Please check the slider.');
+      }
+      else {
+        $("#next_box").html('');
+        $("#canvas_area").html('<button id="submit_button" class="purple" onclick="submitRating()">NEXT</button>');
+        $("#slider_area").html('');
+      }
     }
   }
 });

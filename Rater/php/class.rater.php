@@ -21,9 +21,6 @@ class Rater {
     if ($rating_pair === False) {
       return False;
     }
-    if (count($rating_pair) === 1) {
-      return $rating_pair[0];
-    }
     if ($rating_pair[0] >= 0) {
       $triangle1 = $this->stable_set[$rating_pair[0]];
       $triangle2 = $this->stable_set[$rating_pair[1]];
@@ -50,18 +47,14 @@ class Rater {
     if ($rating_pair === False or is_null($rating_pair) === True) {
       return False;
     }
-    if (count($rating_pair) === 1) {
-      return $rating_pair;
-    }
     return array($rating_pair[0], $rating_pair[1]);
   }
 
   private function setRating($rating_num, $triangle1, $triangle2, $rating) {
-    $this->submitted_rating = $rating;
     if ($this->orientation == 'R') {
-      $this->submitted_rating = 1000 - $rating;
+      $rating = 1000 - $rating;
     }
-    return $this->file->setLine($rating_num, array($triangle1, $triangle2, $this->submitted_rating, time()));
+    return $this->file->setLine($rating_num, array($triangle1, $triangle2, $rating, time()));
   }
 
   private function incrementCurrentRating() {
@@ -71,13 +64,15 @@ class Rater {
   }
 
   public function storeRating($rating_num, $triangle1, $triangle2, $rating) {
-    if ($rating_num == $this->current) {
-      $current_pair = $this->getCurrentPair();
-      if ($current_pair[0] == $triangle1 or $current_pair[0] == $triangle2) {
-        if ($current_pair[1] == $triangle1 or $current_pair[1] == $triangle2) {
-          $this->setRating($rating_num, $triangle1, $triangle2, $rating);
-          $this->incrementCurrentRating();
-          return True;
+    if (is_numeric($rating)) {
+      if ($rating_num == $this->current) {
+        $current_pair = $this->getCurrentPair();
+        if ($current_pair[0] == $triangle1 or $current_pair[0] == $triangle2) {
+          if ($current_pair[1] == $triangle1 or $current_pair[1] == $triangle2) {
+            $this->setRating($rating_num, $triangle1, $triangle2, $rating);
+            $this->incrementCurrentRating();
+            return True;
+          }
         }
       }
     }
@@ -121,6 +116,7 @@ class Rater {
   }
 
   public function blockRater() {
+    global $data_directory;
     // Log IP address
     $ip_log = new File($data_directory . 'ip_log', True);
     $ip_log->addLine(array($_SERVER['REMOTE_ADDR']));
