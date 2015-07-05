@@ -1,5 +1,7 @@
 from numpy import arccos, array, cos, dot, mean, sin, sqrt, std
 
+pi = 3.141592653589793
+
 #############################################################################
 #   CALCULATE THE EUCLIDEAN DISTANCE BETWEEN TWO POINTS
 
@@ -61,7 +63,7 @@ def rotate(A):
     c = centroid(A)
     if A[0][0] == c[0]:
         if A[0][1] > c[1]:
-            theta = 3.1415926535897931
+            theta = pi
         else:
             return A
     else:
@@ -126,7 +128,7 @@ def rotation(A):
     c = centroid(A)
     if A[0][0] == c[0]:
         if A[0][1] > c[1]:
-            theta = 3.1415926535897931
+            theta = pi
         else:
             theta = 0.0
     else:
