@@ -6,9 +6,9 @@ def allConvexity(experiment, Euclidean=True, iterations=100):
     chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
     return [[convexity(experiment, chain, gen, 's', Euclidean, iterations)[1] for gen in range(1,11)] for chain in chain_codes[experiment-1]]
 
-def convexity(T, W, Euclidean=True, iterations=100):
-    #T = meaning_space.MakePCAMatrix(experiment, chain, gen, set_type, True)
-    #W = meaning_space.getWords(experiment, chain, gen, set_type)
+def convexity(experiment, chain, gen, set_type, Euclidean=True, iterations=100):
+    T = meaning_space.MakePCAMatrix(experiment, chain, gen, set_type, True)
+    W = meaning_space.getWords(experiment, chain, gen, set_type)
     P = prototypes(T, W)
     veridical_x = score(T, W, P, Euclidean)
     adjusted_x = MonteCarlo(T, W, P, Euclidean, iterations, veridical_x) if iterations > 0 else None
