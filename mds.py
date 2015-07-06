@@ -188,7 +188,7 @@ def draw_triangles(triangles, colour_palette):
   grid_size = np.sqrt(square)
 
   # Determine the size of each triangle cell, giving 10 points of cell spacing
-  point_size = (253.7 / grid_size) - 10.0
+  point_size = (247.7 / grid_size) - 5.0
 
   # Determine scaling factor by which all triangles will need to be scaled
   scale_factor = point_size / 500.0
@@ -201,7 +201,7 @@ def draw_triangles(triangles, colour_palette):
   for word in words:
 
     # Determine the offset and colour, and draw the bounding box to the canvas
-    offset = np.array([290.0 + (x_position * point_size) + (x_position * 10.0), 6.45 + (y_position * point_size) + (y_position * 10.0)])
+    offset = np.array([290.0 + (x_position * point_size) + (x_position * 5.0), 6.45 + (y_position * point_size) + (y_position * 5.0)])
     colour = colour_palette[word]
     canvas.add_box(offset, point_size, point_size)
 
