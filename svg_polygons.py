@@ -133,8 +133,8 @@ class Canvas:
 
   def write_box_to_canvas(self, shape_id):
     shape = self.boxes[shape_id]
-    height = shape.height - 1
-    width = shape.width - 1
+    height = shape.height
+    width = shape.width
     vertex1 = shape.position
     vertex2 = [vertex1[0]+width, vertex1[1]]
     vertex3 = [vertex1[0]+width, vertex1[1]+height]
