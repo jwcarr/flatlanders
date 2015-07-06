@@ -193,6 +193,9 @@ def draw_triangles(triangles, colour_palette):
   # Determine scaling factor by which all triangles will need to be scaled
   scale_factor = point_size / 500.0
 
+  # Determine the radius of the orienting spots
+  radius = 8.0 * scale_factor
+
   # Start at cell 0,0
   x_position = 0
   y_position = 0
@@ -211,6 +214,7 @@ def draw_triangles(triangles, colour_palette):
       # Translate and scale the triangle, and draw it to the canvas
       trans_triangle = (triangle * scale_factor) + offset
       canvas.add_polygon(trans_triangle, border_colour=colour)
+      canvas.add_circle(trans_triangle[0], radius, border_colour=colour, fill_colour=colour)
 
     # Produce the prototype for this set of triangles and draw it to the canvas
 
