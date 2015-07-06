@@ -7,6 +7,7 @@ import meaning_space as ms
 import rater_analysis as ra
 import svg_polygons as svg
 import voronoi
+import geometry
 
 # Globals
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
@@ -27,18 +28,18 @@ for dim in range(0, coordinates.shape[1]):
   coordinates[:, dim] = (((coordinates[:, dim] - minimum) / difference) * 1.8) - 0.9
 
 
-def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0):
+def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False):
   for experiment in range(0, len(chain_codes)):
     plot_experiment(experiment+1, chain_wide_palette, spectrum, push_factor)
 
 
-def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0):
+def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False):
   for chain in chain_codes[experiment-1]:
     print 'Chain: ' + chain
     plot_chain(chain, experiment, chain_wide_palette, spectrum, push_factor)
 
 
-def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0):
+def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False):
 
   # Determine experiment number if none is supplied
   if experiment == None:
@@ -58,7 +59,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
     plot(chain, generation, experiment, colour_palette, spectrum, push_factor)
 
 
-def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2, 0.9], push_factor=0.0):
+def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2, 0.9], push_factor=0.0, show_prototypes=False):
 
   # Determine experiment number if none supplied
   if experiment == None:
@@ -124,7 +125,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   plt.close()
 
   # Draw the triangle images and splice them into the matplotlib SVG file
-  triangle_code = draw_triangles(triangle_dict, colour_palette)
+  triangle_code = draw_triangles(triangle_dict, colour_palette, show_prototypes)
   f = open(filename, 'r')
   graph_code = f.read()
   f.close()
@@ -169,7 +170,7 @@ def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
   return dict(zip(words, hex_values))
 
 
-def draw_triangles(triangles, colour_palette):
+def draw_triangles(triangles, colour_palette, show_prototypes):
 
   # Alphabetize words so they can be plotted alphabetically
   words = sorted(triangles.keys())
@@ -216,7 +217,11 @@ def draw_triangles(triangles, colour_palette):
       canvas.add_polygon(trans_triangle, border_colour=colour)
       canvas.add_circle(trans_triangle[0], radius, border_colour=colour, fill_colour=colour)
 
-    # Produce the prototype for this set of triangles and draw it to the canvas
+    # If there's more than one triangle in the set, produce a prototype and draw it to the canvas
+    if len(triangles[word]) > 1 and show_prototypes == True:
+      prototype = make_prototype(triangles[word], False)
+      trans_prototype = (prototype * scale_factor) + offset
+      canvas.add_polygon(trans_prototype, border_colour=colour, fill_colour=colour, opacity=0.9)
 
     # Increment the x and y positions
     if x_position < grid_size-1:
@@ -230,6 +235,36 @@ def draw_triangles(triangles, colour_palette):
 
   # Return the SVG code for the canvas
   return canvas.canvas
+
+
+def make_prototype(triangles, spot_based=True):
+  new_triangles = []
+  for triangle in triangles:
+
+    # Translate the triangle to the center of the canvas
+    t = geometry.translate(triangle, np.array([[250.,250.],[250.,250.],[250.,250.]]))
+
+    # If non-spot-based pototype is requested, swap the vertices around so that vertex 1 is
+    # the pointiest one.
+    if spot_based == False:
+      angles = [geometry.angle(t,1), geometry.angle(t,2), geometry.angle(t,3)]
+      min_angle = angles.index(min(angles))
+      if min_angle == 0: t = np.array([t[0], t[1], t[2]])
+      elif min_angle == 1: t = np.array([t[1], t[2], t[0]])
+      elif min_angle == 2: t = np.array([t[2], t[0], t[1]])
+
+    # Rotate the triangle around its centroid so that vertex 1 points North
+    t = geometry.rotate(t)
+
+    # Ensure that vertex 2 is to the left of vertex 3 to prevent cancelling out
+    if t[1][0] > t[2][0]:
+      t = np.array([t[0], t[2], t[1]])
+
+    new_triangles.append(t)
+
+  # Reformat as Numpy array and return the prototype (mean of coordinates)
+  new_triangles = np.asarray(new_triangles, dtype=float)
+  return new_triangles.mean(axis=0)
 
 
 def determine_experiment_number(chain):
