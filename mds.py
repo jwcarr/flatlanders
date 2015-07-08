@@ -244,11 +244,11 @@ def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
 
 
 def make_prototype(triangles, spot_based=True):
-  new_triangles = []
-  for triangle in triangles:
+  trans_triangles = []
+  for t in triangles:
 
-    # Translate the triangle to the center of the canvas
-    t = geometry.translate(triangle, np.array([[250.,250.],[250.,250.],[250.,250.]]))
+    # Centralize the triangle in the plane
+    t = geometry.translate(t, np.array([[250.0, 250.0],[250.0, 250.0],[250.0, 250.0]]))
 
     # If non-spot-based pototype is requested, swap the vertices around so that vertex 1 is
     # the pointiest one.
@@ -263,14 +263,19 @@ def make_prototype(triangles, spot_based=True):
     t = geometry.rotate(t)
 
     # Ensure that vertex 2 is to the left of vertex 3 to prevent cancelling out
-    if t[1][0] > t[2][0]:
+    if t[1,0] > t[2,0]:
       t = np.array([t[0], t[2], t[1]])
 
-    new_triangles.append(t)
+    trans_triangles.append(t)
 
-  # Reformat as Numpy array and return the prototype (mean of coordinates)
-  new_triangles = np.asarray(new_triangles, dtype=float)
-  return new_triangles.mean(axis=0)
+  # Reformat as Numpy array and take the mean of the coordinates to form the prototype
+  trans_triangles = np.asarray(trans_triangles, dtype=float)
+  prototype = trans_triangles.mean(axis=0)
+
+  # Shift the prototype such that its bounding box is vertically centralized in the plane
+  prototype[:, 1] += ((500.0 - (max([prototype[1,1], prototype[2,1]]) - prototype[0,1])) / 2.0) - prototype[0,1]
+
+  return prototype
 
 
 def determine_experiment_number(chain):
