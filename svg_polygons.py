@@ -126,7 +126,7 @@ class Canvas:
     opacity = shape.opacity
     position = shape.position
     radius = shape.radius
-    canvas = "\n  <g id='shape_%s'>" % shape_id
+    canvas = "\n  <g id='circle_%s'>" % shape_id
     canvas += "\n    <circle cx='%s' cy='%s' r='%s' style='stroke:%s; fill:%s; fill-opacity:%s; stroke-opacity:%s;' />" % (position[0], position[1], radius, border_colour, fill_colour, opacity, opacity)
     canvas += "\n  </g>\n"
     self.canvas += canvas
@@ -157,9 +157,9 @@ class Canvas:
       self.write_box_to_canvas(shape_id)
 
   def write_everything(self):
-    self.write_all_polygons()
-    self.write_all_circles()
     self.write_all_boxes()
+    self.write_all_circles()
+    self.write_all_polygons()
 
   def save(self, filename='drawing'):
     canvas = self.addHeader()
