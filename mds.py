@@ -154,6 +154,11 @@ def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
   # Get list of unique strings
   words = list(set(strings))
 
+  # If there's only one word, just map that word to a grey colour and return, since
+  # it won't make sense to arrange the words in colour space.
+  if len(words) == 1:
+    return {words[0] : '#B1B0CB'}
+
   # Create distance matrix giving normalized Levenshtein distances between the words
   # Add on the given push factor to prevent colours from being too similar
   string_distances = np.asarray(ms.stringDistances(words), dtype=float) + push_factor
