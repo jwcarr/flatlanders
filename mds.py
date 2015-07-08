@@ -30,13 +30,13 @@ for dim in range(0, coordinates.shape[1]):
 
 def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False):
   for experiment in range(0, len(chain_codes)):
-    plot_experiment(experiment+1, chain_wide_palette, spectrum, push_factor)
+    plot_experiment(experiment+1, chain_wide_palette, spectrum, push_factor, show_prototypes)
 
 
 def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False):
   for chain in chain_codes[experiment-1]:
     print 'Chain: ' + chain
-    plot_chain(chain, experiment, chain_wide_palette, spectrum, push_factor)
+    plot_chain(chain, experiment, chain_wide_palette, spectrum, push_factor, show_prototypes)
 
 
 def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False):
@@ -56,7 +56,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
 
   # Produce a plot for each generation
   for generation in range(0, 11):
-    plot(chain, generation, experiment, colour_palette, spectrum, push_factor)
+    plot(chain, generation, experiment, colour_palette, spectrum, push_factor, show_prototypes)
 
 
 def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2, 0.9], push_factor=0.0, show_prototypes=False):
