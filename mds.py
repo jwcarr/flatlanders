@@ -88,11 +88,21 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   plt.subplots(figsize=(7.5, 4.93))
   ax1 = plt.subplot2grid((11,2), (0,0), rowspan=8)
 
+  # Determine the optimum size for the grid of triangle images / grid of legend labels
+  # (a square number larger than the number of unique strings)
+  for square in [1, 4, 9, 16, 25, 36, 49]:
+    if square >= len(word_dict.keys()):
+      break
+  grid_size = int(np.sqrt(square))
+
+  # Rearrange words so that they'll appear in alphabetical order along rows of the legend
+  words = rearrange(word_dict.keys(), grid_size)
+
   # Compute the Voronoi polygons
   polys = voronoi.polygons(coordinates)
 
   # Plot MDS coordinates and the Voronoi polygons
-  for word in sorted(word_dict.keys()):
+  for word in words:
     indices = word_dict[word]
     color = colour_palette[word]
     X, Y = coordinates[indices, 0], coordinates[indices, 1]
@@ -103,8 +113,8 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   # Set axis style
   plt.xlim(-1, 1)
   plt.ylim(-1, 1)
-  plt.xlabel("MDS coordinate 1", fontsize=label_font_size, **font)
-  plt.ylabel("MDS coordinate 2", fontsize=label_font_size, **font)
+  plt.xlabel("MDS dimension 1", fontsize=label_font_size, **font)
+  plt.ylabel("MDS dimension 2", fontsize=label_font_size, **font)
   plt.xticks(fontsize=axis_font_size, **font)
   plt.yticks(fontsize=axis_font_size, **font)
 
@@ -114,7 +124,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
 
   # Produce the legend
   handles, labels = ax1.get_legend_handles_labels()
-  ax2.legend(handles, labels, loc='upper center', frameon=False, prop={'family':'Arial', 'size':7}, ncol=8, scatterpoints=1)
+  ax2.legend(handles, labels, loc='upper center', frameon=False, prop={'family':'Arial', 'size':7}, ncol=grid_size, scatterpoints=1)
   
   # Tighten plot layout
   plt.tight_layout(pad=0.2, h_pad=0.0)
@@ -125,7 +135,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   plt.close()
 
   # Draw the triangle images and splice them into the matplotlib SVG file
-  triangle_code = draw_triangles(triangle_dict, colour_palette, show_prototypes)
+  triangle_code = draw_triangles(triangle_dict, colour_palette, show_prototypes, grid_size)
   f = open(filename, 'r')
   graph_code = f.read()
   f.close()
@@ -170,7 +180,7 @@ def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
   return dict(zip(words, hex_values))
 
 
-def draw_triangles(triangles, colour_palette, show_prototypes):
+def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
 
   # Alphabetize words so they can be plotted alphabetically
   words = sorted(triangles.keys())
@@ -178,15 +188,6 @@ def draw_triangles(triangles, colour_palette, show_prototypes):
   # Set up a Canvas object and clear it (WHY THE HELL DOES IT NEED TO BE CLEARED!!!)
   canvas = svg.Canvas(540, 360)
   canvas.clear()
-
-  # Determine the optimum size for the grid of triangle images (a square number larger
-  # than the number of unique strings)
-  for square in [1, 4, 9, 16, 25, 36, 49]:
-    if square >= len(words):
-      break
-
-  # Number of rows/columns that will make up the grid
-  grid_size = np.sqrt(square)
 
   # Determine the size of each triangle cell, giving 10 points of cell spacing
   point_size = (247.7 / grid_size) - 5.0
@@ -272,3 +273,16 @@ def determine_experiment_number(chain):
     if chain in chain_codes[experiment]:
       break
   return experiment + 1
+
+# Rearrange a list of words so that when displayed in a Matplotlib legend, they will be
+# alphabetical along the rows, rather than down the columns.
+def rearrange(words, grid_size):
+  words = sorted(words)
+  words_rearranged = []
+  for i in range(grid_size):
+    for j in range(grid_size):
+      try:
+        words_rearranged.append(words[(j*grid_size)+i])
+      except IndexError:
+        break
+  return words_rearranged
