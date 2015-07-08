@@ -16,6 +16,7 @@ import re
 import svg_polygons
 import math
 from string import ascii_uppercase
+import meaning_space
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
 
@@ -139,22 +140,33 @@ def allTrainingErrors(experiment):
 #############################################################################
 # CALCULATE COMMUNICATIVE ACCURACY
 
-def commAccuracy(experiment, chain, generation):
-  accuracy = 0
-  dynamic_set = load(experiment, chain, generation, "d")
-  for item in dynamic_set:
-    print item
-    coord_target = item[1] + ',' + item[2] + ',' + item[3]
-    coord_select = item[5] + ',' + item[6] + ',' + item[7]
-    if coord_target == coord_select:
-      accuracy += 1
-  stable_set = load(experiment, chain, generation, "s")
-  for item in stable_set:
-    coord_target = item[1] + ',' + item[2] + ',' + item[3]
-    coord_select = item[5] + ',' + item[6] + ',' + item[7]
-    if coord_target == coord_select:
-      accuracy += 1
-  return accuracy
+def commAccuracy(chain, generation):
+  dynamic_set = load(3, chain, generation, "d")
+  static_set = load(3, chain, generation, "s")
+  target_triangles = []
+  select_triangles = []
+  for item in dynamic_set+static_set:
+    target_triangle = []
+    select_triangle = []
+    for i in [1,2,3]:
+      x, y = item[i].split(',')
+      target_triangle.append([int(x), int(y)])
+      x, y = item[i+4].split(',')
+      select_triangle.append([int(x), int(y)])
+    target_triangles.append(target_triangle)
+    select_triangles.append(select_triangle)
+  target_triangles = numpy.asarray(target_triangles, dtype=float)
+  select_triangles = numpy.asarray(select_triangles, dtype=float)
+  target_features = meaning_space.MakeFeatureMatrix(target_triangles, False)
+  select_features = meaning_space.MakeFeatureMatrix(select_triangles, False)
+  accuracy = 0.0
+  correct = 0.0
+  for i in range(0, len(target_features)):
+    acc = meaning_space.ED(target_features[i], select_features[i])
+    accuracy += acc
+    if acc == 0.0:
+      correct += 1
+  return accuracy / len(target_features), correct
 
 #############################################################################
 # PLOT MEANS FOR EACH GENERATION WITH ERROR BARS (95% CI)
