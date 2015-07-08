@@ -41,53 +41,51 @@ def getWords(experiment, chain, generation, set_type):
     data = load(experiment, chain, generation, set_type)
   return [data[x][0] for x in range(0,len(data))]
 
-def MakeFeatureMatrix(experiment, chain, generation, set_type, normalize=True):
-  T = getTriangles(experiment, chain, generation, set_type)
+def MakeFeatureMatrix(triangles, normalize=True):
   matrix = []
-  for t in T:
-    vector = []
-    # Size features
-    vector.append(geometry.area(t))             # 0  Area (exp dist)
-    vector.append(geometry.perimeter(t))        # 1  Perimeter (norm dist)
-    vector.append(geometry.centroid_size(t))    # 2  Centroid size (norm dist)
-
-    # Location features
-    vector.append(t[0][0])                      # 3  Location of orienting spot on x-axis (uni dist)
-    vector.append(t[0][1])                      # 4  Location of orienting spot on y-axis (uni dist)
-    vector.append(geometry.centroid(t)[0])      # 5  Location of centroid on x-axis (uni dist)
-    vector.append(geometry.centroid(t)[1])      # 6  Location of centroid on y-axis (uni dist)
-
-    # Rotation features
-    vector.append(geometry.rotation(t))         # 7  Radial distance from north by orienting spot (uni dist)
-    vector.append(geometry.rotation_by_smallest_angle(t)) # 8  Radial distance from north by smallest angle (uni dist)
-
-    # Reflection features
-    vector.append(abs(geometry.rotation(t)))    # 9  Absolute radial distance from north by orienting spot (uni dist)
-    vector.append(abs(geometry.rotation_by_smallest_angle(t))) # 10 Absolute radial distance from north by smallest angle (uni dist)
-
-    # Shape features
-    vector.append(geometry.smallest_angle(t))   # 11 Angle of thinnest vertex (exp-ish, bit weird)
-    vector.append(geometry.largest_angle(t))    # 12 Angle of widest vertex (exp-ish, bit weird)
-    vector.append(geometry.std_angle(t))        # 13 Standard deviation of angles (sort of normal)
-
-    # Bounding box features
-    vector.append(geometry.dist_to_nearest_corner(t,0)) # 14 Distance from orienting spot to nearest corner (norm dist)
-    vector.append(geometry.dist_to_nearest_edge(t,0)) # 15 Distance from orienting spot to nearest edge (exp dist)
-    vector.append(numpy.mean([geometry.dist_to_nearest_corner(t,i) for i in range(0,3)])) # 16 Mean distance from vertices to nearest corner (norm dist)
-    vector.append(numpy.mean([geometry.dist_to_nearest_edge(t,i) for i in range(0,3)])) # 17 Mean distance from vertices to nearest edge (norm dist)
-
-    matrix.append(vector)
-
-  # Rescale each feature over the interval [0, 1]
+  for t in triangles:
+    matrix.append(MakeFeatureVector(t))
+  matrix = numpy.asarray(matrix, dtype=float)
   if normalize == True:
-    for f in range(0,len(matrix[0])):
-      feature_column = [row[f] for row in matrix]
-      minimum = min(feature_column)
-      maximum = max(feature_column)
-      for i in range(0, len(matrix)):
-        matrix[i][f] = (matrix[i][f] - minimum) / (maximum - minimum)
+    for dim in range(0, matrix.shape[1]):
+      minimum = matrix[:, dim].min()
+      difference = matrix[:, dim].max() - minimum
+      matrix[:, dim] = (matrix[:, dim] - minimum) / difference
+  return matrix
 
-  return numpy.array(matrix)
+def MakeFeatureVector(t):
+  vector = []
+  # Size features
+  vector.append(geometry.area(t))             # 0  Area (exp dist)
+  vector.append(geometry.perimeter(t))        # 1  Perimeter (norm dist)
+  vector.append(geometry.centroid_size(t))    # 2  Centroid size (norm dist)
+
+  # Location features
+  vector.append(t[0][0])                      # 3  Location of orienting spot on x-axis (uni dist)
+  vector.append(t[0][1])                      # 4  Location of orienting spot on y-axis (uni dist)
+  vector.append(geometry.centroid(t)[0])      # 5  Location of centroid on x-axis (uni dist)
+  vector.append(geometry.centroid(t)[1])      # 6  Location of centroid on y-axis (uni dist)
+
+  # Rotation features
+  vector.append(geometry.rotation(t))         # 7  Radial distance from north by orienting spot (uni dist)
+  vector.append(geometry.rotation_by_smallest_angle(t)) # 8  Radial distance from north by smallest angle (uni dist)
+
+  # Reflection features
+  vector.append(abs(geometry.rotation(t)))    # 9  Absolute radial distance from north by orienting spot (uni dist)
+  vector.append(abs(geometry.rotation_by_smallest_angle(t))) # 10 Absolute radial distance from north by smallest angle (uni dist)
+
+  # Shape features
+  vector.append(geometry.smallest_angle(t))   # 11 Angle of thinnest vertex (exp-ish, bit weird)
+  vector.append(geometry.largest_angle(t))    # 12 Angle of widest vertex (exp-ish, bit weird)
+  vector.append(geometry.std_angle(t))        # 13 Standard deviation of angles (sort of normal)
+
+  # Bounding box features
+  vector.append(geometry.dist_to_nearest_corner(t,0)) # 14 Distance from orienting spot to nearest corner (norm dist)
+  vector.append(geometry.dist_to_nearest_edge(t,0)) # 15 Distance from orienting spot to nearest edge (exp dist)
+  vector.append(numpy.mean([geometry.dist_to_nearest_corner(t,i) for i in range(0,3)])) # 16 Mean distance from vertices to nearest corner (norm dist)
+  vector.append(numpy.mean([geometry.dist_to_nearest_edge(t,i) for i in range(0,3)])) # 17 Mean distance from vertices to nearest edge (norm dist)
+
+  return numpy.asarray(vector, dtype=float)
 
 # Read in a CSV file
 def ReadCSV(filename):
