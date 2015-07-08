@@ -104,11 +104,11 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   # Plot MDS coordinates and the Voronoi polygons
   for word in words:
     indices = word_dict[word]
-    color = colour_palette[word]
+    colour, colour_light = colour_palette[word]
     X, Y = coordinates[indices, 0], coordinates[indices, 1]
-    plt.scatter(X, Y, c=color, label=word, marker='o', s=20, linewidth=0, zorder=1)
+    plt.scatter(X, Y, c=colour, label=word, marker='o', s=20, linewidth=0, zorder=1)
     for i in indices:
-      ax1.add_patch(patches.Polygon(polys[i], facecolor=color, edgecolor='white', linewidth=0.5, alpha=0.5, zorder=0))
+      ax1.add_patch(patches.Polygon(polys[i], facecolor=colour_light, edgecolor='white', linewidth=0.5, zorder=0))
   
   # Set axis style
   plt.xlim(-1, 1)
@@ -157,7 +157,7 @@ def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
   # If there's only one word, just map that word to a grey colour and return, since
   # it won't make sense to arrange the words in colour space.
   if len(words) == 1:
-    return {words[0] : '#B1B0CB'}
+    return {words[0] : ('#B1B0CB', '#D8D8E5')}
 
   # Create distance matrix giving normalized Levenshtein distances between the words
   # Add on the given push factor to prevent colours from being too similar
@@ -179,7 +179,9 @@ def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
   # Convert RGB values to hexadecimal triplets
   hex_values = []
   for r, g, b in colour_coordinates:
-    hex_values.append('#' + "".join(map(chr, [int(r), int(g), int(b)])).encode('hex'))
+    hex_colour = convert_to_hex((r, g, b))
+    hex_colour_light = convert_to_hex(lighten(r, g, b))
+    hex_values.append((hex_colour, hex_colour_light))
 
   # Return the colour palette
   return dict(zip(words, hex_values))
@@ -212,7 +214,7 @@ def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
 
     # Determine the offset and colour, and draw the bounding box to the canvas
     offset = np.array([290.0 + (x_position * point_size) + (x_position * 5.0), 6.45 + (y_position * point_size) + (y_position * 5.0)])
-    colour = colour_palette[word]
+    colour, colour_light = colour_palette[word]
     canvas.add_box(offset, point_size, point_size)
 
     # For each triangle labelled by this word...
@@ -227,7 +229,7 @@ def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
     if len(triangles[word]) > 1 and show_prototypes == True:
       prototype = make_prototype(triangles[word], False)
       trans_prototype = (prototype * scale_factor) + offset
-      canvas.add_polygon(trans_prototype, border_colour=colour, fill_colour=colour, opacity=0.9)
+      canvas.add_polygon(trans_prototype, border_colour=colour, fill_colour=colour_light, opacity=1.0)
 
     # Increment the x and y positions
     if x_position < grid_size-1:
@@ -278,11 +280,13 @@ def make_prototype(triangles, spot_based=True):
   return prototype
 
 
+# Determine which experiment number a chain belongs to
 def determine_experiment_number(chain):
   for experiment in range(0, len(chain_codes)):
     if chain in chain_codes[experiment]:
       break
   return experiment + 1
+
 
 # Rearrange a list of words so that when displayed in a Matplotlib legend, they will be
 # alphabetical along the rows, rather than down the columns.
@@ -296,3 +300,13 @@ def rearrange(words, grid_size):
       except IndexError:
         break
   return words_rearranged
+
+
+# Convert RGB value to hexidecimal triplet
+def convert_to_hex(rgb):
+  return '#' + "".join(map(chr, [int(round(rgb[0])), int(round(rgb[1])), int(round(rgb[2]))])).encode('hex')
+
+
+# Lighten a colour by blending in 50% white
+def lighten(r, g, b):
+  return int(round(r + ((255 - r) * 0.5))), int(round(g + ((255 - g) * 0.5))), int(round(b + ((255 - b) * 0.5)))
