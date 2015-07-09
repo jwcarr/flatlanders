@@ -285,8 +285,8 @@ def make_prototype(triangles, spot_based=True):
 def determine_experiment_number(chain):
   for experiment in range(0, len(chain_codes)):
     if chain in chain_codes[experiment]:
-      break
-  return experiment + 1
+      return experiment + 1
+  return None
 
 
 # Rearrange a list of words so that when displayed in a Matplotlib legend, they will be
@@ -303,11 +303,14 @@ def rearrange(words, grid_size):
   return words_rearranged
 
 
-# Convert RGB value to hexidecimal triplet
+# Convert RGB value to hexadecimal triplet
 def convert_to_hex(rgb):
-  return '#' + "".join(map(chr, [int(round(rgb[0])), int(round(rgb[1])), int(round(rgb[2]))])).encode('hex')
+  return '#' + ''.join(map(chr, map(int, map(round, rgb)))).encode('hex')
 
 
 # Lighten a colour by blending in 50% white
 def lighten(r, g, b):
-  return int(round(r + ((255 - r) * 0.5))), int(round(g + ((255 - g) * 0.5))), int(round(b + ((255 - b) * 0.5)))
+  return light(r), light(g), light(b)
+
+def light(val):
+  return int(round(val + ((255 - val) * 0.5)))
