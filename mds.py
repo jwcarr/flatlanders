@@ -27,6 +27,9 @@ for dim in range(0, coordinates.shape[1]):
   difference = coordinates[:, dim].max() - minimum
   coordinates[:, dim] = (((coordinates[:, dim] - minimum) / difference) * 1.8) - 0.9
 
+# Compute the Voronoi polygons
+polys = voronoi.polygons(coordinates)
+
 
 def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False):
   for experiment in range(0, len(chain_codes)):
@@ -97,9 +100,6 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
 
   # Rearrange words so that they'll appear in alphabetical order along rows of the legend
   words = rearrange(word_dict.keys(), grid_size)
-
-  # Compute the Voronoi polygons
-  polys = voronoi.polygons(coordinates)
 
   # Plot MDS coordinates and the Voronoi polygons
   for word in words:
