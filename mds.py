@@ -196,14 +196,15 @@ def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
   canvas = svg.Canvas(540, 360)
   canvas.clear()
 
-  # Determine the size of each triangle cell, giving 10 points of cell spacing
+  # Determine the size of each triangle cell, giving 5 points of cell spacing
   point_size = (247.7 / grid_size) - 5.0
 
   # Determine scaling factor by which all triangles will need to be scaled
   scale_factor = point_size / 500.0
 
-  # Determine the radius of the orienting spots
+  # Determine the radius of the orienting spots and the width of the strokes
   radius = 8.0 * scale_factor
+  stroke = max([0.5, 2.0 * scale_factor])
 
   # Start at cell 0,0
   x_position = 0
@@ -222,14 +223,14 @@ def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
 
       # Translate and scale the triangle, and draw it to the canvas
       trans_triangle = (triangle * scale_factor) + offset
-      canvas.add_polygon(trans_triangle, border_colour=colour)
+      canvas.add_polygon(trans_triangle, border_colour=colour, stroke_width=stroke)
       canvas.add_circle(trans_triangle[0], radius, border_colour=colour, fill_colour=colour)
 
     # If there's more than one triangle in the set, produce a prototype and draw it to the canvas
     if len(triangles[word]) > 1 and show_prototypes == True:
       prototype = make_prototype(triangles[word], False)
       trans_prototype = (prototype * scale_factor) + offset
-      canvas.add_polygon(trans_prototype, border_colour=colour, fill_colour=colour_light, opacity=1.0)
+      canvas.add_polygon(trans_prototype, border_colour=colour, fill_colour=colour_light, stroke_width=stroke)
 
     # Increment the x and y positions
     if x_position < grid_size-1:
