@@ -20,6 +20,7 @@ class Canvas:
       self.border_colour = 'black'
       self.fill_colour = None
       self.opacity = 1.0
+      self.stroke_width = 1.0
 
     def set_border_colour(self, colour):
       self.border_colour = colour
@@ -29,6 +30,9 @@ class Canvas:
 
     def set_opacity(self, opacity):
       self.opacity = opacity
+
+    def set_stroke_width(self, stroke_width):
+      self.stroke_width = stroke_width
 
     def transform(self, x, y):
       new_shape = []
@@ -75,7 +79,7 @@ class Canvas:
       self.height *= scale_factor
       self.width *= scale_factor
 
-  def add_polygon(self, shape, border_colour=False, fill_colour=False, opacity=False):
+  def add_polygon(self, shape, border_colour=False, fill_colour=False, opacity=False, stroke_width=1.0):
     self.polygons.append(self.Polygon(shape))
     if border_colour != False:
       self.polygons[-1].set_border_colour(border_colour)
@@ -83,6 +87,7 @@ class Canvas:
       self.polygons[-1].set_fill_colour(fill_colour)
     if opacity != False:
       self.polygons[-1].set_opacity(opacity)
+    self.polygons[-1].set_stroke_width(stroke_width)
 
   def add_circle(self, position, radius, border_colour=False, fill_colour=False, opacity=False):
     self.circles.append(self.Circle(position, radius))
@@ -107,9 +112,10 @@ class Canvas:
     else:
       border_colour = shape.border_colour
     opacity = shape.opacity
+    stroke_width = shape.stroke_width
     canvas = "\n  <g id='shape_%s'>" % shape_id
     points = [(str(vertex[0]) + "," + str(vertex[1])) for vertex in shape.shape]
-    canvas += "\n    <polygon points='" + (" ".join(points)) + "' style='fill:%s; stroke:%s; fill-opacity:%s; stroke-opacity:%s; stroke-width:0.5; stroke-linejoin:miter;' />" % (fill_colour, border_colour, opacity, opacity)
+    canvas += "\n    <polygon points='" + (" ".join(points)) + "' style='fill:%s; stroke:%s; fill-opacity:%s; stroke-opacity:%s; stroke-width:%s; stroke-linejoin:miter;' />" % (fill_colour, border_colour, opacity, opacity, stroke_width)
     canvas += "\n  </g>\n"
     self.canvas += canvas
 
