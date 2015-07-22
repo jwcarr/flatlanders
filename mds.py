@@ -12,10 +12,10 @@ import geometry
 
 # Globals
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
-label_font_size = 10
-axis_font_size = 8
-legend_font_size = 10
-
+label_font_size = 10 # points
+axis_font_size = 8 # points
+legend_font_size = 10 # points
+figure_width = 5.5 # inches
 
 # Run ratings through MDS to get coordinates in 2-dimensional space
 distance_matrix = distance.squareform(ra.reliable_distance_array, 'tomatrix')
@@ -100,7 +100,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
       triangle_dict[strings[i]] = [triangles[i]]
 
   # Set up subplot in top left
-  plt.subplots(figsize=(5.5, 4))
+  plt.subplots(figsize=(figure_width, figure_width/1.375))
   ax1 = plt.subplot2grid((11,2), (0,0), rowspan=7)
 
   # Determine the optimum size for the grid of triangle images / grid of legend labels
@@ -205,7 +205,7 @@ def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
   words = sorted(triangles.keys())
 
   # Set up a Canvas object and clear it (WHY THE HELL DOES IT NEED TO BE CLEARED!!!)
-  canvas = svg.Canvas(396, 288)
+  canvas = svg.Canvas(figure_width*72, (figure_width/1.375)*72)
   canvas.clear()
 
   # Determine the size of each triangle cell, giving 5 points of cell spacing
@@ -226,7 +226,7 @@ def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
   for word in words:
 
     # Determine the offset and colour, and draw the bounding box to the canvas
-    offset = np.array([228.0 + (x_position * point_size) + (x_position * 5.0), 6.45 + (y_position * point_size) + (y_position * 5.0)])
+    offset = np.array([(figure_width*72*0.575) + (x_position * point_size) + (x_position * 5.0), 6.45 + (y_position * point_size) + (y_position * 5.0)])
     colour, colour_light = colour_palette[word]
     canvas.add_box(offset, point_size, point_size)
 
