@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 import matplotlib.pyplot as plt
 from numpy import corrcoef, zeros
 from copy import deepcopy
@@ -11,81 +9,85 @@ class Rater:
 
   def __init__(self, ID):
     self.ID = str(ID)
-    self.matrix = self.ParseFile()
+    self.matrix = self.ReadFile()
     self.orientation = self.matrix[0][1]
     self.ip_address = self.matrix[0][2]
     self.start_timestamp = int(self.matrix[0][3])
     self.end_timestamp = int(self.matrix[-2][3])
     self.time_taken = (self.end_timestamp - self.start_timestamp) / 60.0
     self.timecourse = [(int(self.matrix[i][3]) - self.start_timestamp) / 60.0 for i in range(0, 151)]
-    self.comp_code = self.matrix[-1][0]
+    self.completion_code = self.matrix[-1][0]
     del self.matrix[0]
     del self.matrix[-1]
     self.ratings, self.test_ratings, self.practice_ratings = self.SeparateMatrix()
+    self.normalized_ratings = self.MakeNormalizedMatrix()
 
-  def ReadFile(self, filename):
-    f = open(filename)
+  # Read in a ratings file
+  def ReadFile(self):
+    try:
+      f = open('Data/ratings/' + self.ID)
+    except IOError:
+      raise ValueError(self.ID + ' is not a valid rater')
     content = f.read()
     f.close()
-    return content.split('\n')
+    return [line.split('\t') for line in content.split('\n')]
 
-  def ParseFile(self):
-    file_content = self.ReadFile('Data/Ratings/' + self.ID)
-    return [line.split('\t') for line in file_content]
-
+  # Separate out the raw data into three matrices: actual ratings, practice ratings, and test ratings
   def SeparateMatrix(self):
     ratings = []
     test_ratings = []
     practice_ratings = []
-    for row in self.matrix:
-      # If rating is undefined, skip the row
-      if row[2] != 'undefined':
-        int_row = [int(row[0]), int(row[1]), int(row[2]), int(row[3])]
-        if int_row[0] >= 0:
-          ratings.append(int_row)
-        else:
-          if int_row[0] == int_row[1]:
-            test_ratings.append(int_row)
-          else:
-            practice_ratings.append(int_row)
+    for i in range(0, len(self.matrix)):
+      if self.matrix[i][2] == 'undefined':
+        continue # If rating is undefined, skip the row
+      int_row = [int(self.matrix[i][0]), int(self.matrix[i][1]), int(self.matrix[i][2]), int(self.matrix[i][3])]
+      if int_row[0] == int_row[1]:
+        test_ratings.append(int_row)
+      elif i < 6:
+        practice_ratings.append(int_row)
+      else:
+        ratings.append(int_row)
     return ratings, test_ratings, practice_ratings
 
+  # Normalize actual ratings over the interval [0,1]
+  def MakeNormalizedMatrix(self):
+    normalized_ratings = deepcopy(self.ratings)
+    ratings = self.GetRatings('actual')
+    try:
+      minimum = min(ratings)
+    except ValueError:
+      print self.ID, ratings
+    difference = float(max(ratings) - minimum)
+    if difference == 0.0:
+      return False
+    for row in normalized_ratings:
+      row[2] = (row[2] - minimum) / difference
+    return normalized_ratings
+
+  # Extract ratings of a given kind
   def GetRatings(self, kind):
-    if kind == 'norm': target_matrix = self.ratings
-    elif kind == 'prac': target_matrix = self.practice_ratings
+    if kind == 'actual': target_matrix = self.ratings
+    elif kind == 'practice': target_matrix = self.practice_ratings
     elif kind == 'test': target_matrix = self.test_ratings
+    elif kind == 'normalized': target_matrix = self.normalized_ratings
+    else:
+      return False
     ratings = []
     for row in target_matrix:
       try:
         ratings.append(row[2])
       except ValueError:
-        ratings.append(None)
+        continue
     return ratings
 
-  def GetNormRatings(self, kind):
-    ratings = self.GetRatings(kind)
-    minimum = min(ratings)
-    difference = float(max(ratings) - minimum)
-    return [(rating - minimum) / difference for rating in ratings]
-
-  def NormMatrix(self, kind):
-    if kind == 'norm': target_matrix = deepcopy(self.ratings)
-    elif kind == 'prac': target_matrix = deepcopy(self.practice_ratings)
-    elif kind == 'test': target_matrix = deepcopy(self.test_ratings)
-    ratings = [row[2] for row in target_matrix]
-    minimum = min(ratings)
-    difference = float(max(ratings) - minimum)
-    for row in target_matrix:
-      row[2] = (row[2] - minimum) / difference
-    return target_matrix
-
+  # Produce a histogram of the actual ratings (raw or normalized)
   def Hist(self, normalize=False, savefig=False):
     if normalize == True:
-      ratings = self.GetNormRatings('norm')
+      ratings = self.GetRatings('normalized')
       plt.hist(ratings, bins=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
       plt.xlim(0, 1)
     else:
-      ratings = self.GetRatings('norm')
+      ratings = self.GetRatings('actual')
       plt.hist(ratings, bins=[0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000])
       plt.xlim(0, 1000)
     plt.ylim(0, 100)
@@ -98,22 +100,32 @@ class Rater:
     else:
       plt.show()
 
-  def RaterReliability(self, distance_array):
-    distance_matrix = spatial.distance.squareform(distance_array, 'tomatrix')
+  # Measure rater agreement by correlating this rater's ratings with the mean ratings of all raters
+  def RaterAgreement(self, distances=False):
     x = []
     y = []
-    for row in self.NormMatrix('norm'):
+    if type(distances) == bool and distances == False:
+      distances = all_distance_array
+    distance_matrix = spatial.distance.squareform(distances, 'tomatrix')
+    for row in self.normalized_ratings:
       x.append(distance_matrix[row[0], row[1]])
       y.append(row[2])
     return corrcoef(x, y)[0,1]
 
 ########################################################################################
 
-def AverageDistanceMatrix(raters):
+# Average together the normalized ratings of many raters
+def AverageDistanceMatrix(raters, agreement_filter=None, distances=None):
   count_matrix = zeros([48, 48], dtype=int)
   sum_distance_matrix = zeros([48, 48], dtype=float)
   for rater in raters:
-    for row in rater.NormMatrix('norm'):
+    normalized_matrix = rater.normalized_ratings
+    if normalized_matrix == False:
+      continue # If the normalized matrix doesn't exist, skip the rater. This can occur if
+               # the rater gives the same rating for every pair of triangles.
+    if agreement_filter != None and rater.RaterAgreement(distances) < agreement_filter:
+      continue # If filter is being applied and the rater is not good enough, skip the rater
+    for row in normalized_matrix:
       sum_distance_matrix[row[0], row[1]] += float(row[2])
       sum_distance_matrix[row[1], row[0]] += float(row[2])
       count_matrix[row[0], row[1]] += 1
@@ -129,4 +141,9 @@ def AverageDistanceMatrix(raters):
 raters = [Rater(i) for i in range(0, 96)]
 
 # Average everyone's ratings together to form a (condensed) distance matrix
-distance_array, count_array = AverageDistanceMatrix(raters)
+all_distance_array, all_count_array = AverageDistanceMatrix(raters, None, None)
+
+# Average everyone's ratings together again, this time filtering out unreliable raters.
+# Reliable raters are defined as those whose agreement with the average ratings of all
+# raters is greater than 0.4.
+reliable_distance_array, reliable_count_array = AverageDistanceMatrix(raters, 0.4, all_distance_array)
