@@ -142,7 +142,7 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
   plt.clf()
 
 
-def all(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text=False, conf=False, colour_set=False, text_pos=False, save_location=False, save_name=False, dataset2=False, starting_gen2=False, miny2=False, maxy2=False, y_label2=False, text2=False, conf2=False, colour_set2=False):
+def all(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text=False, conf=False, experiment=False, text_pos=False, save_location=False, save_name=False, dataset2=False, starting_gen2=False, miny2=False, maxy2=False, y_label2=False, text2=False, conf2=False, experiment2=False):
   
   if starting_gen == False:
     if len(dataset[0]) == 10:
@@ -157,8 +157,8 @@ def all(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text
     y_label = "Score"
   if text != False and text_pos == False:
     text_pos = 'bottom'
-  if colour_set == False:
-    colour_set = 0
+  if experiment == False:
+    experiment = 0
   if save_location == False:
     save_location = '/Users/jon/Desktop/'
   if save_name == False:
@@ -178,14 +178,14 @@ def all(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text
       text_pos2 = test_pos
     if conf2 == False:
       conf2 = conf
-    if colour_set2 == False:
-      colour_set2 = colour_set
+    if experiment2 == False:
+      experiment2 = experiment
 
-  plot(dataset, False, starting_gen, miny, maxy, y_label, text, conf, colour_set, text_pos, save_location+save_name, dataset2, starting_gen2, miny2, maxy2, y_label2, text2, conf2, colour_set2)
+  plot(dataset, False, starting_gen, miny, maxy, y_label, text, conf, experiment, text_pos, save_location+save_name, dataset2, starting_gen2, miny2, maxy2, y_label2, text2, conf2, experiment2)
 
 
 
-def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text=False, conf=False, colour_set=False, text_pos=False, save_location=False, save_name=False, dataset2=False, starting_gen2=False, miny2=False, maxy2=False, y_label2=False, text2=False, conf2=False, colour_set2=False):
+def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text=False, conf=False, experiment=False, text_pos=False, save_location=False, save_name=False, dataset2=False, starting_gen2=False, miny2=False, maxy2=False, y_label2=False, text2=False, conf2=False, experiment2=False):
   
   if starting_gen == False:
     if len(dataset[0]) == 10:
@@ -200,8 +200,8 @@ def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, tex
     y_label = "Score"
   if text != False and text_pos == False:
     text_pos = 'bottom'
-  if colour_set == False:
-    colour_set = 0
+  if experiment == False:
+    experiment = 0
   if save_location == False:
     save_location = '/Users/jon/Desktop/'
   if save_name == False:
@@ -221,10 +221,10 @@ def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, tex
       text_pos2 = test_pos
     if conf2 == False:
       conf2 = conf
-    if colour_set2 == False:
-      colour_set2 = colour_set
+    if experiment2 == False:
+      experiment2 = experiment
 
-  plot(dataset, True, starting_gen, miny, maxy, y_label, text, conf, colour_set, text_pos, save_location+save_name, dataset2, starting_gen2, miny2, maxy2, y_label2, text2, conf2, colour_set2)
+  plot(dataset, True, starting_gen, miny, maxy, y_label, text, conf, experiment, text_pos, save_location+save_name, dataset2, starting_gen2, miny2, maxy2, y_label2, text2, conf2, experiment2)
 
 
 def MeanWithErrors(matrix):
