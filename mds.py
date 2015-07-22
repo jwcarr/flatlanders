@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt, patches
+from os import getenv
 from scipy.spatial import distance
 from sklearn.manifold import MDS
 from subprocess import call
@@ -31,18 +32,24 @@ for dim in range(0, coordinates.shape[1]):
 polys = voronoi.polygons(coordinates)
 
 
-def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False):
+def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, save_location=False):
   for experiment in range(0, len(chain_codes)):
-    plot_experiment(experiment+1, chain_wide_palette, spectrum, push_factor, show_prototypes)
+    plot_experiment(experiment+1, chain_wide_palette, spectrum, push_factor, show_prototypes, save_location)
 
 
-def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False):
+def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, save_location=False):
+
+  # Set directory for saving
+  if save_location == False:
+    save_location = getenv('HOME') + '/Desktop/'
+  save_location = save_location + str(experiment) + '/' + chain + '/'
+
   for chain in chain_codes[experiment-1]:
     print 'Chain: ' + chain
-    plot_chain(chain, experiment, chain_wide_palette, spectrum, push_factor, show_prototypes)
+    plot_chain(chain, experiment, chain_wide_palette, spectrum, push_factor, show_prototypes, save_location)
 
 
-def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False):
+def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, save_location=False):
 
   # Determine experiment number if none is supplied
   if experiment == None:
@@ -57,12 +64,17 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
   else:
     colour_palette = None
 
+  # Set directory for saving
+  if save_location == False:
+    save_location = getenv('HOME') + '/Desktop/'
+  save_location = save_location + chain + '/'
+
   # Produce a plot for each generation
   for generation in range(0, 11):
-    plot(chain, generation, experiment, colour_palette, spectrum, push_factor, show_prototypes)
+    plot(chain, generation, experiment, colour_palette, spectrum, push_factor, show_prototypes, save_location, str(generation))
 
 
-def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2, 0.9], push_factor=0.0, show_prototypes=False):
+def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2, 0.9], push_factor=0.0, show_prototypes=False, save_location=False, save_name=False):
 
   # Determine experiment number if none supplied
   if experiment == None:
@@ -129,8 +141,14 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   # Tighten plot layout
   plt.tight_layout(pad=0.2, h_pad=0.0)
 
+  # Set default filename and directory if none has been specified
+  if save_location == False:
+    save_location = getenv('HOME') + '/Desktop/'
+  if save_name == False:
+    save_name = chain + str(generation)
+
   # Save matplotlib plot as SVG file
-  filename = '/Users/jon/Desktop/plots/' + chain + '/' +  str(generation) + '.svg'
+  filename = save_location + save_name + '.svg'
   plt.savefig(filename)
   plt.close()
 
