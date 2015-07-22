@@ -1,0 +1,21 @@
+<div id='content'>
+
+  <h2>Thank You</h2>
+
+  <p>The task is now complete. Please enter your completion code into the Crowdflower website to complete the job.</p>
+
+  <p>Your completion code is: <strong><?php echo $completion_code; ?></strong></p>
+
+  <p>If you would like further information about this task, please <a href='debrief.pdf' target='_blank'>click here</a>. If you have any comments, please enter them into the box below and click Send. Please include your email address if you would like a response.</p>
+
+  <form method='POST' action='index.php'>
+
+    <input type='hidden' name='page' value='comment' />
+    <input type='hidden' name='id' value='<?php echo $id; ?>' />
+    <input type='hidden' name='completion_code' value='<?php echo $completion_code; ?>' />
+    <p><textarea name='comments' cols='50' rows='10'></textarea></p>
+    <p><input type='submit' value='Send' /></p>
+
+  </form>
+
+</div>
