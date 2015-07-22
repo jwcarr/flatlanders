@@ -154,13 +154,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
 
   # Draw the triangle images and splice them into the matplotlib SVG file
   triangle_code = draw_triangles(triangle_dict, colour_palette, show_prototypes, grid_size)
-  f = open(filename, 'r')
-  graph_code = f.read()
-  f.close()
-  final_code = graph_code.replace('</svg>', triangle_code + '\n\n</svg>')
-  f = open(filename, 'w')
-  f.write(final_code)
-  f.close()
+  splice_in_triangles(filename, triangle_code)
 
   # Use Inkscape to convert to PDF and then delete the SVG file
   call(["inkscape", filename, "-A", filename[0:-3] + 'pdf'])
@@ -319,6 +313,16 @@ def rearrange(words, grid_size):
       except IndexError:
         break
   return words_rearranged
+
+
+def splice_in_triangles(filename, triangle_code):
+  f = open(filename, 'r')
+  graph_code = f.read()
+  f.close()
+  final_code = graph_code.replace('</svg>', triangle_code + '\n\n</svg>')
+  f = open(filename, 'w')
+  f.write(final_code)
+  f.close()
 
 
 # Convert RGB value to hexadecimal triplet
