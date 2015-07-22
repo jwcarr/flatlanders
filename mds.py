@@ -18,7 +18,7 @@ legend_font_size = 10
 
 
 # Run ratings through MDS to get coordinates in 2-dimensional space
-distance_matrix = distance.squareform(ra.distance_array, 'tomatrix')
+distance_matrix = distance.squareform(ra.reliable_distance_array, 'tomatrix')
 mds = MDS(dissimilarity="precomputed", n_components=2, max_iter=3000, random_state=100)
 coordinates = mds.fit(distance_matrix).embedding_
 
@@ -156,8 +156,8 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   triangle_code = draw_triangles(triangle_dict, colour_palette, show_prototypes, grid_size)
   splice_in_triangles(filename, triangle_code)
 
-  # Use Inkscape to convert to PDF and then delete the SVG file
-  call(["inkscape", filename, "-A", filename[0:-3] + 'pdf'])
+  # Use Inkscape to convert to PDF (-A) or EPS (-E) and then delete the SVG file
+  call(["inkscape", filename, "-E", filename[0:-3] + 'eps'])
   call(["rm", filename])
 
 
