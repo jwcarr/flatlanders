@@ -12,9 +12,9 @@ import geometry
 
 # Globals
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
-font = {'fontname':'Arial'}
 label_font_size = 10
 axis_font_size = 8
+legend_font_size = 10
 
 
 # Run ratings through MDS to get coordinates in 2-dimensional space
@@ -125,10 +125,10 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   # Set axis style
   plt.xlim(-1, 1)
   plt.ylim(-1, 1)
-  plt.xlabel("MDS dimension 1", fontsize=label_font_size, **font)
-  plt.ylabel("MDS dimension 2", fontsize=label_font_size, **font)
-  plt.xticks(fontsize=axis_font_size, **font)
-  plt.yticks(fontsize=axis_font_size, **font)
+  plt.xlabel("MDS dimension 1", fontsize=label_font_size)
+  plt.ylabel("MDS dimension 2", fontsize=label_font_size)
+  plt.xticks(fontsize=axis_font_size)
+  plt.yticks(fontsize=axis_font_size)
 
   # Set up subplot at bottom for legend
   ax2 = plt.subplot2grid((11,2), (7,0), colspan=2)
@@ -136,7 +136,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
 
   # Produce the legend
   handles, labels = ax1.get_legend_handles_labels()
-  ax2.legend(handles, labels, loc='upper center', frameon=False, prop={'family':'Arial', 'size':7}, ncol=grid_size, scatterpoints=1)
+  ax2.legend(handles, labels, loc='upper center', frameon=False, prop={'size':legend_font_size}, ncol=int(grid_size), scatterpoints=1)
   
   # Tighten plot layout
   plt.tight_layout(pad=0.2, h_pad=0.0)
