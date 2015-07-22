@@ -100,15 +100,15 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
       triangle_dict[strings[i]] = [triangles[i]]
 
   # Set up subplot in top left
-  plt.subplots(figsize=(7.5, 4.93))
-  ax1 = plt.subplot2grid((11,2), (0,0), rowspan=8)
+  plt.subplots(figsize=(5.5, 4))
+  ax1 = plt.subplot2grid((11,2), (0,0), rowspan=7)
 
   # Determine the optimum size for the grid of triangle images / grid of legend labels
   # (a square number larger than the number of unique strings)
   for square in [1, 4, 9, 16, 25, 36, 49]:
     if square >= len(word_dict.keys()):
       break
-  grid_size = int(np.sqrt(square))
+  grid_size = np.sqrt(square)
 
   # Rearrange words so that they'll appear in alphabetical order along rows of the legend
   words = rearrange(word_dict.keys(), grid_size)
@@ -118,7 +118,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
     indices = word_dict[word]
     colour, colour_light = colour_palette[word]
     X, Y = coordinates[indices, 0], coordinates[indices, 1]
-    plt.scatter(X, Y, c=colour, label=word, marker='o', s=20, linewidth=0, zorder=1)
+    plt.scatter(X, Y, c=colour, label=word, marker='o', s=15, linewidth=0, zorder=1)
     for i in indices:
       ax1.add_patch(patches.Polygon(polys[i], facecolor=colour_light, edgecolor='white', linewidth=0.5, zorder=0))
   
@@ -131,7 +131,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   plt.yticks(fontsize=axis_font_size, **font)
 
   # Set up subplot at bottom for legend
-  ax2 = plt.subplot2grid((11,2), (8,0), colspan=2)
+  ax2 = plt.subplot2grid((11,2), (7,0), colspan=2)
   plt.axis('off')
 
   # Produce the legend
@@ -205,11 +205,11 @@ def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
   words = sorted(triangles.keys())
 
   # Set up a Canvas object and clear it (WHY THE HELL DOES IT NEED TO BE CLEARED!!!)
-  canvas = svg.Canvas(540, 360)
+  canvas = svg.Canvas(396, 288)
   canvas.clear()
 
   # Determine the size of each triangle cell, giving 5 points of cell spacing
-  point_size = (247.7 / grid_size) - 5.0
+  point_size = (171.2 / float(grid_size)) - 5.0
 
   # Determine scaling factor by which all triangles will need to be scaled
   scale_factor = point_size / 500.0
@@ -226,7 +226,7 @@ def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
   for word in words:
 
     # Determine the offset and colour, and draw the bounding box to the canvas
-    offset = np.array([290.0 + (x_position * point_size) + (x_position * 5.0), 6.45 + (y_position * point_size) + (y_position * 5.0)])
+    offset = np.array([228.0 + (x_position * point_size) + (x_position * 5.0), 6.45 + (y_position * point_size) + (y_position * 5.0)])
     colour, colour_light = colour_palette[word]
     canvas.add_box(offset, point_size, point_size)
 
@@ -304,12 +304,13 @@ def determine_experiment_number(chain):
 # Rearrange a list of words so that when displayed in a Matplotlib legend, they will be
 # alphabetical along the rows, rather than down the columns.
 def rearrange(words, grid_size):
+  int_grid_size = int(grid_size)
   words = sorted(words)
   words_rearranged = []
-  for i in range(grid_size):
-    for j in range(grid_size):
+  for i in range(int_grid_size):
+    for j in range(int_grid_size):
       try:
-        words_rearranged.append(words[(j*grid_size)+i])
+        words_rearranged.append(words[(j*int_grid_size)+i])
       except IndexError:
         break
   return words_rearranged
