@@ -1,20 +1,18 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-from datetime import timedelta
-import geometry
-import Levenshtein
-import Mantel
-import matplotlib.pyplot as plt
-import numpy
-import Page
 from random import shuffle
 from scipy import log, log2, mean, polyfit, sqrt, stats, std
+from string import ascii_uppercase
+import matplotlib.pyplot as plt
 import scipy.cluster
 import re
-import svg_polygons
+import numpy
 import math
-from string import ascii_uppercase
+import basics
+import Mantel
+import Page
+import svg_polygons
 import meaning_space
 import rater_analysis as ra
 
@@ -25,9 +23,9 @@ chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
 # VERIDICAL SCORE TO A MONTE CARLO SAMPLE
 
 def learnability(experiment, chain, generation, simulations=100000):
-  words_A = getWords(experiment, chain, generation, "s")
-  words_B = getWords(experiment, chain, generation-1, "s")
-  x = meanNormLevenshtein(words_A, words_B)
+  words_A = basics.getWords(experiment, chain, generation, "s")
+  words_B = basics.getWords(experiment, chain, generation-1, "s")
+  x = basics.meanNormLevenshtein(words_A, words_B)
   m, sd = MonteCarloError(words_A, words_B, simulations)
   z = (m-x)/sd
   return x, m, sd, z
@@ -35,9 +33,9 @@ def learnability(experiment, chain, generation, simulations=100000):
 # CALCULATE THE TRANSMISSION ERROR BETWEEN TWO CONSECUTIVE PARTICIPANTS
 
 def transmissionError(experiment, chain, generation):
-  words_A = getWords(experiment, chain, generation, "s")
-  words_B = getWords(experiment, chain, generation-1, "s")
-  return meanNormLevenshtein(words_A, words_B)
+  words_A = basics.getWords(experiment, chain, generation, "s")
+  words_B = basics.getWords(experiment, chain, generation-1, "s")
+  return basics.meanNormLevenshtein(words_A, words_B)
 
 # GIVEN TWO SETS OF STRINGS, SHUFFLE ONE SET OF STRINGS n TIMES. COMPUTE THE
 # MEAN NORMALIZED LEVENSHTEIN DISTANCE FOR EACH SHUFFLING AND RETURN THE MEAN
@@ -47,43 +45,8 @@ def MonteCarloError(strings1, strings2, simulations):
   distances = []
   for i in xrange(0, simulations):
     shuffle(strings1)
-    distances.append(meanNormLevenshtein(strings1, strings2))
+    distances.append(basics.meanNormLevenshtein(strings1, strings2))
   return mean(distances), std(distances)
-
-# CALCULATE THE MEAN NORMALIZED LEVENSHTEIN DISTANCE BETWEEN TWO SETS OF STRINGS
-
-def meanNormLevenshtein(strings1, strings2):
-  total = 0.0
-  for i in range(0, len(strings1)):
-    ld = Levenshtein.distance(strings1[i], strings2[i])
-    total += ld/float(max(len(strings1[i]), len(strings2[i])))
-  return total/float(len(strings1))
-
-#############################################################################
-# MEASURE LEARNABILITY IN TRAINING: CALCULATE THE MEAN NORMALIZED LEVENSHTEIN
-# DISTANCE FOR A SPECIFIC INDIVIDUAL'S TRAINING RESULTS
-
-def trainingError(experiment, chain, generation, subject=''):
-  if subject == 'A' or subject == 'B':
-    filename = 'logSub' + subject
-  else:
-    filename = 'log'
-  data = load(experiment, chain, generation, filename)
-  words_A = [data[x][0] for x in range(5,53)]
-  words_B = [data[x][1] for x in range(5,53)]
-  x = meanNormLevenshtein(words_A, words_B)
-  return x
-
-#############################################################################
-# COUNT THE NUMBER OF UNIQUE WORDS FOR GIVEN PARTICIPANT
-
-def uniqueStrings(experiment, chain, generation):
-  dynamic_data = load(experiment, chain, generation, "d")
-  stable_data = load(experiment, chain, generation, "s")
-  dynamic_words = [row[0] for row in dynamic_data]
-  stable_words = [row[0] for row in stable_data]
-  combined_words = dynamic_words + stable_words
-  return len(set(dynamic_words)), len(set(stable_words)), len(set(combined_words))
 
 #############################################################################
 # GET TRANSMISSION ERROR RESULTS FOR ALL CHAINS IN AN EXPERIMENT
@@ -127,7 +90,7 @@ def allTrainingErrors(experiment):
     scores = []
     for generation in range(1, 11):
       try:
-        score = trainingError(experiment, chain, generation)
+        score = basics.trainingError(experiment, chain, generation)
         scores.append(score)
       except:
         scores.append("N/A")
@@ -138,8 +101,8 @@ def allTrainingErrors(experiment):
 # CALCULATE COMMUNICATIVE ACCURACY
 
 def commAccuracy(chain, generation):
-  dynamic_set = load(3, chain, generation, "d")
-  static_set = load(3, chain, generation, "s")
+  dynamic_set = basics.load(3, chain, generation, "d")
+  static_set = basics.load(3, chain, generation, "s")
   target_triangles = []
   select_triangles = []
   for item in dynamic_set+static_set:
@@ -215,47 +178,6 @@ def student(matrix, hypothesis):
   return diff, len(a)-2, test[0], test[1]/2.0
 
 #############################################################################
-# LOAD RAW DATA FROM A DATA FILE INTO A DATA MATRIX
-
-def load(experiment, chain, generation, set_type):
-  filename = "Data/" + str(experiment) + "/" + chain + "/" + str(generation) + set_type
-  f = open(filename, 'r')
-  data = f.read()
-  f.close()
-  rows = data.split("\n")
-  matrix = []
-  for row in rows:
-    cells = row.split("\t")
-    matrix.append(cells)
-  return matrix
-
-#############################################################################
-# LOAD IN THE WORDS FROM A SPECIFIC SET FILE
-
-def getTriangles(experiment, chain, generation, set_type):
-  if set_type == "c":
-    data = load(experiment, chain, generation, "d") + load(experiment, chain, generation, "s")
-  else:
-    data = load(experiment, chain, generation, set_type)
-  triangles = []
-  for row in data:
-    x1, y1 = row[1].split(',')
-    x2, y2 = row[2].split(',')
-    x3, y3 = row[3].split(',')
-    triangles.append(numpy.array([[float(x1),float(y1)],[float(x2),float(y2)],[float(x3),float(y3)]]))
-  return triangles
-
-#############################################################################
-# LOAD IN THE WORDS FROM A SPECIFIC SET FILE
-
-def getWords(experiment, chain, generation, set_type):
-  if set_type == "c":
-    data = load(experiment, chain, generation, "d") + load(experiment, chain, generation, "s")
-  else:
-    data = load(experiment, chain, generation, set_type)
-  return [data[x][0] for x in range(0,len(data))]
-
-#############################################################################
 # CONVERT MATRIX INTO VECTOR
 
 def matrix2vector(matrix):
@@ -264,64 +186,6 @@ def matrix2vector(matrix):
     for cell in row:
       vector.append(cell)
   return vector
-
-#############################################################################
-# CALCULATE AVERAGE TIME SPENT ON EACH TEST ITEM
-
-def timePerItem(experiment, chain, generation):
-  set_d = load(experiment, chain, generation, "d")
-  timestamp_1 = stringToTimeStamp(set_d[0][4])
-  timestamp_50 = stringToTimeStamp(set_d[47][4])
-  difference = timestamp_50 - timestamp_1
-  time_per_item_set_d = difference.total_seconds() / 94.0
-  return time_per_item_set_d
-
-def timeSpent(experiment, chain, generation, subject=False):
-  print experiment, chain, generation
-  if subject == False:
-    log_file = load(experiment, chain, generation, "log")
-  else:
-    log_file = load(experiment, chain, generation, 'logSub' + subject)
-  if experiment == 3:
-    start_time = stringToTimeStamp(log_file[1][4].split(" ")[1])
-  else:
-    start_time = stringToTimeStamp(log_file[1][3].split(" ")[1])
-  if experiment == 2:
-    end_time = stringToTimeStamp(log_file[56][0].split(" ")[3])
-  else:
-    end_time = stringToTimeStamp(log_file[54][0].split(" ")[3])
-  difference = end_time - start_time
-  return difference.total_seconds()
-
-def stringToTimeStamp(string):
-  tim = string.split(":")
-  timestamp = timedelta(hours=int(tim[0]), minutes=int(tim[1]), seconds=int(tim[2]))
-  return timestamp
-
-#############################################################################
-# GET THE OVERUSE COUNT FROM A PARTICIPANT'S LOG FILE (EXP 2 ONLY) I.E. THE
-# NUMBER OF TIMES THEY WERE PROMPTED TO ENTER A NEW WORD
-
-def overuseCount(chain, generation, subject):
-  if subject == 'A' or subject == 'B':
-    filename = 'logSub' + subject
-  else:
-    filename = 'log'
-  data = load(2, chain, generation, filename)
-  line = str(data[54])
-  split1 = line.split("overuse count = ")
-  split2 = split1[1].split("'")
-  return int(split2[0])
-
-#############################################################################
-# GET STRUCTURE SCORES FOR ALL METRICS
-
-def allMetrics(experiment, sims=1000):
-  data = []
-  for metric in ['dt','dtt','dtr','dts','dtrm','dtst','dtsr','dtsrm']:
-    print "-------------\nMETRIC: " + metric + "\n-------------"
-    data.append(allStructureScores(experiment, metric, sims))
-  return data
 
 #############################################################################
 # GET STRUCTURE SCORES FOR ALL CHAINS IN AN EXPERIMENT
@@ -334,7 +198,7 @@ def allStructureScores(experiment, sims=1000):
     scores = []
     for generation in range(0, 11):
       score = None
-      if uniqueStrings(experiment, chain, generation)[1] > 1:
+      if basics.uniqueStrings(experiment, chain, generation)[1] > 1:
         score = structureScore(experiment, chain, generation, sims, meaning_distances)
       scores.append(score)
     matrix.append(scores)
@@ -346,64 +210,12 @@ def allStructureScores(experiment, sims=1000):
 # THE MEAN AND STANDARD DEVIATION OF THE MONTE CARLO SAMPLE, AND THE Z-SCORE
 
 def structureScore(experiment, chain, generation, simulations=1000, meaning_distances=False):
-  strings = getWords(experiment, chain, generation, 's')
-  string_distances = stringDistances(strings)
+  strings = basics.getWords(experiment, chain, generation, 's')
+  string_distances = basics.stringDistances(strings)
   if meaning_distances == False:
     meaning_distances = ra.reliable_distance_array
   z = Mantel.Test(string_distances, meaning_distances, simulations)[2]
   return z
-
-# FOR EACH PAIR OF STRINGS, CALCULATE THE NORMALIZED LEVENSHTEIN DISTANCE
-# BETWEEN THEM
-
-def stringDistances(strings):
-  distances = []
-  for i in range(0,len(strings)):
-    for j in range(i+1,len(strings)):
-      ld = Levenshtein.distance(strings[i], strings[j])
-      distances.append(ld/float(max(len(strings[i]), len(strings[j]))))
-  return distances
-
-# FOR EACH PAIR OF TRIANGLES, CALCULATE THE DISTANCE BETWEEN THEM
-
-def meaningDistances(meanings, metric):
-  distances = []
-  if metric == "dt":
-    for i in range(0,len(meanings)):
-      for j in range(i+1,len(meanings)):
-        distances.append(geometry.dT(meanings[i],meanings[j]))
-  elif metric == "dtt":
-    for i in range(0,len(meanings)):
-      for j in range(i+1,len(meanings)):
-        distances.append(geometry.dT_up_to_translation(meanings[i],meanings[j]))
-  elif metric == "dtr":
-    for i in range(0,len(meanings)):
-      for j in range(i+1,len(meanings)):
-        distances.append(geometry.dT_up_to_rotation(meanings[i],meanings[j]))
-  elif metric == "dts":
-    for i in range(0,len(meanings)):
-      for j in range(i+1,len(meanings)):
-        distances.append(geometry.dT_up_to_scale(meanings[i],meanings[j]))
-  elif metric == "dtrm":
-    for i in range(0,len(meanings)):
-      for j in range(i+1,len(meanings)):
-        distances.append(geometry.dT_up_to_rigid_motion(meanings[i],meanings[j]))
-  elif metric == "dtst":
-    for i in range(0,len(meanings)):
-      for j in range(i+1,len(meanings)):
-        distances.append(geometry.dT_up_to_scaled_translation(meanings[i],meanings[j]))
-  elif metric == "dtsr":
-    for i in range(0,len(meanings)):
-      for j in range(i+1,len(meanings)):
-        distances.append(geometry.dT_up_to_scaled_rotation(meanings[i],meanings[j]))
-  elif metric == "dtsrm":
-    for i in range(0,len(meanings)):
-      for j in range(i+1,len(meanings)):
-        distances.append(geometry.dT_up_to_scaled_rigid_motion(meanings[i],meanings[j]))
-  else:
-    print "Invalid metric"
-    return False
-  return distances
 
 #############################################################################
 # CALCULATE THE ENTROPY OF A LANGUAGE
@@ -424,7 +236,7 @@ def conditionalEntropy(experiment, chain, generation):
 # GET SYLLABLE PROBABILITIES
 
 def syllableProbabilities(experiment, chain, generation, start_stop=False):
-  words = getWords(experiment, chain, generation, "d")
+  words = basics.getWords(experiment, chain, generation, "d")
   segmented_words = segment(words, start_stop)
   syllables = {}
   for word in segmented_words:
@@ -453,7 +265,7 @@ def condEnt(experiment, chain, generation):
   return -H
 
 def bisyllableProbabilities(experiment, chain, generation, start_stop=True):
-  words = getWords(experiment, chain, generation, "d")
+  words = basics.getWords(experiment, chain, generation, "d")
   segmented_words = segment(words, start_stop)
   bisyllables = {}
   for word in segmented_words:
@@ -561,10 +373,10 @@ def intergenCorr(experiment):
   plt.show()
 
 def allTriangleGraphics(experiment):
-  T = getTriangles(experiment, chain_codes[experiment-1][0], 0, "s")
+  T = basics.getTriangles(experiment, chain_codes[experiment-1][0], 0, "s")
   for chain in chain_codes[experiment-1]:
     for generation in range(0,11):
-      words = getWords(experiment, chain, generation, "s")
+      words = basics.getWords(experiment, chain, generation, "s")
       unique_words = set(words)
       col = 0
       for word in unique_words:
@@ -573,74 +385,16 @@ def allTriangleGraphics(experiment):
         if col == 11:
           col = 0
 
-def triangleGraphic(experiment, chain, generation, target_words, show_prototype=True, spot_based=True, col=0, save=False):
-  #colours =        ["#2E578C", "#5D9648", "#E7A13D", "black",   "#BC2D30", "#7D807F", "#6F3D79", "#EC3D91", "#67C200", "#03A7FF", "#3F3AAB", "#FF2F00"]
-  #colours =       ["#3F3AAB","#03A7FF","#67C200","#EC3D91", "#FFB200", "#FF2F00", "#06C5C7", "#AB3DAB", "black",   "#2E578C", "#5D9648", "#E7A13D"]
-  #washed_colours = ["#9AB4D0", "#AED4A7", "#F8D796", "#7F7F7F", "#EA949A", "#C6C8C8", "#C4A2C7", "#F49FC9", "#B7E494", "#94D4FF", "#A2A0D5", "#FE9B91"]
-  #washed_colours =["#6C69D1","#3AD7FF","#9FE558","#FF6AA7", "#FFDB61", "#FF884A", "#78EEEB", "#D675DA", "#7F7F7F", "#9AB4D0", "#AED4A7", "#F8D796"]
-  colours = [['#01AAE9', '#1B346C', '#F44B1A', '#E5C39E'], ['#F6C83C', '#4C5B28', '#DB4472', '#B77F60'], ['#CBB345', '#609F80', '#4B574D', '#AF420A']]
-  words = getWords(experiment, chain, generation, "s")
-  T = getTriangles(experiment, chain, generation, "s")
-  proto_triangles = []
-  svg_file = svg_polygons.Canvas(500, 500)
-  for i in range(0, len(words)):
-    if words[i] in target_words:
-      svg_file.polygon(T[i], colours[experiment-1][col], None, 1.0)
-      proto_triangles.append(T[i])
-  if show_prototype == True:
-    P = trianglePrototype(proto_triangles, spot_based)
-    svg_file.polygon(P, None, colours[experiment-1][col], 1.0)
-  svg_file.bounding_box("gray", 6)
-  if save == False:
-    return svg_file.canvas
-  else:
-    svg_file.save(save + chain + str(generation) + '_' + target_words[0])
-
-def trianglePrototype(T, spot_based=True):
-  T_new = []
-  for i in range(0, len(T)):
-    # translate to the center of the canvas
-    t = geometry.translate(T[i], numpy.array([[250.,250.],[250.,250.],[250.,250.]]))
-    if spot_based == True:
-      # if spot_based, just rotate t so that it points north
-      t = geometry.rotate(t)
-    else:
-      # otherwise, figure out the smallest angle and point that vertex north
-      a, b, c = geometry.angle(t,1), geometry.angle(t,2), geometry.angle(t,3)
-      angles = {'a':a, 'b':b, 'c':c}
-      min_ang = min(angles, key=angles.get)
-      if min_ang == 'a':
-        t = numpy.array([[t[0][0], t[0][1]], [t[1][0], t[1][1]], [t[2][0], t[2][1]]])
-      elif min_ang == 'b':
-        t = numpy.array([[t[1][0], t[1][1]], [t[2][0], t[2][1]], [t[0][0], t[0][1]]])
-      elif min_ang == 'c':
-        t = numpy.array([[t[2][0], t[2][1]], [t[0][0], t[0][1]], [t[1][0], t[1][1]]])
-      t = geometry.rotate(t)
-    # make sure that vertex 2 is to the left of vertex 3 to prevent cancelling out to a vertical line
-    if t[1][0] > t[2][0]:
-      t = numpy.array([t[0],t[2],t[1]])
-    # add the transformed triangle to T_new
-    T_new.append(t)
-  # average T_new together and return the prototype
-  N = len(T_new)
-  x1 = sum([T_new[x][0][0] for x in range(0,N)])/float(N)
-  y1 = sum([T_new[x][0][1] for x in range(0,N)])/float(N)
-  x2 = sum([T_new[x][1][0] for x in range(0,N)])/float(N)
-  y2 = sum([T_new[x][1][1] for x in range(0,N)])/float(N)
-  x3 = sum([T_new[x][2][0] for x in range(0,N)])/float(N)
-  y3 = sum([T_new[x][2][1] for x in range(0,N)])/float(N)
-  return numpy.array([[x1,y1],[x2,y2],[x3,y3]])
-
 def wordMemory(experiment, chain, generation):
-  words_a = set(getWords(experiment, chain, generation, 'c'))
-  words_b = set(getWords(experiment, chain, generation-1, 'd'))
+  words_a = set(basics.getWords(experiment, chain, generation, 'c'))
+  words_b = set(basics.getWords(experiment, chain, generation-1, 'd'))
   n = float(max(len(words_a),len(words_b)))
   return len(words_a.intersection(words_b))/n
 
 def soundSymbolism(experiment, chain, generation):
-  words = getWords(experiment, chain, generation, 'c')
+  words = basics.getWords(experiment, chain, generation, 'c')
   segmented_words = segment(words, False)
-  T = getTriangles(experiment, chain, generation, 'c')
+  T = basics.getTriangles(experiment, chain, generation, 'c')
   sounds = {'b':[], 'C':[], 'd':[], 'D':[], 'f':[], 'g':[], 'h':[], 'J':[], 'k':[], 'l':[], 'm':[], 'n':[], 'N':[], 'p':[], 'r':[], 's':[], 'S':[], 't':[], 'T':[], 'v':[], 'w':[], 'y':[], 'z':[], 'Z':[], 'AE':[], 'EY':[], 'AO':[], 'AX':[], 'IY':[], 'EH':[], 'IH':[], 'AY':[], 'AA':[], 'UW':[], 'UH':[], 'UX':[], 'OW':[], 'AW':[], 'OI':[]}
   for i in range(0,48):
     area_ratio = pointedness(T[i])
@@ -707,18 +461,3 @@ def plotSoundSymbolism(matrix, y_label="Pointedness", miny=0.0, maxy=2, baseline
   plt.xlabel("Sounds", fontsize=22)
   plt.ylabel(y_label, fontsize=22)
   plt.show()
-
-def RemoveNaN(matrix):
-  new_matrix = []
-  for row in matrix:
-    new_row = []
-    for cell in row:
-      if cell != None:
-        if math.isnan(cell) == True:
-          new_row.append(None)
-        elif math.isinf(cell) == True:
-          new_row.append(None)
-        else:
-          new_row.append(cell)
-    new_matrix.append(new_row)
-  return new_matrix
