@@ -1,11 +1,12 @@
 from scipy import array, random, stats, zeros
-import meaning_space
+import basics
 import rater_analysis
 
 def MantelTest(experiment, chain, generation, set_type, randomizations):
-  words = meaning_space.getWords(experiment, chain, generation, set_type)
-  meanings = meaning_space.MakeFeatureMatrix(experiment, chain, generation, set_type)
-  meaning_distances = array(meaning_space.DistanceMatrix(meanings), dtype=float)
+  words = basics.getWords(experiment, chain, generation, set_type)
+  word_distances = basics.stringDistances(words)
+  categorized_words = CategorizeWords(words)
+  meaning_distances = rater_analysis.reliable_distance_array
   r, p = stats.pearsonr(meaning_distances, word_distances)
   m, sd = MonteCarlo(meaning_distances, categorized_words, randomizations)
   z = (r-m)/sd
@@ -31,8 +32,8 @@ def GeneratePermutation(categorized_words):
   meanings = categorized_words.values()
   random.shuffle(words)
   permuted_categorization = dict(zip(words, meanings))
-  permuted_words = [None] * 4
+  permuted_words = [None] * 48
   for word in words:
     for meaning in permuted_categorization[word]:
       permuted_words[meaning] = word
-  return meaning_space.stringDistances(permuted_words)
+  return basics.stringDistances(permuted_words)
