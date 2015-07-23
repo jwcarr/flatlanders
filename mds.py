@@ -3,10 +3,10 @@ from os import getenv
 from scipy.spatial import distance
 from sklearn.manifold import MDS
 from subprocess import call
+from basics import getWords, getTriangles, stringDistances
 import numpy as np
-import meaning_space as ms
-import rater_analysis as ra
-import svg_polygons as svg
+import rater_analysis
+import svg_polygons
 import voronoi
 import geometry
 
@@ -17,19 +17,21 @@ axis_font_size = 8 # points
 legend_font_size = 10 # points
 figure_width = 5.5 # inches
 
+# Get dissimilarity ratings and format as square distance matrix
+triangle_distance_matrix = distance.squareform(rater_analysis.reliable_distance_array, 'tomatrix')
+
 # Run ratings through MDS to get coordinates in 2-dimensional space
-distance_matrix = distance.squareform(ra.reliable_distance_array, 'tomatrix')
-mds = MDS(dissimilarity="precomputed", n_components=2, max_iter=3000, random_state=100)
-coordinates = mds.fit(distance_matrix).embedding_
+triangle_mds = MDS(dissimilarity="precomputed", n_components=2, max_iter=3000, random_state=100)
+triangle_coordinates = triangle_mds.fit_transform(triangle_distance_matrix)
 
 # Scale each dimension over the interval [-0.9, 0.9] for a tidy plot
-for dim in range(0, coordinates.shape[1]):
-  minimum = coordinates[:, dim].min()
-  difference = coordinates[:, dim].max() - minimum
-  coordinates[:, dim] = (((coordinates[:, dim] - minimum) / difference) * 1.8) - 0.9
+for dim in range(0, triangle_coordinates.shape[1]):
+  minimum = triangle_coordinates[:, dim].min()
+  difference = triangle_coordinates[:, dim].max() - minimum
+  triangle_coordinates[:, dim] = (((triangle_coordinates[:, dim] - minimum) / difference) * 1.8) - 0.9
 
-# Compute the Voronoi polygons
-polys = voronoi.polygons(coordinates)
+# Compute the Voronoi polygons for these MDS coordinates
+voronoi_polygons = voronoi.polygons(triangle_coordinates)
 
 
 def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, save_location=False):
@@ -59,7 +61,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
   if chain_wide_palette == True:
     all_strings = []
     for generation in range(0, 11):
-      all_strings += ms.getWords(experiment, chain, generation, 's')
+      all_strings += getWords(experiment, chain, generation, 's')
     colour_palette = generate_colour_palette(all_strings, spectrum, push_factor)
   else:
     colour_palette = None
@@ -81,8 +83,8 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
     experiment = determine_experiment_number(chain)
 
   # Get strings and triangles for this generation
-  strings = ms.getWords(experiment, chain, generation, 's')
-  triangles = ms.getTriangles(experiment, chain, generation, 's')
+  strings = getWords(experiment, chain, generation, 's')
+  triangles = getTriangles(experiment, chain, generation, 's')
 
   # Pick a colour palette if none has been supplied
   if colour_palette == None:
@@ -117,10 +119,10 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   for word in words:
     indices = word_dict[word]
     colour, colour_light = colour_palette[word]
-    X, Y = coordinates[indices, 0], coordinates[indices, 1]
+    X, Y = triangle_coordinates[indices, 0], triangle_coordinates[indices, 1]
     plt.scatter(X, Y, c=colour, label=word, marker='o', s=15, linewidth=0, zorder=1)
     for i in indices:
-      ax1.add_patch(patches.Polygon(polys[i], facecolor=colour_light, edgecolor='white', linewidth=0.5, zorder=0))
+      ax1.add_patch(patches.Polygon(voronoi_polygons[i], facecolor=colour_light, edgecolor='white', linewidth=0.5, zorder=0))
   
   # Set axis style
   plt.xlim(-1, 1)
@@ -136,7 +138,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
 
   # Produce the legend
   handles, labels = ax1.get_legend_handles_labels()
-  ax2.legend(handles, labels, loc='upper center', frameon=False, prop={'size':legend_font_size}, ncol=int(grid_size), scatterpoints=1)
+  ax2.legend(handles, labels, loc='upper center', bbox_to_anchor=[0.45, 0.5], frameon=False, prop={'size':legend_font_size}, ncol=int(grid_size), scatterpoints=1, handletextpad=0.01)
   
   # Tighten plot layout
   plt.tight_layout(pad=0.2, h_pad=0.0)
@@ -173,30 +175,30 @@ def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
 
   # Create distance matrix giving normalized Levenshtein distances between the words
   # Add on the given push factor to prevent colours from being too similar
-  string_distances = np.asarray(ms.stringDistances(words), dtype=float) + push_factor
+  string_distances = np.asarray(stringDistances(words), dtype=float) + push_factor
   string_distance_matrix = distance.squareform(string_distances, 'tomatrix')
 
   # Run distance matrix through MDS to determine the position of each word in 3-dimensional space
-  colour_mds = MDS(dissimilarity='precomputed', n_components=3, max_iter=2000, random_state=100)
-  colour_coordinates = colour_mds.fit(string_distance_matrix).embedding_
+  string_mds = MDS(dissimilarity='precomputed', n_components=3, max_iter=2000, random_state=100)
+  string_coordinates = string_mds.fit_transform(string_distance_matrix)
 
   # Scale the dimensions of the space over the interval [0, 255] to create an RGB colour space.
   # The spectrum argument determines how much of the colour space will be used, allowing you to
   # avoid very dark and very light colours.
-  for dim in range(0, colour_coordinates.shape[1]):
-    minimum = colour_coordinates[:, dim].min()
-    difference = colour_coordinates[:, dim].max() - minimum
-    colour_coordinates[:, dim] = (((colour_coordinates[:, dim] - minimum) / difference) * (255 * (spectrum[1] - spectrum[0]))) + (255 * spectrum[0])
+  for dim in range(0, string_coordinates.shape[1]):
+    minimum = string_coordinates[:, dim].min()
+    difference = string_coordinates[:, dim].max() - minimum
+    string_coordinates[:, dim] = (((string_coordinates[:, dim] - minimum) / difference) * (255 * (spectrum[1] - spectrum[0]))) + (255 * spectrum[0])
 
   # Convert RGB values to hexadecimal triplets
-  hex_values = []
-  for r, g, b in colour_coordinates:
+  hex_colour_values = []
+  for r, g, b in string_coordinates:
     hex_colour = convert_to_hex((r, g, b))
     hex_colour_light = convert_to_hex(lighten(r, g, b))
-    hex_values.append((hex_colour, hex_colour_light))
+    hex_colour_values.append((hex_colour, hex_colour_light))
 
   # Return the colour palette
-  return dict(zip(words, hex_values))
+  return dict(zip(words, hex_colour_values))
 
 
 def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
@@ -205,7 +207,7 @@ def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
   words = sorted(triangles.keys())
 
   # Set up a Canvas object and clear it (WHY THE HELL DOES IT NEED TO BE CLEARED!!!)
-  canvas = svg.Canvas(figure_width*72, (figure_width/1.375)*72)
+  canvas = svg_polygons.Canvas(figure_width*72, (figure_width/1.375)*72)
   canvas.clear()
 
   # Determine the size of each triangle cell, giving 5 points of cell spacing
