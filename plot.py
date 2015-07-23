@@ -1,5 +1,5 @@
-import math
 from string import ascii_uppercase
+from math import isinf, isnan
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -158,7 +158,7 @@ def all(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text
   if text != False and text_pos == False:
     text_pos = 'bottom'
   if experiment == False:
-    experiment = 0
+    experiment = 1
   if save_location == False:
     save_location = '/Users/jon/Desktop/'
   if save_name == False:
@@ -201,7 +201,7 @@ def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, tex
   if text != False and text_pos == False:
     text_pos = 'bottom'
   if experiment == False:
-    experiment = 0
+    experiment = 1
   if save_location == False:
     save_location = '/Users/jon/Desktop/'
   if save_name == False:
@@ -243,9 +243,9 @@ def RemoveNaN(matrix):
     new_row = []
     for cell in row:
       if cell != None:
-        if math.isnan(cell) == True:
+        if isnan(cell) == True:
           new_row.append(None)
-        elif math.isinf(cell) == True:
+        elif isinf(cell) == True:
           new_row.append(None)
         else:
           new_row.append(cell)
