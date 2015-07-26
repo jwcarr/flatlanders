@@ -88,7 +88,7 @@ def allLearnability(experiment, sims=100000):
         score = learnability(experiment, chain, generation, sims)[3]
         scores.append(score)
       except:
-        scores.append("N/A")
+        scores.append(None)
     results.append(scores)
   return results
 
@@ -209,7 +209,7 @@ def allStructureScores(experiment, sims=1000):
     scores = []
     for generation in range(0, 11):
       score = None
-      if basics.uniqueStrings(experiment, chain, generation)[1] > 1:
+      if basics.uniqueStrings(experiment, chain, generation, 's') > 1:
         score = structureScore(experiment, chain, generation, sims, meaning_distances)
       scores.append(score)
     matrix.append(scores)
@@ -223,7 +223,7 @@ def allStructureScores(experiment, sims=1000):
 def structureScore(experiment, chain, generation, simulations=1000, meaning_distances=False):
   strings = basics.getWords(experiment, chain, generation, 's')
   string_distances = basics.stringDistances(strings)
-  if meaning_distances == False:
+  if type(meaning_distances) == bool and meaning_distances == False:
     meaning_distances = ra.reliable_distance_array
   z = Mantel.Test(string_distances, meaning_distances, simulations)[2]
   return z
