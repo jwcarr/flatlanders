@@ -19,6 +19,16 @@ import rater_analysis as ra
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
 
+def expressivity(experiment, set_type):
+  results = []
+  for chain in chain_codes[experiment-1]:
+    scores = []
+    for generation in range(0, 11):
+      score = basics.uniqueStrings(experiment, chain, generation, set_type)
+      scores.append(score)
+    results.append(scores)
+  return results
+
 #############################################################################
 # MEASURE LEARNABILITY: CALCULATE TRANSMISSION ERROR AND THEN COMPARE THE
 # VERIDICAL SCORE TO A MONTE CARLO SAMPLE
