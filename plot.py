@@ -58,7 +58,6 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
       x_vals = range(starting_gen, len(matrix[i])+starting_gen)
       y_vals = [item for item in matrix[i]]
       plt.plot(x_vals, y_vals, color=colours[i], linewidth=line_thickness, label='Chain ' + ascii_uppercase[((col-1)*4)+i:((col-1)*4)+i+1])
-    plt.xlim(starting_gen, n+starting_gen-1)
 
   labels = range(starting_gen, starting_gen+n)
   plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
@@ -99,15 +98,14 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
       _, caps, _ = ax2.errorbar(x_vals, means, yerr=errors, marker='o', markersize=3.0, color='k', linestyle="-", linewidth=line_thickness, capsize=1, elinewidth=0.5)
       for cap in caps:
         cap.set_markeredgewidth(0.5)
-      plt.xlim(starting_gen_2-0.5, n+starting_gen_2-0.5)
     else:
       for i in range(0,len(matrix_2)):
         x_vals = range(starting_gen_2, len(matrix_2[i])+starting_gen_2)
         y_vals = [item for item in matrix_2[i]]
         plt.plot(x_vals, y_vals, color=colours[i], linewidth=line_thickness)
-      plt.xlim(starting_gen_2, n+starting_gen_2-1)
 
     labels = range(starting_gen_2, starting_gen_2+n)
+    plt.xlim(starting_gen_2-0.5, n+starting_gen_2-0.5)
     plt.ylim(miny_2, maxy_2)
     plt.xticks(xvals, labels, fontsize=axis_font_size)
     plt.yticks(fontsize=axis_font_size)
