@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from numpy import corrcoef, zeros
 from copy import deepcopy
 from scipy import spatial
-import analysis
+import basics
 
 ########################################################################################
 
@@ -142,8 +142,8 @@ def AverageRatings(agreement_filter=None, distances=None):
 def CommAccuracy(chain, generation, distances=None):
   if distances == None:
     distances = reliable_distances
-  dynamic_set = analysis.load(3, chain, generation, "d")
-  static_set = analysis.load(3, chain, generation, "s")
+  dynamic_set = basics.load(3, chain, generation, "d")
+  static_set = basics.load(3, chain, generation, "s")
   triangle_pairs = []
   for item in dynamic_set+static_set:
     target_triangle = item[1] + ';' + item[2] + ';' + item[3]
