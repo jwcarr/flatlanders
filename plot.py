@@ -170,9 +170,9 @@ def all(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text
         starting_gen2 = 1
       else:
         starting_gen2 = 0
-    if miny2 == False:
+    if type(miny2) == bool and miny2 == False:
       miny2 = miny
-    if maxy2 == False:
+    if type(maxy2) == bool and maxy2 == False:
       maxy2 = maxy
     if text2 != False and text_pos2 == False:
       text_pos2 = test_pos
@@ -192,9 +192,9 @@ def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, tex
       starting_gen = 1
     else:
       starting_gen = 0
-  if miny == False:
+  if type(miny) == bool and miny == False:
     miny = 0
-  if maxy == False:
+  if type(maxy) == bool and maxy == False:
     maxy = 1
   if y_label == False:
     y_label = "Score"
@@ -213,9 +213,9 @@ def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, tex
         starting_gen2 = 1
       else:
         starting_gen2 = 0
-    if miny2 == False:
+    if type(miny2) == bool and miny2 == False:
       miny2 = miny
-    if maxy2 == False:
+    if type(maxy2) == bool and maxy2 == False:
       maxy2 = maxy
     if text2 != False and text_pos2 == False:
       text_pos2 = test_pos
