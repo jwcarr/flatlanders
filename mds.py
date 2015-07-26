@@ -10,28 +10,13 @@ import svg_polygons
 import voronoi
 import geometry
 
+
 # Globals
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
 label_font_size = 10 # points
 axis_font_size = 8 # points
 legend_font_size = 10 # points
 figure_width = 5.5 # inches
-
-# Get dissimilarity ratings and format as square distance matrix
-triangle_distance_matrix = distance.squareform(rater_analysis.reliable_distance_array, 'tomatrix')
-
-# Run ratings through MDS to get coordinates in 2-dimensional space
-triangle_mds = MDS(dissimilarity="precomputed", n_components=2, max_iter=3000, random_state=100)
-triangle_coordinates = triangle_mds.fit_transform(triangle_distance_matrix)
-
-# Scale each dimension over the interval [-0.9, 0.9] for a tidy plot
-for dim in range(0, triangle_coordinates.shape[1]):
-  minimum = triangle_coordinates[:, dim].min()
-  difference = triangle_coordinates[:, dim].max() - minimum
-  triangle_coordinates[:, dim] = (((triangle_coordinates[:, dim] - minimum) / difference) * 1.8) - 0.9
-
-# Compute the Voronoi polygons for these MDS coordinates
-voronoi_polygons = voronoi.polygons(triangle_coordinates)
 
 
 def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, save_location=False):
@@ -339,3 +324,21 @@ def lighten(r, g, b):
 
 def light(val):
   return int(round(val + ((255 - val) * 0.5)))
+
+
+# Get dissimilarity ratings and format as square distance matrix
+triangle_distances = rater_analysis.reliable_distance_array
+triangle_distance_matrix = distance.squareform(triangle_distances, 'tomatrix')
+
+# Run ratings through MDS to get coordinates in 2-dimensional space
+triangle_mds = MDS(dissimilarity="precomputed", n_components=2, n_init=25, max_iter=2000, random_state=10)
+triangle_coordinates = triangle_mds.fit_transform(triangle_distance_matrix)
+
+# Scale each dimension over the interval [-0.9, 0.9] for a tidy plot
+for dim in range(0, triangle_coordinates.shape[1]):
+  minimum = triangle_coordinates[:, dim].min()
+  difference = triangle_coordinates[:, dim].max() - minimum
+  triangle_coordinates[:, dim] = (((triangle_coordinates[:, dim] - minimum) / difference) * 1.8) - 0.9
+
+# Compute the Voronoi polygons for these MDS coordinates
+voronoi_polygons = voronoi.polygons(triangle_coordinates)
