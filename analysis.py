@@ -11,6 +11,7 @@ import numpy
 import math
 import basics
 import Mantel
+import MantelCategorical
 import Page
 import svg_polygons
 import meaning_space
@@ -216,6 +217,23 @@ def structureScore(experiment, chain, generation, simulations=1000, meaning_dist
     meaning_distances = ra.reliable_distance_array
   z = Mantel.Test(string_distances, meaning_distances, simulations)[2]
   return z
+
+
+#############################################################################
+# GET CATEGORICAL STRUCTURE SCORES FOR ALL CHAINS IN AN EXPERIMENT
+
+def allCatStructureScores(experiment, sims=1000):
+  matrix = []
+  for chain in chain_codes[experiment-1]:
+    print "  Chain " + chain + "..."
+    scores = []
+    for generation in range(0, 11):
+      score = None
+      if basics.uniqueStrings(experiment, chain, generation, 's') > 2:
+        score = MantelCategorical.Test(experiment, chain, generation, 's', sims)[3]
+      scores.append(score)
+    matrix.append(scores)
+  return matrix
 
 #############################################################################
 # CALCULATE THE ENTROPY OF A LANGUAGE
