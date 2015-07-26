@@ -182,6 +182,9 @@ def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
     hex_colour_light = convert_to_hex(lighten(r, g, b))
     hex_colour_values.append((hex_colour, hex_colour_light))
 
+  #print 'Correspondence: %s' % correspondence_correlation(string_distances, string_coordinates)
+  #print 'Stress: %s' % stress_1(string_mds.stress_, string_distances)
+
   # Return the colour palette
   return dict(zip(words, hex_colour_values))
 
@@ -326,6 +329,23 @@ def light(val):
   return int(round(val + ((255 - val) * 0.5)))
 
 
+# Calculate the correspondence correlation - how well do the distances in
+# MDS space correlate with the original ratings
+def correspondence_correlation(ratings, coordinates):
+  n = len(coordinates)
+  triangle_dists = [ED(coordinates[i], coordinates[j]) for i in range(n) for j in range(i+1, n)]
+  return np.corrcoef(triangle_dists, ratings)[0,1]
+
+
+# Calculate the Euclidean distance in n-dimensional space
+def ED(a, b):
+  return np.sqrt(sum([(a[i]-b[i])**2 for i in range(0, len(a))]))
+
+
+def stress_1(raw_stress, distances):
+  return np.sqrt(raw_stress / sum(distances ** 2))
+
+
 # Get dissimilarity ratings and format as square distance matrix
 triangle_distances = rater_analysis.reliable_distance_array
 triangle_distance_matrix = distance.squareform(triangle_distances, 'tomatrix')
@@ -342,3 +362,7 @@ for dim in range(0, triangle_coordinates.shape[1]):
 
 # Compute the Voronoi polygons for these MDS coordinates
 voronoi_polygons = voronoi.polygons(triangle_coordinates)
+
+# Print MDS goodness-of-fit stats
+print 'Correspondence: %s' % correspondence_correlation(triangle_distances, triangle_coordinates)
+print 'Stress-1: %s' % stress_1(triangle_mds.stress_, triangle_distances)
