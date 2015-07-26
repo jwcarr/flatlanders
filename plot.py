@@ -8,6 +8,7 @@ label_font_size = 10
 axis_font_size = 8
 legend_font_size = 10
 line_thickness = 1.0
+markers_by_chain = ['s', 'o', 'p', '^']
 colours_by_experiment = [['#01AAE9', '#1B346C', '#F44B1A', '#E5C39E'],
                          ['#F6C83C', '#4C5B28', '#DB4472', '#B77F60'],
                          ['#CBB345', '#609F80', '#4B574D', '#AF420A']]
@@ -57,7 +58,7 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
     for i in range(0,len(matrix)):
       x_vals = range(starting_gen, len(matrix[i])+starting_gen)
       y_vals = [item for item in matrix[i]]
-      plt.plot(x_vals, y_vals, color=colours[i], linewidth=line_thickness, label='Chain ' + ascii_uppercase[((col-1)*4)+i:((col-1)*4)+i+1])
+      plt.plot(x_vals, y_vals, color=colours[i], marker=markers_by_chain[i], markersize=5.0, markeredgecolor=colours[i], linewidth=line_thickness, label='Chain ' + ascii_uppercase[((col-1)*4)+i:((col-1)*4)+i+1])
 
   labels = range(starting_gen, starting_gen+n)
   plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
@@ -102,7 +103,7 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
       for i in range(0,len(matrix_2)):
         x_vals = range(starting_gen_2, len(matrix_2[i])+starting_gen_2)
         y_vals = [item for item in matrix_2[i]]
-        plt.plot(x_vals, y_vals, color=colours[i], linewidth=line_thickness)
+        plt.plot(x_vals, y_vals, color=colours[i], marker=markers_by_chain[i], markersize=5.0, markeredgecolor=colours[i], linewidth=line_thickness)
 
     labels = range(starting_gen_2, starting_gen_2+n)
     plt.xlim(starting_gen_2-0.5, n+starting_gen_2-0.5)
@@ -132,7 +133,7 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
       ax3 = plt.subplot2grid((6,1), (5,0))
     plt.axis('off')
     handles, labels = ax1.get_legend_handles_labels()
-    ax3.legend(handles, labels, loc='upper center', frameon=False, prop={'size':legend_font_size}, ncol=4)
+    ax3.legend(handles, labels, loc='upper center', frameon=False, prop={'size':legend_font_size}, ncol=4, numpoints=1)
 
   plt.tight_layout(pad=0.2, w_pad=1.0, h_pad=0.00)
 
