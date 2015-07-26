@@ -61,7 +61,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
     plot(chain, generation, experiment, colour_palette, spectrum, push_factor, show_prototypes, save_location, str(generation))
 
 
-def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2, 0.9], push_factor=0.0, show_prototypes=False, save_location=False, save_name=False):
+def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2, 0.9], push_factor=0.0, show_prototypes=False, colour_candidates=False, save_location=False, save_name=False):
 
   # Determine experiment number if none supplied
   if experiment == None:
@@ -128,14 +128,18 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   # Tighten plot layout
   plt.tight_layout(pad=0.2, h_pad=0.0)
 
-  # Set default filename and directory if none has been specified
+  # Determine filename and directory if none has been specified
   if save_location == False:
     save_location = getenv('HOME') + '/Desktop/'
   if save_name == False:
     save_name = chain + str(generation)
+  if colour_candidates != False:
+    candidate_num = '_' + str(colour_candidates)
+  else:
+    candidate_num = ''
 
   # Save matplotlib plot as SVG file
-  filename = save_location + save_name + '.svg'
+  filename = save_location + save_name + candidate_num + '.svg'
   plt.savefig(filename)
   plt.close()
 
@@ -146,6 +150,10 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   # Use Inkscape to convert to PDF (-A) or EPS (-E) and then delete the SVG file
   call(["inkscape", filename, "-E", filename[0:-3] + 'eps'])
   call(["rm", filename])
+
+  # If multiple colour palette candidates have been requested, run plot() again.
+  if colour_candidates > 1:
+    plot(chain, generation, experiment, None, spectrum, push_factor, show_prototypes, colour_candidates-1, save_location, save_name)
 
 
 def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
@@ -164,7 +172,7 @@ def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
   string_distance_matrix = distance.squareform(string_distances, 'tomatrix')
 
   # Run distance matrix through MDS to determine the position of each word in 3-dimensional space
-  string_mds = MDS(dissimilarity='precomputed', n_components=3, max_iter=2000, random_state=100)
+  string_mds = MDS(dissimilarity='precomputed', n_components=3, n_init=25, max_iter=2000)
   string_coordinates = string_mds.fit_transform(string_distance_matrix)
 
   # Scale the dimensions of the space over the interval [0, 255] to create an RGB colour space.
@@ -324,7 +332,6 @@ def convert_to_hex(rgb):
 # Lighten a colour by blending in 50% white
 def lighten(r, g, b):
   return light(r), light(g), light(b)
-
 def light(val):
   return int(round(val + ((255 - val) * 0.5)))
 
