@@ -174,13 +174,8 @@ def all(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text
       miny2 = miny
     if type(maxy2) == bool and maxy2 == False:
       maxy2 = maxy
-    if text2 != False and text_pos2 == False:
-      text_pos2 = test_pos
-    if conf2 == False:
-      conf2 = conf
     if experiment2 == False:
       experiment2 = experiment
-
   plot(dataset, False, starting_gen, miny, maxy, y_label, text, conf, experiment, text_pos, save_location+save_name, dataset2, starting_gen2, miny2, maxy2, y_label2, text2, conf2, experiment2)
 
 
@@ -217,10 +212,6 @@ def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, tex
       miny2 = miny
     if type(maxy2) == bool and maxy2 == False:
       maxy2 = maxy
-    if text2 != False and text_pos2 == False:
-      text_pos2 = test_pos
-    if conf2 == False:
-      conf2 = conf
     if experiment2 == False:
       experiment2 = experiment
 
