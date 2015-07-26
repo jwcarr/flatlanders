@@ -70,14 +70,11 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
   plt.tick_params(axis='x', which='both', bottom='off', top='off')
   if text != False:
     if text_pos == 'bottom':
-      text_y = miny + ((maxy+abs(miny))/15.)
+      text_y = miny + (abs(miny-maxy)/15.)
     else:
-      text_y = maxy - (((maxy+abs(miny))/15.)*1.75)
-    if mean_line == True:
-      plt.text(0.0, text_y, text, {'fontsize':8})
-    else:
-      plt.text(0.5, text_y, text, {'fontsize':8})
-
+      text_y = maxy - ((abs(miny-maxy)/15.)*1.45)
+    plt.text(starting_gen, text_y, text, {'fontsize':8}, fontweight='bold')
+  
   if matrix_2 != False:
     if mean_line == True:
       ax2 = plt.subplot2grid((6,2), (0,1), rowspan=6)
@@ -118,13 +115,10 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
     plt.tick_params(axis='x', which='both', bottom='off', top='off')
     if text_2 != False:
       if text_pos == 'bottom':
-        text_y = miny + ((maxy_2+abs(miny_2))/15.)
+        text_y = miny_2 + (abs(miny_2-maxy_2)/15.)
       else:
-        text_y = maxy_2 - (((maxy_2+abs(miny_2))/15.)*1.75)
-      if mean_line == True:
-        plt.text(0.0, text_y, text_2, {'fontsize':8})
-      else:
-        plt.text(0.5, text_y, text_2, {'fontsize':8})
+        text_y = maxy_2 - ((abs(miny_2-maxy_2)/15.)*1.45)
+      plt.text(starting_gen_2, text_y, text_2, {'fontsize':8}, fontweight='bold')
 
   if mean_line == False:
     if matrix_2 != False:
