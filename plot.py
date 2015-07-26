@@ -8,9 +8,9 @@ label_font_size = 10
 axis_font_size = 8
 legend_font_size = 10
 line_thickness = 1.0
-colours_for_experiment = [['#01AAE9', '#1B346C', '#F44B1A', '#E5C39E'],
-                          ['#F6C83C', '#4C5B28', '#DB4472', '#B77F60'],
-                          ['#CBB345', '#609F80', '#4B574D', '#AF420A']]
+colours_by_experiment = [['#01AAE9', '#1B346C', '#F44B1A', '#E5C39E'],
+                         ['#F6C83C', '#4C5B28', '#DB4472', '#B77F60'],
+                         ['#CBB345', '#609F80', '#4B574D', '#AF420A']]
 
 
 def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="Score", text=False, conf=False, col=1, text_pos='bottom', save=False, matrix_2=False, starting_gen_2=1, miny_2=0.0, maxy_2=1.0, y_label_2="Score", text_2=False, conf_2=False, col_2=1):
@@ -38,7 +38,7 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
       ax1 = plt.subplot2grid((6,1), (0,0), rowspan=5)
 
   n = len(matrix[0])
-  colours = colours_for_experiment[col-1]
+  colours = colours_by_experiment[col-1]
   xvals = range(starting_gen, n+starting_gen)
   if conf == True:
     plt.plot(range(-1,n+1), [1.959964] * (n+2), color='gray', linestyle=':', linewidth=0.5)
@@ -84,7 +84,7 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
     else:
       ax2 = plt.subplot2grid((6,2), (0,1), rowspan=5)
     n = len(matrix_2[0])
-    colours = colours_for_experiment[col_2-1]
+    colours = colours_by_experiment[col_2-1]
     xvals = range(starting_gen_2, n+starting_gen_2)
     if conf_2 == True:
       plt.plot(range(0,n+1), [1.959964] * (n+1), color='gray', linestyle=':')
