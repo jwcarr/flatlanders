@@ -53,7 +53,6 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
     _, caps, _ = ax1.errorbar(x_vals, means, yerr=errors, color='k', marker='o', markersize=3.0, linestyle="-", linewidth=line_thickness, capsize=1, elinewidth=0.5)
     for cap in caps:
       cap.set_markeredgewidth(0.5)
-    plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
   else:
     for i in range(0,len(matrix)):
       x_vals = range(starting_gen, len(matrix[i])+starting_gen)
@@ -62,6 +61,7 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
     plt.xlim(starting_gen, n+starting_gen-1)
 
   labels = range(starting_gen, starting_gen+n)
+  plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
   plt.ylim(miny, maxy)
   plt.xticks(xvals, labels, fontsize=axis_font_size)
   plt.yticks(fontsize=axis_font_size)
