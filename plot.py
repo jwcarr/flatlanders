@@ -41,11 +41,11 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
   colours = colours_by_experiment[col-1]
   xvals = range(starting_gen, n+starting_gen)
   if conf == True:
-    plt.plot(range(-1,n+1), [1.959964] * (n+2), color='gray', linestyle=':', linewidth=0.5)
+    plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
     if miny < -2.0:
-      plt.plot(range(-1,n+1), [-1.959964] * (n+2), color='gray', linestyle=':', linewidth=0.5)
+      plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
   elif type(conf) == int:
-    plt.plot(range(-1,n+1), [conf] * (n+2), color='gray', linestyle=':', linewidth=0.5)
+    plt.plot(range(-1,n+2), [conf] * (n+3), color='gray', linestyle=':', linewidth=0.5)
 
   if mean_line == True:
     x_vals = range(starting_gen, len(matrix[0])+starting_gen)
@@ -87,11 +87,11 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
     colours = colours_by_experiment[col_2-1]
     xvals = range(starting_gen_2, n+starting_gen_2)
     if conf_2 == True:
-      plt.plot(range(0,n+1), [1.959964] * (n+1), color='gray', linestyle=':')
+      plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
       if miny_2 < -2.0:
-        plt.plot(range(0,n+1), [-1.959964] * (n+1), color='gray', linestyle=':')
+        plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
     elif type(conf_2) == int:
-      plt.plot(range(0,n+1), [conf_2] * (n+1), color='gray', linestyle=':')
+      plt.plot(range(-1,n+2), [conf_2] * (n+3), color='gray', linestyle=':', linewidth=0.5)
 
     if mean_line == True:
       x_vals = range(starting_gen_2, len(matrix_2[0])+starting_gen_2)
