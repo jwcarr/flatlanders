@@ -1,13 +1,13 @@
 from random import randrange, shuffle
 from collections import defaultdict
-import analysis as a
+import basics
 
 chrs = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 practice_set = [['86,169;120,216;436,399','144,391;208,137;457,168'], ['86,78;211,107;147,483', '300,72;222,477;113,110'], ['42,319;93,132;46,412', '429,92;312,197;119,197'], ['321,361;415,193;224,237', '321,361;415,193;224,237'], ['213,263;455,213;370,59', '177,372;447,44;475,193'], ['280,308;219,21;355,351', '311,180;66,426;446,166'], ['398,474;21,332;153,380', '398,474;21,332;153,380'], ['50,312;460,337;35,192', '50,312;460,337;35,192'], ['259,12;379,60;30,391', '259,12;379,60;30,391']]
 
 def generation_pairs(chain, generation):
-	dynamic_set = a.load(3, chain, generation, "d")
-	static_set = a.load(3, chain, generation, "s")
+	dynamic_set = basics.load(3, chain, generation, "d")
+	static_set = basics.load(3, chain, generation, "s")
 	triangle_pairs = []
 	for item in dynamic_set+static_set:
 		target_triangle = item[1] + ';' + item[2] + ';' + item[3]
