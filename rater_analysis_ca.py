@@ -1,6 +1,6 @@
 from collections import defaultdict
 import matplotlib.pyplot as plt
-from numpy import corrcoef, zeros
+from numpy import corrcoef, mean
 from copy import deepcopy
 from scipy import spatial
 import basics
@@ -114,6 +114,9 @@ class Rater:
       x.append(distances[row[0] + '~' + row[1]])
       y.append(row[2])
     return corrcoef(x, y)[0,1]
+
+  def MeanTestRating(self):
+    return mean(self.GetRatings('test'))
 
 ########################################################################################
 
