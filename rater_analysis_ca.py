@@ -2,7 +2,6 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 from numpy import corrcoef, mean
 from copy import deepcopy
-from scipy import spatial
 import basics
 
 ########################################################################################
@@ -193,7 +192,7 @@ paid = ['RMta7V', 'OkC5LB', '6qLDuu', 'GHenhK', 'foMrWq', 'epHboY', 'bskf5M', 'N
 unpaid = ['MWnv9z', 'QcpIkw', 'oZ7zmW', '0KSiau', 'I1EeHJ', 'WA2sT8', 'zQQYvD', 'odWgMe', 'IN1rcz', 'RQhDPc', 'Cmo3t8', '1dA8Tc', '2AdaYv', 'c8uXWy', '91DSqT', 'Sz7Uk6', 'Ou6zeQ', 'hjEhAv', 'r66GIv', 'ZmVa3j', 'rE7jad', 'AMVtFH', 'dYxVlw', 'AitJ5R', 'HFKvrS']
 
 # Initialize a Rater object for each rater
-raters = defaultdict()
+raters = {}
 for rater_id in paid:
   raters[rater_id] = Rater(rater_id)
 
