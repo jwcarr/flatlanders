@@ -121,17 +121,26 @@ class Rater:
 ########################################################################################
 
 # Average together the normalized ratings of many raters
-def AverageRatings(agreement_filter=None, distances=None):
+def AverageRatings(agreement_filter=None, test_filter=None, distances=None):
   sum_dist = defaultdict(float)
   mean_dist = defaultdict(float)
   counts = defaultdict(float)
   rater_n = 0
   for rater in raters.keys():
     if raters[rater].normalized_ratings == False:
+      #print 'Excluding rater %s because the ratings cannot be normalized' % raters[rater].ID
       continue # If the normalized matrix doesn't exist, skip the rater. This can occur if
                # the rater gives the same rating for every pair of triangles.
-    if agreement_filter != None and raters[rater].RaterAgreement(distances) < agreement_filter:
-      continue # If filter is being applied and the rater is not good enough, skip the rater
+    if agreement_filter != None:
+      rater_agreement = raters[rater].RaterAgreement(distances)
+      if rater_agreement < agreement_filter:
+        #print 'Excluding rater %s due to low rater agreement: %f' % (raters[rater].ID, rater_agreement)
+        continue # If filter is being applied and the rater is not good enough, skip the rater
+    if test_filter != None:
+      mean_test_rating = raters[rater].MeanTestRating()
+      if mean_test_rating > test_filter:
+        #print 'Excluding rater %s due to a high average test rating: %f' % (raters[rater].ID, mean_test_rating)
+        continue # If test filter is being applied and the rater is not good enough, skip the rater
     rater_n += 1
     for row in raters[rater].normalized_ratings:
       pair = row[0] + '~' + row[1]
@@ -189,9 +198,9 @@ for rater_id in paid:
   raters[rater_id] = Rater(rater_id)
 
 # Average everyone's ratings together
-all_distances, all_counts, all_rater_n = AverageRatings(None, None)
+all_distances, all_counts, all_rater_n = AverageRatings(None, None, None)
 
 # Average everyone's ratings together again, this time filtering out unreliable raters.
 # Reliable raters are defined as those whose agreement with the average ratings of all
 # raters is greater than 0.4.
-reliable_distances, reliable_counts, reliable_rater_n = AverageRatings(0.4, all_distances)
+reliable_distances, reliable_counts, reliable_rater_n = AverageRatings(0.4, 100, all_distances)

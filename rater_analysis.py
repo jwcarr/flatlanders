@@ -118,16 +118,25 @@ class Rater:
 ########################################################################################
 
 # Average together the normalized ratings of many raters
-def AverageDistanceMatrix(raters, agreement_filter=None, distances=None):
+def AverageDistanceMatrix(raters, agreement_filter=None, test_filter=None, distances=None):
   count_matrix = zeros([48, 48], dtype=int)
   sum_distance_matrix = zeros([48, 48], dtype=float)
   for rater in raters:
     normalized_matrix = rater.normalized_ratings
     if normalized_matrix == False:
+      #print 'Excluding rater %s because the ratings cannot be normalized' % rater.ID
       continue # If the normalized matrix doesn't exist, skip the rater. This can occur if
                # the rater gives the same rating for every pair of triangles.
-    if agreement_filter != None and rater.RaterAgreement(distances) < agreement_filter:
-      continue # If filter is being applied and the rater is not good enough, skip the rater
+    if agreement_filter != None:
+      rater_agreement = rater.RaterAgreement(distances)
+      if rater_agreement < agreement_filter:
+        #print 'Excluding rater %s due to low rater agreement: %f' % (rater.ID, rater_agreement)
+        continue # If agreement filter is being applied and the rater is not good enough, skip the rater
+    if test_filter != None:
+      mean_test_rating = rater.MeanTestRating()
+      if mean_test_rating > test_filter:
+        #print 'Excluding rater %s due to a high average test rating: %f' % (rater.ID, mean_test_rating)
+        continue # If test filter is being applied and the rater is not good enough, skip the rater
     for row in normalized_matrix:
       sum_distance_matrix[row[0], row[1]] += float(row[2])
       sum_distance_matrix[row[1], row[0]] += float(row[2])
@@ -144,9 +153,9 @@ def AverageDistanceMatrix(raters, agreement_filter=None, distances=None):
 raters = [Rater(i) for i in range(0, 96)]
 
 # Average everyone's ratings together to form a (condensed) distance matrix
-all_distance_array, all_count_array = AverageDistanceMatrix(raters, None, None)
+all_distance_array, all_count_array = AverageDistanceMatrix(raters, None, None, None)
 
 # Average everyone's ratings together again, this time filtering out unreliable raters.
 # Reliable raters are defined as those whose agreement with the average ratings of all
 # raters is greater than 0.4.
-reliable_distance_array, reliable_count_array = AverageDistanceMatrix(raters, 0.4, all_distance_array)
+reliable_distance_array, reliable_count_array = AverageDistanceMatrix(raters, 0.4, 100, all_distance_array)
