@@ -58,7 +58,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
 
   # Produce a plot for each generation
   for generation in range(0, 11):
-    plot(chain, generation, experiment, colour_palette, spectrum, push_factor, show_prototypes, save_location, str(generation))
+    plot(chain, generation, experiment, colour_palette, spectrum, push_factor, show_prototypes, False, save_location, str(generation))
 
 
 def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2, 0.9], push_factor=0.0, show_prototypes=False, colour_candidates=False, save_location=False, save_name=False):
@@ -129,9 +129,9 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   plt.tight_layout(pad=0.2, h_pad=0.0)
 
   # Determine filename and directory if none has been specified
-  if save_location == False:
+  if type(save_location) == bool and save_location == False:
     save_location = getenv('HOME') + '/Desktop/'
-  if save_name == False:
+  if type(save_name) == bool and save_name == False:
     save_name = chain + str(generation)
   if colour_candidates != False:
     candidate_num = '_' + str(colour_candidates)
