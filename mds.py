@@ -340,11 +340,19 @@ def light(val):
   return int(round(val + ((255 - val) * 0.5)))
 
 
-# Return the centroid of a polygon
+# Return the centroid of an arbitrary polygon
 def centroid(polygon):
-  x = np.mean([vertex[0] for vertex in polygon])
-  y = np.mean([vertex[1] for vertex in polygon])
-  return x, y
+  n = len(polygon)
+  a_sum, x_sum, y_sum = 0.0, 0.0, 0.0
+  for i in range(0, n):
+    if i == n - 1: j = 0
+    else: j = i + 1
+    p = (polygon[i][0] * polygon[j][1]) - (polygon[j][0] * polygon[i][1])
+    a_sum += p
+    x_sum += (polygon[i][0] + polygon[j][0]) * p
+    y_sum += (polygon[i][1] + polygon[j][1]) * p
+  f = 1.0 / (6.0 * (0.5 * a_sum))
+  return f * x_sum, f * y_sum
 
 
 # Calculate the Euclidean distance in n-dimensional space
