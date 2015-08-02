@@ -317,6 +317,7 @@ def rearrange(words, grid_size):
   return words_rearranged
 
 
+# Opens an SVG file and splices in some extra SVG code at the end
 def splice_in_triangles(filename, triangle_code):
   f = open(filename, 'r')
   graph_code = f.read()
@@ -346,6 +347,11 @@ def centroid(polygon):
   return x, y
 
 
+# Calculate the Euclidean distance in n-dimensional space
+def ED(a, b):
+  return np.sqrt(sum([(a[i]-b[i])**2 for i in range(0, len(a))]))
+
+
 # Calculate the correspondence correlation - how well do the distances in
 # MDS space correlate with the original ratings
 def correspondence_correlation(ratings, coordinates):
@@ -354,11 +360,7 @@ def correspondence_correlation(ratings, coordinates):
   return np.corrcoef(triangle_dists, ratings)[0,1]
 
 
-# Calculate the Euclidean distance in n-dimensional space
-def ED(a, b):
-  return np.sqrt(sum([(a[i]-b[i])**2 for i in range(0, len(a))]))
-
-
+# Calcualte stress-1
 def stress_1(raw_stress, distances):
   return np.sqrt(raw_stress / sum(distances ** 2))
 
@@ -381,5 +383,5 @@ for dim in range(0, triangle_coordinates.shape[1]):
 voronoi_polygons = voronoi.polygons(triangle_coordinates)
 
 # Print MDS goodness-of-fit stats
-print 'Correspondence: %s' % correspondence_correlation(triangle_distances, triangle_coordinates)
-print 'Stress-1: %s' % stress_1(triangle_mds.stress_, triangle_distances)
+#print 'Correspondence: %s' % correspondence_correlation(triangle_distances, triangle_coordinates)
+#print 'Stress-1: %s' % stress_1(triangle_mds.stress_, triangle_distances)
