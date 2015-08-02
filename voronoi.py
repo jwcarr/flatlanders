@@ -1,11 +1,12 @@
-###########################################################
-# Taken from: https://gist.github.com/neothemachine/8803860
-###########################################################
+#############################################################
+# Adapted from: https://gist.github.com/neothemachine/8803860
+#############################################################
 
 from __future__ import division
 import numpy as np
 from collections import defaultdict
 from scipy.spatial import Delaunay, KDTree
+import Polygon # http://www.j-raedler.de/projects/polygon/
 
 def voronoi(P):
   delauny = Delaunay(P)
@@ -26,9 +27,9 @@ def voronoi(P):
         ps /= np.linalg.norm(ps)
         di /= np.linalg.norm(di)
         if np.dot(di, ps) < 0.0:
-          ps *= -1.0
+          ps *= -1000.0
         else:
-          ps *= 1.0
+          ps *= 1000.0
         long_lines_endpoints.append(circum_center + ps)                
         lineIndices.append((i, len(circum_centers) + len(long_lines_endpoints)-1))
   vertices = np.vstack((circum_centers, long_lines_endpoints))
@@ -90,13 +91,21 @@ def voronoi_polygons(cells):
       currentEdge = nextEdge
     polys[pIdx] = [i1 for (i1,i2) in orderedEdges]
   return polys
- 
-def polygons(points):
+
+# Takes the intersection of the polygon and bounding box, such that polygons
+# that lie partially out of the bounding box will be clipped
+def clip_to_bounding_box(poly, bounding_box):
+  p = Polygon.Polygon(poly)
+  b = Polygon.Polygon(bounding_box)
+  return list(p & b)[0]
+
+def polygons(points, bounding_box):
   vertices, lineIndices = voronoi(points)
   cells = voronoi_cell_lines(points, vertices, lineIndices)
   polys = voronoi_polygons(cells)
   polylist = []
   for i in range(len(points)):
     poly = vertices[np.asarray(polys[i])]
-    polylist.append(poly)
+    clipped_poly = clip_to_bounding_box(poly, bounding_box)
+    polylist.append(clipped_poly)
   return polylist

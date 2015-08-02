@@ -380,7 +380,7 @@ for dim in range(0, triangle_coordinates.shape[1]):
   triangle_coordinates[:, dim] = (((triangle_coordinates[:, dim] - minimum) / difference) * 1.8) - 0.9
 
 # Compute the Voronoi polygons for these MDS coordinates
-voronoi_polygons = voronoi.polygons(triangle_coordinates)
+voronoi_polygons = voronoi.polygons(triangle_coordinates, [[-1,-1], [-1,1], [1,1], [1,-1]])
 
 # Print MDS goodness-of-fit stats
 #print 'Correspondence: %s' % correspondence_correlation(triangle_distances, triangle_coordinates)
