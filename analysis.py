@@ -342,40 +342,6 @@ def segment(words, start_stop=False):
       i.append(">")
   return segmented_words
 
-#############################################################################
-# WRITE OUT A MATRIX TO A FILE ON THE DESKTOP
-
-def writeOut(matrix, filename='file'):
-  data = ""
-  for row in matrix:
-    row = [str(x) for x in row]
-    data = data + "\t".join(row) + "\n"
-  data = data[0:-1]
-  f = open('/Users/jon/Desktop/' + filename + '.txt', 'w')
-  f.write(data)
-  f.close()
-
-#############################################################################
-# READ IN A PREVIOUSLY SAVED DATA FILE TO A MATRIX
-
-def readIn(filename):
-  f = open(filename, 'r')
-  data = f.read()
-  f.close()
-  lines = data.split("\n")
-  matrix = []
-  for line in lines:
-    cells = line.split("\t")
-    row = []
-    for cell in cells:
-      try:
-        cell = float(cell)
-      except:
-        cell = None
-      row.append(cell)
-    matrix.append(row)
-  return matrix
-
 def intergenCorr(experiment):
   ln_data = readIn("/Users/jon/Desktop/Experiment " +str(experiment) + " data/ln.txt")
   st_data = readIn("/Users/jon/Desktop/Experiment " +str(experiment) + " data/st.txt")

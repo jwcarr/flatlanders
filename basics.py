@@ -117,3 +117,33 @@ def load(experiment, chain, generation, set_type):
   data = f.read()
   f.close()
   return [row.split('\t') for row in data.split('\n')]
+
+# Write out a matrix to a file on the desktop
+def writeOut(matrix, filename='file'):
+  data = ""
+  for row in matrix:
+    row = [str(x) for x in row]
+    data = data + "\t".join(row) + "\n"
+  data = data[0:-1]
+  f = open('/Users/jon/Desktop/' + filename + '.txt', 'w')
+  f.write(data)
+  f.close()
+
+# Read in a previously saved data file to a matrix
+def readIn(filename):
+  f = open(filename, 'r')
+  data = f.read()
+  f.close()
+  lines = data.split("\n")
+  matrix = []
+  for line in lines:
+    cells = line.split("\t")
+    row = []
+    for cell in cells:
+      try:
+        cell = float(cell)
+      except:
+        cell = None
+      row.append(cell)
+    matrix.append(row)
+  return matrix
