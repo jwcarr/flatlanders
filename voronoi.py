@@ -108,4 +108,36 @@ def polygons(points, bounding_box):
     poly = vertices[np.asarray(polys[i])]
     clipped_poly = clip_to_bounding_box(poly, bounding_box)
     polylist.append(clipped_poly)
-  return polylist
+  return np.asarray(polylist)
+
+# Given a set of Voronoi polygons, find the cells that are contiguous and
+# join them together into a set of regions
+def join_contiguous_polygons(polys):
+  if len(polys) == 1:
+    return polys
+  adjustment_made = False
+  contiguous_polygons = []
+  matched_indices = []
+  for i in range(0, len(polys)):
+    if i in matched_indices:
+      continue
+    matched_indices.append(i)
+    p = Polygon.Polygon(polys[i])
+    for j in range(i+1, len(polys)):
+      if j in matched_indices:
+        continue
+      if contiguous(list(p)[0], polys[j]) == True:
+        p = p | Polygon.Polygon(polys[j])
+        matched_indices.append(j)
+        adjustment_made = True
+    contiguous_polygons.append(list(p)[0])
+  if adjustment_made == True:
+    return join_contiguous_polygons(contiguous_polygons)
+  return polys
+
+def contiguous(poly1, poly2):
+  for vertex1 in poly1:
+    for vertex2 in poly2:
+      if abs(vertex1[0] - vertex2[0]) < 0.001 and abs(vertex1[1] - vertex2[1]) < 0.001:
+        return True
+  return False

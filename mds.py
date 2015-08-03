@@ -19,12 +19,12 @@ legend_font_size = 10 # points
 figure_width = 5.5 # inches
 
 
-def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, save_location=False):
+def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
   for experiment in range(0, len(chain_codes)):
-    plot_experiment(experiment+1, chain_wide_palette, spectrum, push_factor, show_prototypes, label_cells, save_location)
+    plot_experiment(experiment+1, chain_wide_palette, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
 
 
-def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, save_location=False):
+def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
 
   # Set directory for saving
   if save_location == False:
@@ -33,10 +33,10 @@ def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], pu
 
   for chain in chain_codes[experiment-1]:
     print 'Chain: ' + chain
-    plot_chain(chain, experiment, chain_wide_palette, spectrum, push_factor, show_prototypes, label_cells, save_location)
+    plot_chain(chain, experiment, chain_wide_palette, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
 
 
-def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, save_location=False):
+def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
 
   # Determine experiment number if none is supplied
   if experiment == None:
@@ -58,10 +58,10 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
 
   # Produce a plot for each generation
   for generation in range(0, 11):
-    plot(chain, generation, experiment, colour_palette, spectrum, push_factor, show_prototypes, label_cells, False, save_location, str(generation))
+    plot(chain, generation, experiment, colour_palette, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, False, save_location, str(generation))
 
 
-def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2, 0.9], push_factor=0.0, show_prototypes=False, label_cells=False, colour_candidates=False, save_location=False, save_name=False):
+def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2, 0.9], push_factor=0.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, colour_candidates=False, save_location=False, save_name=False):
 
   # Determine experiment number if none supplied
   if experiment == None:
@@ -106,11 +106,16 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
     colour, colour_light = colour_palette[word]
     X, Y = triangle_coordinates[indices, 0], triangle_coordinates[indices, 1]
     plt.scatter(X, Y, c=colour, label=word, marker='o', s=15, linewidth=0, zorder=1)
-    for i in indices:
-      ax1.add_patch(patches.Polygon(voronoi_polygons[i], facecolor=colour_light, edgecolor='white', linewidth=0.5, zorder=0))
-      if label_cells == True:
-        x, y = centroid(voronoi_polygons[i])
-        ax1.text(x, y, word, {'fontsize':5}, ha='center', va='center')
+    if join_contiguous_cells == True:
+      regional_polys = voronoi.join_contiguous_polygons(voronoi_polygons[indices])
+      for poly in regional_polys:
+        ax1.add_patch(patches.Polygon(poly, facecolor=colour_light, edgecolor='white', linewidth=0.5, zorder=0))
+    else:
+      for i in indices:
+        ax1.add_patch(patches.Polygon(voronoi_polygons[i], facecolor=colour_light, edgecolor='white', linewidth=0.5, zorder=0))
+        if label_cells == True:
+          x, y = centroid(voronoi_polygons[i])
+          ax1.text(x, y, word, {'fontsize':5}, ha='center', va='center')
   
   # Set axis style
   plt.xlim(-1, 1)
@@ -156,7 +161,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
 
   # If multiple colour palette candidates have been requested, run plot() again.
   if colour_candidates > 1:
-    plot(chain, generation, experiment, None, spectrum, push_factor, show_prototypes, label_cells, colour_candidates-1, save_location, save_name)
+    plot(chain, generation, experiment, None, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, colour_candidates-1, save_location, save_name)
 
 
 def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
