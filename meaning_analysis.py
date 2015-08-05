@@ -1,18 +1,28 @@
 import meaning_space
 import basics
 
-def explore(experiment, chain, generation, chunks, syllable, position):
+def explore(experiment, chain, generation, chunks, syllable, position=False):
   strings = basics.getWords(experiment, chain, generation, "s")
   strings = syllablize(strings, chunks)
   triangles = basics.getTriangles(experiment, chain, generation, "s")
   feature_matrix = meaning_space.MakeFeatureMatrix(triangles)
   indices_of_interest = []
   for i in range(0, len(strings)):
-    try:
-      if syllable in strings[i][position]:
-        indices_of_interest.append(i)
-    except IndexError:
-      continue
+    if type(syllable) == str:
+      if type(position) == bool and position == False:
+        if syllable in strings[i]:
+          indices_of_interest.append(i)
+      elif type(position) == int: 
+        try:
+          if syllable == strings[i][position]:
+            indices_of_interest.append(i)
+        except IndexError:
+          continue
+    elif type(syllable) == list:
+      for syll in syllable:
+        if syll in strings[i]:
+          indices_of_interest.append(i)
+      indices_of_interest = list(set(indices_of_interest))
   extraction = feature_matrix[indices_of_interest, :]
   for i in range(1, 17):
     mean = extraction[:, i-1].mean()
