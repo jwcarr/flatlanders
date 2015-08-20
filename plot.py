@@ -290,3 +290,93 @@ def RemoveNaN(matrix):
           new_row.append(cell)
     new_matrix.append(new_row)
   return new_matrix
+
+def triple(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_label="Score", save=False):
+  
+  # Initialize figure
+  plt.figure(1)
+
+  # Replace NaN with None if present in the matrices
+  matrix1 = RemoveNaN(matrix1)
+  matrix2 = RemoveNaN(matrix2)
+  matrix3 = RemoveNaN(matrix3)
+
+  plt.subplots(figsize=(5.5, 3.0))
+
+  ax1 = plt.subplot2grid((4,3), (0,0), rowspan=3)
+  n = len(matrix1[0])
+  for i in range(0, len(matrix1)):
+    x_vals = range(starting_gen, len(matrix1[i])+starting_gen)
+    y_vals = [item for item in matrix1[i]]
+    plt.plot(x_vals, y_vals, color=colours_by_experiment[0][i], marker=markers_by_chain[i], markersize=5.0, markeredgecolor=colours_by_experiment[0][i], linewidth=line_thickness, label='Chain ' + ascii_uppercase[i:i+1])
+  labels = range(starting_gen, starting_gen+n)
+  plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
+  plt.ylim(miny, maxy)
+  plt.xticks(x_vals, labels, fontsize=axis_font_size)
+  plt.yticks(fontsize=axis_font_size)
+  plt.xlabel("Generation number", fontsize=label_font_size)
+  plt.ylabel(y_label, fontsize=label_font_size)
+  plt.tick_params(axis='x', which='both', bottom='off', top='off')
+  text_y = maxy - ((abs(miny-maxy)/15.)*1.45)
+  plt.text(starting_gen, text_y, '(A)', {'fontsize':8}, fontweight='bold')
+  handles, labels = ax1.get_legend_handles_labels()
+
+  ax1_l = plt.subplot2grid((4,3), (3,0))
+  plt.axis('off')
+  ax1_l.set_yticklabels([])
+  ax1_l.set_xticklabels([])
+  ax1_l.legend([handles[0], handles[2], handles[1], handles[3]], [labels[0], labels[2], labels[1], labels[3]], loc='upper center', frameon=False, prop={'size':7.5}, ncol=2, numpoints=1, handletextpad=0.2)
+
+
+  ax2 = plt.subplot2grid((4,3), (0,1), rowspan=3)
+  n = len(matrix2[0])
+  for i in range(0, len(matrix2)):
+    x_vals = range(starting_gen, len(matrix2[i])+starting_gen)
+    y_vals = [item for item in matrix2[i]]
+    plt.plot(x_vals, y_vals, color=colours_by_experiment[1][i], marker=markers_by_chain[i], markersize=5.0, markeredgecolor=colours_by_experiment[1][i], linewidth=line_thickness, label='Chain ' + ascii_uppercase[4+i:i+5])
+  labels = range(starting_gen, starting_gen+n)
+  plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
+  plt.ylim(miny, maxy)
+  plt.xticks(x_vals, labels, fontsize=axis_font_size)
+  plt.yticks(fontsize=axis_font_size)
+  plt.xlabel("Generation number", fontsize=label_font_size)
+  plt.ylabel('')
+  plt.tick_params(axis='x', which='both', bottom='off', top='off')
+  ax2.set_yticklabels([])
+  plt.text(starting_gen, text_y, '(B)', {'fontsize':8}, fontweight='bold')
+  handles, labels = ax2.get_legend_handles_labels()
+
+  ax2_l = plt.subplot2grid((4,3), (3,1))
+  plt.axis('off')
+  ax2_l.set_yticklabels([])
+  ax2_l.set_xticklabels([])
+  ax2_l.legend([handles[0], handles[2], handles[1], handles[3]], [labels[0], labels[2], labels[1], labels[3]], loc='upper center', frameon=False, prop={'size':7.5}, ncol=2, numpoints=1, handletextpad=0.2)
+
+
+  ax3 = plt.subplot2grid((4,3), (0,2), rowspan=3)
+  n = len(matrix3[0])
+  for i in range(0, len(matrix3)):
+    x_vals = range(starting_gen, len(matrix3[i])+starting_gen)
+    y_vals = [item for item in matrix3[i]]
+    plt.plot(x_vals, y_vals, color=colours_by_experiment[2][i], marker=markers_by_chain[i], markersize=5.0, markeredgecolor=colours_by_experiment[2][i], linewidth=line_thickness, label='Chain ' + ascii_uppercase[8+i:i+9])
+  labels = range(starting_gen, starting_gen+n)
+  plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
+  plt.ylim(miny, maxy)
+  plt.xticks(x_vals, labels, fontsize=axis_font_size)
+  plt.yticks(fontsize=axis_font_size)
+  plt.xlabel("Generation number", fontsize=label_font_size)
+  plt.ylabel('')
+  plt.tick_params(axis='x', which='both', bottom='off', top='off')
+  ax3.set_yticklabels([])
+  plt.text(starting_gen, text_y, '(C)', {'fontsize':8}, fontweight='bold')
+  handles, labels = ax3.get_legend_handles_labels()
+
+  ax3_l = plt.subplot2grid((4,3), (3,2))
+  plt.axis('off')
+  ax3_l.set_yticklabels([])
+  ax3_l.set_xticklabels([])
+  ax3_l.legend([handles[0], handles[2], handles[1], handles[3]], [labels[0], labels[2], labels[1], labels[3]], loc='upper center', frameon=False, prop={'size':7.5}, ncol=2, numpoints=1, handletextpad=0.2)
+  
+  plt.tight_layout(pad=0.2, w_pad=1.0, h_pad=0.00)
+  plt.savefig(save)
+  plt.clf()
