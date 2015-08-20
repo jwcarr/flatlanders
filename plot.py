@@ -135,7 +135,7 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
   plt.clf()
 
 
-def all(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text=False, conf=False, experiment=False, text_pos=False, save_location=False, save_name=False, dataset2=False, starting_gen2=False, miny2=False, maxy2=False, y_label2=False, text2=False, conf2=False, experiment2=False):
+def chains(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text=False, conf=False, experiment=False, text_pos=False, save_location=False, save_name=False, dataset2=False, starting_gen2=False, miny2=False, maxy2=False, y_label2=False, text2=False, conf2=False, experiment2=False):
   
   if starting_gen == False:
     if len(dataset[0]) == 10:
