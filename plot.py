@@ -211,6 +211,61 @@ def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, tex
   plot(dataset, True, starting_gen, miny, maxy, y_label, text, conf, experiment, text_pos, save_location+save_name, dataset2, starting_gen2, miny2, maxy2, y_label2, text2, conf2, experiment2)
 
 
+def mean_with_chains(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_label="Score", conf=False, save=False):
+  
+  # Initialize figure
+  plt.figure(1)
+
+  # Replace NaN with None if present in the matrices
+  matrix1 = RemoveNaN(matrix1)
+  matrix2 = RemoveNaN(matrix2)
+  matrix3 = RemoveNaN(matrix3)
+
+  plt.subplots(figsize=(5.5, 3.0))
+  ax1 = plt.subplot2grid((6,1), (0,0), rowspan=5)
+
+  n = len(matrix1[0])
+  colours = ['red', 'blue', 'green']
+  xvals = range(starting_gen, n+starting_gen)
+
+  if conf == True:
+    plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
+    if miny < -2.0:
+      plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
+  elif type(conf) == int:
+    plt.plot(range(-1,n+2), [conf] * (n+3), color='gray', linestyle=':', linewidth=0.5)
+
+  x_vals = range(starting_gen, len(matrix1[0])+starting_gen)
+
+  means, errors = MeanWithErrors(matrix1)
+  _, caps, _ = ax1.errorbar(x_vals, means, yerr=errors, markersize=3.0, color='red', linestyle="-", linewidth=line_thickness, capsize=1, elinewidth=0.5, label='Experiment 1')
+
+  means, errors = MeanWithErrors(matrix2)
+  _, caps, _ = ax1.errorbar(x_vals, means, yerr=errors, markersize=3.0, color='green', linestyle="-", linewidth=line_thickness, capsize=1, elinewidth=0.5, label='Experiment 2')
+  
+  means, errors = MeanWithErrors(matrix3)
+  _, caps, _ = ax1.errorbar(x_vals, means, yerr=errors, markersize=3.0, color='blue', linestyle="-", linewidth=line_thickness, capsize=1, elinewidth=0.5, label='Experiment 3')
+
+  labels = range(starting_gen, starting_gen+n)
+  plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
+  plt.ylim(miny, maxy)
+  plt.xticks(xvals, labels, fontsize=axis_font_size)
+  plt.yticks(fontsize=axis_font_size)
+  plt.xlabel("Generation number", fontsize=label_font_size)
+  plt.ylabel(y_label, fontsize=label_font_size)
+  plt.tick_params(axis='x', which='both', bottom='off', top='off')
+
+  ax3 = plt.subplot2grid((6,1), (5,0))
+  plt.axis('off')
+  handles, labels = ax1.get_legend_handles_labels()
+  ax3.legend(handles, labels, loc='upper center', frameon=False, prop={'size':legend_font_size}, ncol=4, numpoints=1)
+
+
+  plt.tight_layout(pad=0.2, w_pad=1.0, h_pad=0.00)
+
+  plt.savefig(save)
+  plt.clf()
+
 def MeanWithErrors(matrix):
   means = []
   errors = []
