@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from numpy import corrcoef, mean, zeros
 from copy import deepcopy
 from scipy import spatial
+import krippendorff
 
 ########################################################################################
 
@@ -118,9 +119,10 @@ class Rater:
 ########################################################################################
 
 # Average together the normalized ratings of many raters
-def AverageDistanceMatrix(raters, agreement_filter=None, test_filter=None, distances=None):
+def AverageDistanceMatrix(raters, agreement_filter=None, test_filter=None, distances=None, krippendorff=False):
   count_matrix = zeros([48, 48], dtype=int)
   sum_distance_matrix = zeros([48, 48], dtype=float)
+  ka_data = []
   for rater in raters:
     normalized_matrix = rater.normalized_ratings
     if normalized_matrix == False:
@@ -137,15 +139,26 @@ def AverageDistanceMatrix(raters, agreement_filter=None, test_filter=None, dista
       if mean_test_rating > test_filter:
         #print 'Excluding rater %s due to a high average test rating: %f' % (rater.ID, mean_test_rating)
         continue # If test filter is being applied and the rater is not good enough, skip the rater
+    if krippendorff == True:
+      ka_matrix = [[None]*48 for i in range(48)]
     for row in normalized_matrix:
       sum_distance_matrix[row[0], row[1]] += float(row[2])
       sum_distance_matrix[row[1], row[0]] += float(row[2])
       count_matrix[row[0], row[1]] += 1
       count_matrix[row[1], row[0]] += 1
+      if krippendorff == True:
+        ka_matrix[row[0]][row[1]] = float(row[2])
+        ka_matrix[row[1]][row[0]] = float(row[2])
+    if krippendorff == True:
+      ka_array = []
+      for i in range(0, 47):
+        for j in range(i+1, 48):
+          ka_array.append(ka_matrix[i][j])
+      ka_data.append(ka_array)
   sum_distance_array = spatial.distance.squareform(sum_distance_matrix, 'tovector')
   count_array = spatial.distance.squareform(count_matrix, 'tovector')
   mean_distance_array = sum_distance_array / count_array
-  return mean_distance_array, count_array
+  return mean_distance_array, count_array, ka_data
 
 ########################################################################################
 
@@ -153,9 +166,11 @@ def AverageDistanceMatrix(raters, agreement_filter=None, test_filter=None, dista
 raters = [Rater(i) for i in range(0, 96)]
 
 # Average everyone's ratings together to form a (condensed) distance matrix
-all_distance_array, all_count_array = AverageDistanceMatrix(raters, None, None, None)
+all_distance_array, all_count_array, ka_data = AverageDistanceMatrix(raters, None, None, None, True)
 
 # Average everyone's ratings together again, this time filtering out unreliable raters.
 # Reliable raters are defined as those whose agreement with the average ratings of all
 # raters is greater than 0.4.
-reliable_distance_array, reliable_count_array = AverageDistanceMatrix(raters, 0.4, 100, all_distance_array)
+reliable_distance_array, reliable_count_array, ka_data = AverageDistanceMatrix(raters, 0.4, 100, all_distance_array, True)
+
+#print krippendorff.alpha(ka_data) # Calculates Krippendorff's alpha - very slow

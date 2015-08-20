@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from numpy import corrcoef, mean
 from copy import deepcopy
 import basics
+import krippendorff
 
 ########################################################################################
 
@@ -120,34 +121,57 @@ class Rater:
 ########################################################################################
 
 # Average together the normalized ratings of many raters
-def AverageRatings(agreement_filter=None, test_filter=None, distances=None):
+def AverageRatings(agreement_filter=None, test_filter=None, distances=None, krippendorff=False):
   sum_dist = defaultdict(float)
   mean_dist = defaultdict(float)
   counts = defaultdict(float)
+  ka_data = {}
+  ka_ignore = []
   rater_n = 0
+  rater_i = -1
   for rater in raters.keys():
+    rater_i += 1
     if raters[rater].normalized_ratings == False:
       #print 'Excluding rater %s because the ratings cannot be normalized' % raters[rater].ID
+      ka_ignore.append(rater_i)
       continue # If the normalized matrix doesn't exist, skip the rater. This can occur if
                # the rater gives the same rating for every pair of triangles.
     if agreement_filter != None:
       rater_agreement = raters[rater].RaterAgreement(distances)
       if rater_agreement < agreement_filter:
         #print 'Excluding rater %s due to low rater agreement: %f' % (raters[rater].ID, rater_agreement)
+        ka_ignore.append(rater_i)
         continue # If filter is being applied and the rater is not good enough, skip the rater
     if test_filter != None:
       mean_test_rating = raters[rater].MeanTestRating()
       if mean_test_rating > test_filter:
         #print 'Excluding rater %s due to a high average test rating: %f' % (raters[rater].ID, mean_test_rating)
+        ka_ignore.append(rater_i)
         continue # If test filter is being applied and the rater is not good enough, skip the rater
     rater_n += 1
     for row in raters[rater].normalized_ratings:
       pair = row[0] + '~' + row[1]
       sum_dist[pair] += row[2]
       counts[pair] += 1.0
+      if krippendorff == True:
+        try:
+          ka_data[pair][rater_i] = row[2]
+        except KeyError:
+          ka_data[pair] = [None]*len(raters.keys())
+          ka_data[pair][rater_i] = row[2]
   for pair in sum_dist.keys():
     mean_dist[pair] = sum_dist[pair] / counts[pair]
-  return mean_dist, counts, rater_n
+  if krippendorff == True:
+    ka_matrix = [[None]*len(ka_data.keys()) for i in range(len(raters.keys()))]
+    pair_i = 0
+    for pair in ka_data.keys():
+      for rater_i in range(len(raters.keys())):
+        ka_matrix[rater_i][pair_i] = ka_data[pair][rater_i]
+      pair_i += 1
+    for ignore_i in reversed(sorted(ka_ignore)):
+      del ka_matrix[ignore_i]
+    return mean_dist, counts, rater_n, ka_matrix
+  return mean_dist, counts, rater_n, None
 
 # Measure communicative accuracy
 def CommAccuracy(chain, generation, distances=None):
@@ -197,9 +221,11 @@ for rater_id in paid:
   raters[rater_id] = Rater(rater_id)
 
 # Average everyone's ratings together
-all_distances, all_counts, all_rater_n = AverageRatings(None, None, None)
+all_distances, all_counts, all_rater_n, ka_data = AverageRatings(None, None, None, False)
 
 # Average everyone's ratings together again, this time filtering out unreliable raters.
 # Reliable raters are defined as those whose agreement with the average ratings of all
 # raters is greater than 0.4.
-reliable_distances, reliable_counts, reliable_rater_n = AverageRatings(0.4, 100, all_distances)
+reliable_distances, reliable_counts, reliable_rater_n, ka_data = AverageRatings(0.4, 100, all_distances, True)
+
+#print krippendorff.alpha(ka_data) # Calculates Krippendorff's alpha - very slow
