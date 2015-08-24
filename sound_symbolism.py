@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import basics
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
@@ -80,19 +79,5 @@ def equilateralness(t):
   p = perimenter(t)
   return a / upper_bound_on_area(p)
 
-def mean_abs_diff(T):
-  return np.mean([abs(0.557817 - equilateralness(t)) for t in T])
-
-def mean_mean_abs_diff(M):
-  return np.mean([mean_abs_diff(M[phoneme]) for phoneme in M.keys()])
-
 ########################################
 
-def rand_triangle():
-  return np.random.random([3,2])
-
-def chance_equilateralness(n):
-  Q = [equilateralness(rand_triangle()) for i in xrange(n)]
-  print 'Mean: %f' % np.mean(Q)
-  plt.hist(Q)
-  plt.show()
