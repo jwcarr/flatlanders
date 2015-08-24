@@ -81,3 +81,12 @@ def equilateralness(t):
 
 ########################################
 
+def percent_positive(matrix):
+  positive = 0
+  total = 0
+  for row in matrix:
+    for i in range(1,len(row)):
+      if row[i] > 0:
+        positive += 1
+      total += 1
+  return float(positive) / float(total)
