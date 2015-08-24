@@ -291,7 +291,7 @@ def RemoveNaN(matrix):
     new_matrix.append(new_row)
   return new_matrix
 
-def triple(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_label="Score", save=False):
+def triple(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_label="Score", conf=False, save=False):
   
   # Initialize figure
   plt.figure(1)
@@ -305,6 +305,12 @@ def triple(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_labe
 
   ax1 = plt.subplot2grid((4,3), (0,0), rowspan=3)
   n = len(matrix1[0])
+  if conf == True:
+    plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
+    if miny < -2.0:
+      plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
+  elif type(conf) == int:
+    plt.plot(range(-1,n+2), [conf] * (n+3), color='gray', linestyle=':', linewidth=0.5)
   for i in range(0, len(matrix1)):
     x_vals = range(starting_gen, len(matrix1[i])+starting_gen)
     y_vals = [item for item in matrix1[i]]
@@ -312,7 +318,7 @@ def triple(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_labe
   labels = range(starting_gen, starting_gen+n)
   plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
   plt.ylim(miny, maxy)
-  plt.xticks(x_vals, labels, fontsize=axis_font_size)
+  plt.xticks(range(starting_gen, len(matrix1[0])+starting_gen), labels, fontsize=axis_font_size)
   plt.yticks(fontsize=axis_font_size)
   plt.xlabel("Generation number", fontsize=label_font_size)
   plt.ylabel(y_label, fontsize=label_font_size)
@@ -330,6 +336,12 @@ def triple(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_labe
 
   ax2 = plt.subplot2grid((4,3), (0,1), rowspan=3)
   n = len(matrix2[0])
+  if conf == True:
+    plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
+    if miny < -2.0:
+      plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
+  elif type(conf) == int:
+    plt.plot(range(-1,n+2), [conf] * (n+3), color='gray', linestyle=':', linewidth=0.5)
   for i in range(0, len(matrix2)):
     x_vals = range(starting_gen, len(matrix2[i])+starting_gen)
     y_vals = [item for item in matrix2[i]]
@@ -355,6 +367,12 @@ def triple(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_labe
 
   ax3 = plt.subplot2grid((4,3), (0,2), rowspan=3)
   n = len(matrix3[0])
+  if conf == True:
+    plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
+    if miny < -2.0:
+      plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
+  elif type(conf) == int:
+    plt.plot(range(-1,n+2), [conf] * (n+3), color='gray', linestyle=':', linewidth=0.5)
   for i in range(0, len(matrix3)):
     x_vals = range(starting_gen, len(matrix3[i])+starting_gen)
     y_vals = [item for item in matrix3[i]]
