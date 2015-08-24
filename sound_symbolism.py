@@ -24,18 +24,15 @@ def chain_sound_symbolism(experiment, chain, set_type='s'):
 def generation_sound_symbolism(experiment, chain, generation, set_type):
   words = basics.getWords(experiment, chain, generation, set_type)
   triangles = basics.getTriangles(experiment, chain, generation, set_type)
-  return correlate_roundedness_equilateralness(words, triangles)[0]
+  return correlate_roundedness_equilateralness(words, triangles)
 
-def correlate_roundedness_equilateralness(words, triangles, plot=False):
+def correlate_roundedness_equilateralness(words, triangles):
   word_scores = []
   for word in words:
-    word_scores.append(word_roundedness(word))
+    word_scores.append(roundedness(word))
   triangle_scores = []
   for triangle in triangles:
-    triangle_scores.append(equilateralness(triangle))
-  if plot == True:
-    plt.scatter(word_scores, triangle_scores)
-    plt.show()
+    triangle_scores.append(geometry.equilateralness(triangle))
   return np.corrcoef(word_scores, triangle_scores)[0,1]
 
 ########################################
