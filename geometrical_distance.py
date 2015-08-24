@@ -13,12 +13,7 @@ def distance_matrix(triangles, distance_metric):
       dist = distance_metric(triangles[i], triangles[j])
       distance_matrix[i, j] = dist
       distance_matrix[j, i] = dist
-  return normalize(distance_matrix)
-
-def normalize(distance_matrix):
-  minimum = distance_matrix.min()
-  delta = distance_matrix.max() - minimum
-  return (distance_matrix - minimum) / delta
+  return distance_matrix / distance_matrix.max()
 
 def composite_distance_matrix(triangles, distance_metrics):
   n = len(triangles)
