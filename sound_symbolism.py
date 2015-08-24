@@ -68,7 +68,7 @@ def area(t):
   s = (a + b + c) / 2.0
   return np.sqrt(s*(s-a)*(s-b)*(s-c))
 
-def perimenter(t):
+def perimeter(t):
   return ED(t[0],t[1]) + ED(t[1],t[2]) + ED(t[2],t[0])
 
 def upper_bound_on_area(p):
@@ -76,7 +76,7 @@ def upper_bound_on_area(p):
 
 def equilateralness(t):
   a = area(t)
-  p = perimenter(t)
+  p = perimeter(t)
   return a / upper_bound_on_area(p)
 
 ########################################
