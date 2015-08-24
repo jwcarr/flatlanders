@@ -55,8 +55,7 @@ def segment_word(word):
   word = word.replace('||', '|')
   if word[-1] == '|':
     word = word[:-1]
-  word.split('|')
-  return word
+  return word.split('|')
 
 ########################################
 
