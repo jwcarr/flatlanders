@@ -32,10 +32,10 @@ def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="S
       ax1 = plt.subplot2grid((6,2), (0,0), rowspan=5)
   else:
     if mean_line == True:
-      plt.subplots(figsize=(5.5, 2.5))
+      plt.subplots(figsize=(4.8, 2.5))
       ax1 = plt.subplot2grid((6,1), (0,0), rowspan=6)
     else:
-      plt.subplots(figsize=(5.5, 3.0))
+      plt.subplots(figsize=(4.8, 3.0))
       ax1 = plt.subplot2grid((6,1), (0,0), rowspan=5)
 
   n = len(matrix[0])
