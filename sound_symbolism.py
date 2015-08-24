@@ -1,5 +1,6 @@
 import numpy as np
 import basics
+import geometry
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
 segmentation_rules = [['ei', 'EY'],['oo','UW'], ['ai', 'AY'], ['ae', 'AY'], ['au', 'AW'], ['oi', 'OY'], ['iu', 'IY|UW'], ['oa', 'OW|AA'], ['o', 'OW'], ['ia', 'IY|AA'], ['ua', 'UW|AA'], ['ou', 'OW|UW'], ['i', 'IY'], ['a', 'AA'],['e', 'EY'], ['u', 'UW'], ['ch', 'C'], ['c', 'k'], ['ng', 'N'], ['sh', 'S'], ['th', 'T'], ['b', 'b'], ['d', 'd'], ['f','f'],['g','g'], ['h','h'], ['j','J'], ['k','k'], ['l','l'], ['m','m'], ['n','n'], ['p','p'], ['r','r'], ['s','s'], ['t','t'], ['v','v'], ['w','w'], ['y','y'], ['z','z'], ['x','k|s'], ['d|y','d|IY'], ['k|y','k|IY'], ['z|y','z|IY'], ['OW|r','AO|r']]
@@ -56,27 +57,6 @@ def segment_word(word):
   if word[-1] == '|':
     word = word[:-1]
   return word.split('|')
-
-########################################
-
-def ED(a, b):
-  return np.sqrt((a[0]-b[0])**2.0 + (a[1]-b[1])**2.0)
-
-def area(t):
-  a, b, c = ED(t[0],t[1]), ED(t[1],t[2]), ED(t[2],t[0])
-  s = (a + b + c) / 2.0
-  return np.sqrt(s*(s-a)*(s-b)*(s-c))
-
-def perimeter(t):
-  return ED(t[0],t[1]) + ED(t[1],t[2]) + ED(t[2],t[0])
-
-def upper_bound_on_area(p):
-  return p**2.0 / 20.784609690826528
-
-def equilateralness(t):
-  a = area(t)
-  p = perimeter(t)
-  return a / upper_bound_on_area(p)
 
 ########################################
 
