@@ -1,3 +1,6 @@
+# Creates a figure showing the difference between the regular and
+# categorical structure measures.
+
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 import numpy as np
