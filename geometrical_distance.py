@@ -8,23 +8,20 @@ import geometry
 def distance_matrix(triangles, distance_metric):
   n = len(triangles)
   distance_matrix = np.zeros([n, n], dtype=float)
-  for i in range(0, len(triangles)):
-    for j in range(i+1, len(triangles)):
+  for i in range(0, n):
+    for j in range(i+1, n):
       dist = distance_metric(triangles[i], triangles[j])
       distance_matrix[i, j] = dist
       distance_matrix[j, i] = dist
   return distance_matrix / distance_matrix.max()
 
-def composite_distance_matrix(triangles, distance_metrics):
+def triangle_distance_matrix(experiment, chain, generation, set_type, distance_metrics):
+  triangles = basics.getTriangles(experiment, chain, generation, set_type)
   n = len(triangles)
   sum_distance_matrix = np.zeros([n, n], dtype=float)
   for distance_metric in distance_metrics:
     sum_distance_matrix += distance_matrix(triangles, distance_metric)
   return sum_distance_matrix
-
-def triangle_distance_matrix(experiment, chain, generation, set_type, distance_metrics):
-  triangles = basics.getTriangles(experiment, chain, generation, set_type)
-  return composite_distance_matrix(triangles, distance_metrics)
 
 ########################################
 
