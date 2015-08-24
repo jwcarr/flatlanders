@@ -1,6 +1,6 @@
 from numpy import array, mean, median, sqrt, std
 from random import shuffle
-import meaning_space
+import basics
 
 def allConvexity(experiment, Euclidean=True, iterations=100):
     chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
@@ -8,7 +8,7 @@ def allConvexity(experiment, Euclidean=True, iterations=100):
 
 def convexity(experiment, chain, gen, set_type, Euclidean=True, iterations=100):
     T = meaning_space.MakePCAMatrix(experiment, chain, gen, set_type, True)
-    W = meaning_space.getWords(experiment, chain, gen, set_type)
+    W = basics.getWords(experiment, chain, gen, set_type)
     P = prototypes(T, W)
     veridical_x = score(T, W, P, Euclidean)
     adjusted_x = MonteCarlo(T, W, P, Euclidean, iterations, veridical_x) if iterations > 0 else None

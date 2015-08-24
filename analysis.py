@@ -14,7 +14,6 @@ import Mantel
 import MantelCategorical
 import Page
 import svg_polygons
-import meaning_space
 import rater_analysis as ra
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
@@ -342,116 +341,8 @@ def segment(words, start_stop=False):
       i.append(">")
   return segmented_words
 
-def intergenCorr(experiment):
-  ln_data = readIn("/Users/jon/Desktop/Experiment " +str(experiment) + " data/ln.txt")
-  st_data = readIn("/Users/jon/Desktop/Experiment " +str(experiment) + " data/st.txt")
-  y = matrix2vector(ln_data)
-  x = matrix2vector(st_data)
-
-  r, p = stats.pearsonr(x,y)
-  n = len(x)
-  print r, n, p
-  m, b = polyfit(x, y, 1)
-  ln = [(m*i)+b for i in range(-4,11)]
-
-  fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
-  ax.scatter(x, y, marker="x", color='k', s=60)
-  ax.plot(range(-4,11), ln, color="k", linewidth=2.0)
-  plt.xlim(-4,10)
-  plt.gcf().subplots_adjust(bottom=0.12)
-  plt.xlabel("Structure score ($d_{T_{rm}}$) for generation $i-1$", fontsize=22)
-  plt.ylim(-2,8)
-  plt.ylabel("Learnability score for generation $i$", fontsize=22)
-  plt.xticks(fontsize=14)
-  plt.yticks(fontsize=14)
-  plt.show()
-
-def allTriangleGraphics(experiment):
-  T = basics.getTriangles(experiment, chain_codes[experiment-1][0], 0, "s")
-  for chain in chain_codes[experiment-1]:
-    for generation in range(0,11):
-      words = basics.getWords(experiment, chain, generation, "s")
-      unique_words = set(words)
-      col = 0
-      for word in unique_words:
-        triangleGraphic(experiment, chain, generation, [word], True, False, col)
-        col += 1
-        if col == 11:
-          col = 0
-
 def wordMemory(experiment, chain, generation):
   words_a = set(basics.getWords(experiment, chain, generation, 'c'))
   words_b = set(basics.getWords(experiment, chain, generation-1, 'd'))
   n = float(max(len(words_a),len(words_b)))
   return len(words_a.intersection(words_b))/n
-
-def soundSymbolism(experiment, chain, generation):
-  words = basics.getWords(experiment, chain, generation, 'c')
-  segmented_words = segment(words, False)
-  T = basics.getTriangles(experiment, chain, generation, 'c')
-  sounds = {'b':[], 'C':[], 'd':[], 'D':[], 'f':[], 'g':[], 'h':[], 'J':[], 'k':[], 'l':[], 'm':[], 'n':[], 'N':[], 'p':[], 'r':[], 's':[], 'S':[], 't':[], 'T':[], 'v':[], 'w':[], 'y':[], 'z':[], 'Z':[], 'AE':[], 'EY':[], 'AO':[], 'AX':[], 'IY':[], 'EH':[], 'IH':[], 'AY':[], 'AA':[], 'UW':[], 'UH':[], 'UX':[], 'OW':[], 'AW':[], 'OI':[]}
-  for i in range(0,48):
-    area_ratio = pointedness(T[i])
-    theta = min([geometry.angle(T[i],1), geometry.angle(T[i],2), geometry.angle(T[i],3)])
-    phon = "".join(segmented_words[i])
-    for sound in sounds.keys():
-      if phon.count(sound) > 0:
-        sounds[sound].append(area_ratio)
-    sound_counts = {}
-    for sound in sounds.keys():
-      if len(sounds[sound]) > 0:
-        sound_counts[sound] = sum(sounds[sound])/float(len(sounds[sound]))
-  return sound_counts
-
-def pointedness(T):
-  perimeter = geometry.perimeter(T)
-  area = geometry.area(T)
-  expected_area = (perimeter**2)/20.784609691
-  return log(expected_area)/log(area)
-
-def allSoundSymbolism(experiment,start_gen, end_gen):
-  import pointedness
-  ss  =[[soundSymbolism(experiment,x,y) for y in range(start_gen,end_gen)] for x in chain_codes[experiment-1]]
-  ss_v = matrix2vector(ss)
-  sounds = {'AA':[],'IY':[],'OW':[], 'UW':[], 'b':[], 'C':[], 'd':[], 'D':[], 'f':[], 'g':[], 'h':[], 'J':[], 'k':[], 'l':[], 'm':[], 'n':[], 'N':[], 'p':[], 'r':[], 's':[], 'S':[], 't':[], 'T':[], 'v':[], 'w':[], 'y':[], 'z':[], 'Z':[], 'AE':[], 'EY':[], 'AO':[], 'AX':[], 'EH':[], 'IH':[], 'AY':[], 'UH':[], 'UX':[], 'AW':[], 'OI':[]}
-  for i in ss_v:
-    for j in i.keys():
-      sounds[j].append(i[j])
-  matrix = []
-  ipaLabels = ipaLabels = {'AA':u"ɑː",'IY':u"iː",'OW':u"əʊ", 'UW':u"uː", 'b':u"b", 'C':u"tʃ", 'd':u"d", 'D':u"ð", 'f':u"f", 'g':u"g", 'h':u"h", 'J':u"dʒ", 'k':u"k", 'l':u"l", 'm':u"m", 'n':u"n", 'N':u"ŋ", 'p':u"p", 'r':u"r", 's':u"s", 'S':u"ʃ", 't':u"t", 'T':u"θ", 'v':u"v", 'w':u"w", 'y':u"j", 'z':u"z", 'Z':u"ʒ", 'AE':u"a", 'EY':u"eɪ", 'AO':u"ɔː", 'AX':u"ə", 'EH':u"ɛ", 'IH':u"ɪ", 'AY':u"ʌɪ", 'UH':u"ə", 'UX':u"ʌ", 'AW':u"aʊ", 'OI':u"ɔɪ"}
-  expected = pointedness.run(10000)
-  for i in sounds.keys():
-    if len(sounds[i]) > 20:
-      mw = scipy.stats.mannwhitneyu(expected, sounds[i])
-      matrix.append([ipaLabels[i], mean(sounds[i]), std(sounds[i]), (std(sounds[i])/sqrt(len(sounds[i])))*1.959964, mw[0], mw[1]*2])
-  return matrix
-
-def plotSoundSymbolism(matrix, y_label="Pointedness", miny=0.0, maxy=2, baseline=False):
-  fig, ax = plt.subplots(figsize=plt.figaspect(0.625))
-  n = len(matrix)
-  if baseline == True:
-    ax.plot(range(-1,n+1), [0.85]*(n+2), color='gray', linestyle=':')
-  xvals = range(0,n)
-  means = [row[1] for row in matrix]
-  errors = [row[3] for row in matrix]
-  pvals = [row[5] for row in matrix]
-  (_, caps, _) = ax.errorbar(xvals, means, fmt="o", yerr=errors, color='k', linestyle="", linewidth=2.0, capsize=5.0, elinewidth=1.5)
-  for cap in caps:
-    cap.set_markeredgewidth(2)
-  for i in xvals:
-    sig = ""
-    if pvals[i] <= 0.001:
-      sig = "***"
-    elif pvals[i] <= 0.01:
-      sig = "**"
-    elif pvals[i] <= 0.05:
-      sig = "*"
-    ax.annotate(sig, xy=(i,means[i]+errors[i]+0.05), zorder=10, color="red")
-  labels = [row[0] for row in matrix]
-  plt.xticks(xvals, labels, fontsize=14)
-  plt.yticks(fontsize=14)
-  plt.xlim(-0.5, n-0.5)
-  plt.ylim(miny, maxy)
-  plt.xlabel("Sounds", fontsize=22)
-  plt.ylabel(y_label, fontsize=22)
-  plt.show()
