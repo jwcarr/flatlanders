@@ -160,6 +160,22 @@ def AverageDistanceMatrix(raters, agreement_filter=None, test_filter=None, dista
   mean_distance_array = sum_distance_array / count_array
   return mean_distance_array, count_array, ka_data
 
+def most_and_least_similar_pairs(ratings_array):
+  matrix = spatial.distance.squareform(ratings_array, 'tomatrix')
+  similar_score = 1
+  dissimilar_score = 0
+  n = matrix.shape[0]
+  for i in range(0, n):
+    for j in range(i+1, n):
+      score = matrix[i, j]
+      if score < similar_score:
+        similar_score = score
+        similar_indices = (i, j)
+      if score > dissimilar_score:
+        dissimilar_score = score
+        dissimilar_indices = (i, j)
+  return similar_score, similar_indices, dissimilar_score, dissimilar_indices
+
 ########################################################################################
 
 # Initialize a Rater object for each rater

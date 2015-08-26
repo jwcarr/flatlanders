@@ -103,6 +103,23 @@ def smallest_rot(t1_rot, t2_rot):
 
 ########################################
 
+def most_and_least_similar_pairs(matrix):
+  similar_score = 16
+  dissimilar_score = 0
+  n = matrix.shape[0]
+  for i in range(0, n):
+    for j in range(i+1, n):
+      score = matrix[i, j]
+      if score < similar_score:
+        similar_score = score
+        similar_indices = (i, j)
+      if score > dissimilar_score:
+        dissimilar_score = score
+        dissimilar_indices = (i, j)
+  return similar_score, similar_indices, dissimilar_score, dissimilar_indices
+
+########################################
+
 metrics = [sizArea, sizPeri, sizCent, locOriX, locOriY, locCntX, locCntY, rotOri, rotThin, shpThin, shpWide, shpEqui, boxOriC, boxOriE, boxVrtC, boxVrtE]
 static_set_matrix = triangle_distance_matrix(1, 'A', 0, 's', metrics)
 static_set_array = squareform(static_set_matrix, 'tovector')
