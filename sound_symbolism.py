@@ -1,3 +1,4 @@
+from math import isnan
 import numpy as np
 import basics
 import geometry
@@ -62,7 +63,9 @@ def percent_positive(matrix):
   total = 0
   for row in matrix:
     for i in range(1,len(row)):
+      if isnan(row[i]) == True:
+        continue
       if row[i] > 0:
         positive += 1
       total += 1
-  return float(positive) / float(total)
+  return positive, total, float(positive) / float(total)
