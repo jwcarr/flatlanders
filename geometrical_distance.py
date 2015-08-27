@@ -116,7 +116,7 @@ def smallest_rot(t1_rot, t2_rot):
 ########################################
 
 def most_and_least_similar_pairs(matrix):
-  similar_score = 16
+  similar_score = 1
   dissimilar_score = 0
   n = matrix.shape[0]
   for i in range(0, n):
@@ -149,8 +149,8 @@ def generation_results(experiment, chain, generation):
   if len(set(strings)) > 2:
     string_distances = basics.stringDistances(strings)
     best_r = -1
-    for i in range(0, len(combin_matrices)):
-      r = np.corrcoef(string_distances, squareform(combin_matrices[i]))[0,1]
+    for i in range(0, len(static_set_matrices)):
+      r = np.corrcoef(string_distances, squareform(static_set_matrices[i]))[0,1]
       if r > best_r:
         best_matrix = i
         best_r = r
