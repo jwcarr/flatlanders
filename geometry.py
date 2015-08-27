@@ -113,15 +113,6 @@ def mean_angle(A):
   return mean(angles)
 
 #############################################################################
-# RETURN THE STANDARD DEVIATION OF ANGLES
-
-def std_angle(A):
-  angles = []
-  for vertex in range(1, 4):
-    angles.append(angle(A, vertex))
-  return std(angles)
-
-#############################################################################
 # RETURN THE RADIAL DISTANCE FROM NORTH FOR TRIANGLE A BY ORIENTING SPOT
 
 def rotation(A):
