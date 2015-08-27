@@ -1,3 +1,4 @@
+from itertools import combinations
 from scipy.spatial.distance import squareform
 import numpy as np
 import basics
@@ -15,13 +16,15 @@ def distance_matrix(triangles, distance_metric):
       distance_matrix[j, i] = dist
   return distance_matrix / distance_matrix.max()
 
-def triangle_distance_matrix(experiment, chain, generation, set_type, distance_metrics):
-  triangles = basics.getTriangles(experiment, chain, generation, set_type)
+def triangle_distance_matrix(triangles, distance_metrics):
   n = len(triangles)
-  sum_distance_matrix = np.zeros([n, n], dtype=float)
-  for distance_metric in distance_metrics:
-    sum_distance_matrix += distance_matrix(triangles, distance_metric)
-  return sum_distance_matrix
+  feature_matrices = []
+  for feature in distance_metrics:
+    feature_matrix = np.zeros([n, n], dtype=float)
+    for metric in feature:
+      feature_matrix += distance_matrix(triangles, metric)
+    feature_matrices.append(feature_matrix / len(feature))
+  return np.mean(feature_matrices, axis=0)
 
 ########################################
 
