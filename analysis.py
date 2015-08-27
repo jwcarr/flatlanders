@@ -200,8 +200,9 @@ def matrix2vector(matrix):
 #############################################################################
 # GET STRUCTURE SCORES FOR ALL CHAINS IN AN EXPERIMENT
 
-def allStructureScores(experiment, sims=1000):
-  meaning_distances = ra.reliable_distance_array
+def allStructureScores(experiment, sims=1000, meaning_distances=False):
+  if type(meaning_distances) == bool and meaning_distances == False:
+    meaning_distances = ra.reliable_distance_array
   matrix = []
   for chain in chain_codes[experiment-1]:
     print "  Chain " + chain + "..."
