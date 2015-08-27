@@ -1,12 +1,10 @@
-from numpy import arccos, array, cos, dot, mean, sin, sqrt, std
-
-pi = 3.141592653589793
+import numpy as np
 
 #############################################################################
 #   CALCULATE THE EUCLIDEAN DISTANCE BETWEEN TWO POINTS
 
 def ED(a, b):
-  return sqrt(((a[0]-b[0])**2.0)+((a[1]-b[1])**2.0))
+  return np.sqrt(((a[0]-b[0])**2.0)+((a[1]-b[1])**2.0))
 
 #############################################################################
 #   CALCULATE THE ANGLE OF A VERTEX
@@ -18,7 +16,7 @@ def angle(A, vertex):
     p, q, r = ED(A[0],A[1]), ED(A[1],A[2]), ED(A[2],A[0])
   elif vertex == 3:
     p, q, r = ED(A[1],A[2]), ED(A[2],A[0]), ED(A[0],A[1])
-  return arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
+  return np.arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
 
 #############################################################################
 #   CALCULATE THE AREA OF TRIANGLE A
@@ -26,7 +24,7 @@ def angle(A, vertex):
 def area(A):
   a, b, c = ED(A[0],A[1]), ED(A[1],A[2]), ED(A[2],A[0])
   s = (a+b+c)/2.0
-  return sqrt(s*(s-a)*(s-b)*(s-c))
+  return np.sqrt(s*(s-a)*(s-b)*(s-c))
 
 #############################################################################
 #   CALCULATE THE PERIMETER OF TRIANGLE A
@@ -42,13 +40,13 @@ def centroid_size(A):
   centroid_size = 0.0
   for vertex in A:
     centroid_size += ED(vertex, c)**2
-  return sqrt(centroid_size)
+  return np.sqrt(centroid_size)
 
 #############################################################################
 #   FIND THE CENTROID OF TRIANGLE A
 
 def centroid(A):
-  return array([(A[0][0]+A[1][0]+A[2][0])/3.0,(A[0][1]+A[1][1]+A[2][1])/3.0])
+  return np.array([(A[0][0]+A[1][0]+A[2][0])/3.0,(A[0][1]+A[1][1]+A[2][1])/3.0])
 
 #############################################################################
 # TRANSLATE TRIANGLE B SO THAT ITS CENTROID ALIGNS WITH THAT OF TRIANGLE A
@@ -63,15 +61,15 @@ def rotate(A):
   c = centroid(A)
   if A[0][0] == c[0]:
     if A[0][1] > c[1]:
-      theta = pi
+      theta = np.pi
     else:
       return A
   else:
     p, q, r = ED(c,A[0]), ED(c,(c[0],0)), ED((c[0],0),A[0])
-    theta = arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
+    theta = np.arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
     if A[0][0] > c[0]:
       theta = 0.0-theta
-  return dot(A-c,array([[cos(theta),sin(theta)],[-sin(theta),cos(theta)]]))+c
+  return np.dot(A-c,np.array([[np.cos(theta),np.sin(theta)],[-np.sin(theta),np.cos(theta)]]))+c
 
 #############################################################################
 # SCALE TRIANGLE A SO THAT ITS PERIMETER IS 750 PIXELS
@@ -110,7 +108,7 @@ def mean_angle(A):
   angles = []
   for vertex in range(1, 4):
     angles.append(angle(A, vertex))
-  return mean(angles)
+  return np.mean(angles)
 
 #############################################################################
 # RETURN THE RADIAL DISTANCE FROM NORTH FOR TRIANGLE A BY ORIENTING SPOT
@@ -119,12 +117,12 @@ def rotation(A):
   c = centroid(A)
   if A[0][0] == c[0]:
     if A[0][1] > c[1]:
-      theta = pi
+      theta = np.pi
     else:
       theta = 0.0
   else:
     p, q, r = ED(c,A[0]), ED(c,(c[0],0)), ED((c[0],0),A[0])
-    theta = arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
+    theta = np.arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
     if A[0][0] > c[0]:
       theta = 0.0-theta
   return theta
@@ -137,11 +135,11 @@ def rotation_by_smallest_angle(A):
   angles = {'a':a, 'b':b, 'c':c}
   min_ang = min(angles, key=angles.get)
   if min_ang == 'a':
-    A = array([[A[0][0], A[0][1]], [A[1][0], A[1][1]], [A[2][0], A[2][1]]])
+    A = np.array([[A[0][0], A[0][1]], [A[1][0], A[1][1]], [A[2][0], A[2][1]]])
   elif min_ang == 'b':
-    A = array([[A[1][0], A[1][1]], [A[2][0], A[2][1]], [A[0][0], A[0][1]]])
+    A = np.array([[A[1][0], A[1][1]], [A[2][0], A[2][1]], [A[0][0], A[0][1]]])
   elif min_ang == 'c':
-    A = array([[A[2][0], A[2][1]], [A[0][0], A[0][1]], [A[1][0], A[1][1]]])
+    A = np.array([[A[2][0], A[2][1]], [A[0][0], A[0][1]], [A[1][0], A[1][1]]])
   return rotation(A)
 
 #############################################################################
