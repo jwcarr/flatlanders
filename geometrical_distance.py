@@ -139,4 +139,31 @@ def most_and_least_similar_pairs(matrix):
 
 static_set_matrix = triangle_distance_matrix(1, 'A', 0, 's', metrics)
 static_set_array = squareform(static_set_matrix, 'tovector')
+def experiment_results(experiment):
+  results = []
+  for chain in basics.chain_codes[experiment-1]:
+    results.append(chain_results(experiment, chain))
+  return results
+
+def chain_results(experiment, chain):
+  results = []
+  for generation in range(0,11):
+    results.append(generation_results(experiment, chain, generation))
+  return results
+
+def generation_results(experiment, chain, generation):
+  strings = basics.getWords(experiment, chain, generation, 's')
+  if len(set(strings)) > 2:
+    string_distances = basics.stringDistances(strings)
+    best_r = -1
+    for i in range(0, len(combin_matrices)):
+      r = np.corrcoef(string_distances, squareform(combin_matrices[i]))[0,1]
+      if r > best_r:
+        best_matrix = i
+        best_r = r
+    return best_matrix + 1, best_r
+  return None
+
+########################################
+
 metrics = [[boxOriC, boxOriE, boxVrtC, boxVrtE], [locOriX, locOriY, locCntX, locCntY], [rotOri, rotThin], [shpThin, shpWide, shpEqui], [sizArea, sizPeri, sizCent]]
