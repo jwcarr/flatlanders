@@ -145,7 +145,7 @@ def rotation_by_smallest_angle(A):
   return rotation(A)
 
 #############################################################################
-# Distance from a given vertex to the nearest corner
+# DISTANCE FROM A GIVEN VERTEX TO THE NEAREST CORNER OR EDGE
 
 def dist_to_nearest_corner(A, vertex):
   corners = [(0,0), (0,500), (500,0), (500,500)]
@@ -164,6 +164,9 @@ def dist_to_nearest_edge(A, vertex):
     if dist < smallest_dist:
       smallest_dist = dist
   return smallest_dist
+
+#############################################################################
+# EQUILATERALNESS RATIO
 
 def upper_bound_on_area(p):
   return p**2.0 / 20.784609690826528
