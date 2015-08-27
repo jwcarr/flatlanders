@@ -85,7 +85,7 @@ def boxVrtE(t1, t2):
 
 ########################################
 
-# Given two rotations from Noth, return the shortest rotational distance
+# Given two rotations from North, return the shortest rotational distance
 
 def smallest_rot(t1_rot, t2_rot):
   # If both rotations have the same sign...
