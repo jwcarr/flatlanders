@@ -14,22 +14,27 @@ small_phonemes = ['k', 'p', 't', 'EY', 'IY']
 
 ########################################
 
-def experiment_sound_symbolism(experiment, set_type='s'):
+def experiment_sound_symbolism(experiment, set_type='s', symbolism='shape'):
   experiment_results = []
   for chain in chain_codes[experiment-1]:
-    experiment_results.append(chain_sound_symbolism(experiment, chain, set_type))
+    experiment_results.append(chain_sound_symbolism(experiment, chain, set_type, symbolism))
   return experiment_results
 
-def chain_sound_symbolism(experiment, chain, set_type='s'):
+def chain_sound_symbolism(experiment, chain, set_type='s', symbolism='shape'):
   chain_results = []
   for generation in range(0, 11):
-    chain_results.append(generation_sound_symbolism(experiment, chain, generation, set_type))
+    chain_results.append(generation_sound_symbolism(experiment, chain, generation, set_type, symbolism))
   return chain_results
 
-def generation_sound_symbolism(experiment, chain, generation, set_type):
+def generation_sound_symbolism(experiment, chain, generation, set_type, symbolism='shape'):
   words = basics.getWords(experiment, chain, generation, set_type)
   triangles = basics.getTriangles(experiment, chain, generation, set_type)
-  return correlate_roundedness_equilateralness(words, triangles)
+  if symbolism == 'shape':
+    return correlate_form_and_symbolism(words, roundedness, triangles, geometry.equilateralness)
+  elif symbolism == 'size':
+    return correlate_form_and_symbolism(words, bigness, triangles, geometry.area)
+  else:
+    raise ValueError('Invalid symbolism argument. Should be "shape" or "size".')
 
 ########################################
 
