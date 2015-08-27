@@ -137,8 +137,6 @@ def most_and_least_similar_pairs(matrix):
 
 ########################################
 
-static_set_matrix = triangle_distance_matrix(1, 'A', 0, 's', metrics)
-static_set_array = squareform(static_set_matrix, 'tovector')
 def experiment_results(experiment):
   results = []
   for chain in basics.chain_codes[experiment-1]:
@@ -167,3 +165,5 @@ def generation_results(experiment, chain, generation):
 ########################################
 
 metrics = [[boxOriC, boxOriE, boxVrtC, boxVrtE], [locOriX, locOriY, locCntX, locCntY], [rotOri, rotThin], [shpThin, shpWide, shpEqui], [sizArea, sizPeri, sizCent]]
+static_set_triangles = basics.getTriangles(1, 'A', 0, 's')
+static_set_matrices = combination_matrices(static_set_triangles, metrics)
