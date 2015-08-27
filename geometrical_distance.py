@@ -120,6 +120,6 @@ def most_and_least_similar_pairs(matrix):
 
 ########################################
 
-metrics = [sizArea, sizPeri, sizCent, locOriX, locOriY, locCntX, locCntY, rotOri, rotThin, shpThin, shpWide, shpEqui, boxOriC, boxOriE, boxVrtC, boxVrtE]
 static_set_matrix = triangle_distance_matrix(1, 'A', 0, 's', metrics)
 static_set_array = squareform(static_set_matrix, 'tovector')
+metrics = [[boxOriC, boxOriE, boxVrtC, boxVrtE], [locOriX, locOriY, locCntX, locCntY], [rotOri, rotThin], [shpThin, shpWide, shpEqui], [sizArea, sizPeri, sizCent]]
