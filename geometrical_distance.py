@@ -149,8 +149,8 @@ def generation_results(experiment, chain, generation):
   if len(set(strings)) > 2:
     string_distances = basics.stringDistances(strings)
     best_r = -1
-    for i in range(0, len(static_set_matrices)):
-      r = np.corrcoef(string_distances, squareform(static_set_matrices[i]))[0,1]
+    for i in range(0, len(all_combination_matrices)):
+      r = np.corrcoef(string_distances, squareform(all_combination_matrices[i]))[0,1]
       if r > best_r:
         best_matrix = i
         best_r = r
@@ -159,6 +159,6 @@ def generation_results(experiment, chain, generation):
 
 ########################################
 
-metrics = [[boxOriC, boxOriE, boxVrtC, boxVrtE], [locOriX, locOriY, locCntX, locCntY], [rotOri, rotThin], [shpThin, shpWide, shpEqui], [sizArea, sizPeri, sizCent]]
+metrics_by_feature = [[boxOriC, boxOriE, boxVrtC, boxVrtE], [locOriX, locOriY, locCntX, locCntY], [rotOri, rotThin], [shpThin, shpWide, shpEqui], [sizArea, sizPeri, sizCent]]
 static_set_triangles = basics.getTriangles(1, 'A', 0, 's')
-static_set_matrices = combination_matrices(static_set_triangles, metrics)
+all_combination_matrices = combination_matrices(static_set_triangles, metrics_by_feature)
