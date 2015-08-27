@@ -6,7 +6,7 @@ import geometry
 
 ########################################
 
-def distance_matrix(triangles, distance_metric):
+def property_distance_matrix(triangles, distance_metric):
   n = len(triangles)
   distance_matrix = np.zeros([n, n], dtype=float)
   for i in range(0, n):
@@ -16,28 +16,23 @@ def distance_matrix(triangles, distance_metric):
       distance_matrix[j, i] = dist
   return distance_matrix / distance_matrix.max()
 
-def triangle_distance_matrix(triangles, distance_metrics):
+def composite_distance_matrix(triangles, distance_metrics):
   n = len(triangles)
   feature_matrices = []
   for feature in distance_metrics:
     feature_matrix = np.zeros([n, n], dtype=float)
     for metric in feature:
-      feature_matrix += distance_matrix(triangles, metric)
+      feature_matrix += property_distance_matrix(triangles, metric)
     feature_matrices.append(feature_matrix / len(feature))
   return np.mean(feature_matrices, axis=0)
 
 def combination_matrices(triangles, distance_metrics):
   n = len(distance_metrics)
-  combins = []
-  for i in range(1, n+1):
-    for j in combinations(range(n), i):
-      combins.append(j)
   combin_matrices = []
-  for combin in combins:
-    combin_metrics = []
-    for i in combin:
-      combin_metrics.append(distance_metrics[i])
-    combin_matrices.append(triangle_distance_matrix(triangles, combin_metrics))
+  for i in range(1, n+1):
+    for combination_indices in combinations(range(n), i):
+      combin_metrics = [distance_metrics[j] for j in combination_indices]
+      combin_matrices.append(composite_distance_matrix(triangles, combin_metrics))
   return combin_matrices
 
 ########################################
