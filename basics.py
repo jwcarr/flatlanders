@@ -2,6 +2,8 @@ import numpy as np
 import Levenshtein
 from datetime import timedelta
 
+chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
+
 # Get the words for a given set
 def getWords(experiment, chain, generation, set_type):
   if set_type == "c":

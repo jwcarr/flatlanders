@@ -3,8 +3,7 @@ from random import shuffle
 import basics
 
 def allConvexity(experiment, Euclidean=True, iterations=100):
-    chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
-    return [[convexity(experiment, chain, gen, 's', Euclidean, iterations)[1] for gen in range(1,11)] for chain in chain_codes[experiment-1]]
+    return [[convexity(experiment, chain, gen, 's', Euclidean, iterations)[1] for gen in range(1,11)] for chain in basics.chain_codes[experiment-1]]
 
 def convexity(experiment, chain, gen, set_type, Euclidean=True, iterations=100):
     T = meaning_space.MakePCAMatrix(experiment, chain, gen, set_type, True)

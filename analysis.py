@@ -16,11 +16,9 @@ import Page
 import svg_polygons
 import rater_analysis as ra
 
-chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
-
 def expressivity(experiment, set_type):
   results = []
-  for chain in chain_codes[experiment-1]:
+  for chain in basics.chain_codes[experiment-1]:
     scores = []
     for generation in range(0, 11):
       score = basics.uniqueStrings(experiment, chain, generation, set_type)
@@ -63,7 +61,7 @@ def MonteCarloError(strings1, strings2, simulations):
 
 def allTransmissionErrors(experiment):
   results = []
-  for chain in chain_codes[experiment-1]:
+  for chain in basics.chain_codes[experiment-1]:
     scores = []
     for generation in range(1, 11):
       try:
@@ -79,7 +77,7 @@ def allTransmissionErrors(experiment):
 
 def allLearnability(experiment, sims=100000):
   results = []
-  for chain in chain_codes[experiment-1]:
+  for chain in basics.chain_codes[experiment-1]:
     print "Chain " + chain + "..."
     scores = []
     for generation in range(1, 11):
@@ -96,7 +94,7 @@ def allLearnability(experiment, sims=100000):
 
 def allTrainingErrors(experiment):
   results = []
-  for chain in chain_codes[experiment-1]:
+  for chain in basics.chain_codes[experiment-1]:
     scores = []
     for generation in range(1, 11):
       try:
@@ -204,7 +202,7 @@ def allStructureScores(experiment, sims=1000, meaning_distances=False):
   if type(meaning_distances) == bool and meaning_distances == False:
     meaning_distances = ra.reliable_distance_array
   matrix = []
-  for chain in chain_codes[experiment-1]:
+  for chain in basics.chain_codes[experiment-1]:
     print "  Chain " + chain + "..."
     scores = []
     for generation in range(0, 11):
@@ -234,7 +232,7 @@ def structureScore(experiment, chain, generation, simulations=1000, meaning_dist
 
 def allCatStructureScores(experiment, sims=1000):
   matrix = []
-  for chain in chain_codes[experiment-1]:
+  for chain in basics.chain_codes[experiment-1]:
     print "  Chain " + chain + "..."
     scores = []
     for generation in range(0, 11):

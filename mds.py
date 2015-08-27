@@ -3,7 +3,7 @@ from os import getenv
 from scipy.spatial import distance
 from sklearn.manifold import MDS
 from subprocess import call
-from basics import getWords, getTriangles, stringDistances
+import basics
 import numpy as np
 import rater_analysis
 import svg_polygons
@@ -12,7 +12,6 @@ import geometry
 
 
 # Globals
-chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
 label_font_size = 10 # points
 axis_font_size = 8 # points
 legend_font_size = 10 # points
@@ -20,7 +19,7 @@ figure_width = 5.5 # inches
 
 
 def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
-  for experiment in range(0, len(chain_codes)):
+  for experiment in range(0, len(basics.chain_codes)):
     plot_experiment(experiment+1, chain_wide_palette, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
 
 
@@ -31,7 +30,7 @@ def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], pu
     save_location = getenv('HOME') + '/Desktop/'
   save_location = save_location + str(experiment) + '/' + chain + '/'
 
-  for chain in chain_codes[experiment-1]:
+  for chain in basics.chain_codes[experiment-1]:
     print 'Chain: ' + chain
     plot_chain(chain, experiment, chain_wide_palette, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
 
@@ -46,7 +45,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
   if chain_wide_palette == True:
     all_strings = []
     for generation in range(0, 11):
-      all_strings += getWords(experiment, chain, generation, 's')
+      all_strings += basics.getWords(experiment, chain, generation, 's')
     colour_palette = generate_colour_palette(all_strings, spectrum, push_factor)
   else:
     colour_palette = None
@@ -68,8 +67,8 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
     experiment = determine_experiment_number(chain)
 
   # Get strings and triangles for this generation
-  strings = getWords(experiment, chain, generation, 's')
-  triangles = getTriangles(experiment, chain, generation, 's')
+  strings = basics.getWords(experiment, chain, generation, 's')
+  triangles = basics.getTriangles(experiment, chain, generation, 's')
 
   # Pick a colour palette if none has been supplied
   if colour_palette == None:
@@ -176,7 +175,7 @@ def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
 
   # Create distance matrix giving normalized Levenshtein distances between the words
   # Add on the given push factor to prevent colours from being too similar
-  string_distances = np.asarray(stringDistances(words), dtype=float) + push_factor
+  string_distances = np.asarray(basics.stringDistances(words), dtype=float) + push_factor
   string_distance_matrix = distance.squareform(string_distances, 'tomatrix')
 
   # Run distance matrix through MDS to determine the position of each word in 3-dimensional space
@@ -301,8 +300,8 @@ def make_prototype(triangles, spot_based=True):
 
 # Determine which experiment number a chain belongs to
 def determine_experiment_number(chain):
-  for experiment in range(0, len(chain_codes)):
-    if chain in chain_codes[experiment]:
+  for experiment in range(0, len(basics.chain_codes)):
+    if chain in basics.chain_codes[experiment]:
       return experiment + 1
   return None
 

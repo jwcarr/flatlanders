@@ -2,8 +2,6 @@
 
 from numpy import log2
 
-chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
-
 def entropy(X):
   P = probabilities(X)
   return 0.0-sum([p*log2(p) for p in P])
