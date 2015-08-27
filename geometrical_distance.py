@@ -26,6 +26,20 @@ def triangle_distance_matrix(triangles, distance_metrics):
     feature_matrices.append(feature_matrix / len(feature))
   return np.mean(feature_matrices, axis=0)
 
+def combination_matrices(triangles, distance_metrics):
+  n = len(distance_metrics)
+  combins = []
+  for i in range(1, n+1):
+    for j in combinations(range(n), i):
+      combins.append(j)
+  combin_matrices = []
+  for combin in combins:
+    combin_metrics = []
+    for i in combin:
+      combin_metrics.append(distance_metrics[i])
+    combin_matrices.append(triangle_distance_matrix(triangles, combin_metrics))
+  return combin_matrices
+
 ########################################
 
 # Distance metrics
