@@ -5,8 +5,12 @@ import geometry
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
 segmentation_rules = [['ei', 'EY'],['oo','UW'], ['ai', 'AY'], ['ae', 'AY'], ['au', 'AW'], ['oi', 'OY'], ['iu', 'IY|UW'], ['oa', 'OW|AA'], ['o', 'OW'], ['ia', 'IY|AA'], ['ua', 'UW|AA'], ['ou', 'OW|UW'], ['i', 'IY'], ['a', 'AA'],['e', 'EY'], ['u', 'UW'], ['ch', 'C'], ['c', 'k'], ['ng', 'N'], ['sh', 'S'], ['th', 'T'], ['b', 'b'], ['d', 'd'], ['f','f'],['g','g'], ['h','h'], ['j','J'], ['k','k'], ['l','l'], ['m','m'], ['n','n'], ['p','p'], ['r','r'], ['s','s'], ['t','t'], ['v','v'], ['w','w'], ['y','y'], ['z','z'], ['x','k|s'], ['d|y','d|IY'], ['k|y','k|IY'], ['z|y','z|IY'], ['OW|r','AO|r']]
+
 rounded_phonemes = ['b', 'd', 'g', 'l', 'm', 'n', 'N', 'OW', 'AO', 'UW']
 pointed_phonemes = ['EY', 'IY', 'k', 'p', 't']
+
+big_phonemes = ['b', 'd', 'g', 'l', 'm', 'w', 'AA', 'OW', 'AO', 'UW']
+small_phonemes = ['k', 'p', 't', 'EY', 'IY']
 
 ########################################
 
@@ -47,6 +51,16 @@ def roundedness(word):
     elif phoneme in pointed_phonemes:
       rounded_score -= 1
   return rounded_score
+
+def bigness(word):
+  segmented_word = segment(word)
+  bigness_score = 0
+  for phoneme in segmented_word:
+    if phoneme in big_phonemes:
+      bigness_score += 1
+    elif phoneme in small_phonemes:
+      bigness_score -= 1
+  return bigness_score
 
 def segment(word):
   for rule in segmentation_rules:
