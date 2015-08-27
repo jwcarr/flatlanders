@@ -38,16 +38,16 @@ def correlate_roundedness_equilateralness(words, triangles):
 ########################################
 
 def roundedness(word):
-  segmented_word = segment_word(word)
-  rounded_index = 0
+  segmented_word = segment(word)
+  rounded_score = 0
   for phoneme in segmented_word:
     if phoneme in rounded_phonemes:
-      rounded_index += 1
+      rounded_score += 1
     elif phoneme in pointed_phonemes:
-      rounded_index -= 1
-  return rounded_index
+      rounded_score -= 1
+  return rounded_score
 
-def segment_word(word):
+def segment(word):
   for rule in segmentation_rules:
     word = word.replace(rule[0], rule[1]+'|')
   word = word.replace('||', '|')
