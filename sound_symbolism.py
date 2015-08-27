@@ -31,13 +31,11 @@ def generation_sound_symbolism(experiment, chain, generation, set_type):
   triangles = basics.getTriangles(experiment, chain, generation, set_type)
   return correlate_roundedness_equilateralness(words, triangles)
 
-def correlate_roundedness_equilateralness(words, triangles):
-  word_scores = []
-  for word in words:
-    word_scores.append(roundedness(word))
-  triangle_scores = []
-  for triangle in triangles:
-    triangle_scores.append(geometry.equilateralness(triangle))
+########################################
+
+def correlate_form_and_symbolism(words, word_metric, triangles, triangle_metric):
+  word_scores = [word_metric(word) for word in words]
+  triangle_scores = [triangle_metric(triangle) for triangle in triangles]
   return np.corrcoef(word_scores, triangle_scores)[0,1]
 
 ########################################
