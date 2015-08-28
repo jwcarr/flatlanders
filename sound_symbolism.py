@@ -34,7 +34,7 @@ def generation_sound_symbolism(experiment, chain, generation, set_type, symbolis
   if symbolism == 'shape':
     return correlate_form_and_symbolism(words, roundedness_phonemes, triangles, geometry.equilateralness, monte_carlo)
   elif symbolism == 'size':
-    return correlate_form_and_symbolism(words, bigness_phonemes, triangles, geometry.area, monte_carlo)
+    return correlate_form_and_symbolism(words, bigness_phonemes, triangles, geometry.centroid_size, monte_carlo)
   else:
     raise ValueError('Invalid symbolism argument. Should be "shape" or "size".')
 
