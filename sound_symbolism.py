@@ -1,4 +1,3 @@
-from math import isnan
 import numpy as np
 import basics
 import geometry
@@ -82,20 +81,3 @@ def segment(word):
   if word[-1] == '|':
     word = word[:-1]
   return word.split('|')
-
-########################################
-
-# Calculate the proportion of correlation coefficients that are positive
-# Pass in the results from experiment_sound_symbolism()
-
-def percent_positive(matrix):
-  positive = 0
-  total = 0
-  for row in matrix:
-    for i in range(1,len(row)):
-      if isnan(row[i]) == True:
-        continue
-      if row[i] > 0:
-        positive += 1
-      total += 1
-  return positive, total, float(positive) / float(total)
