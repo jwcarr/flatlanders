@@ -5,11 +5,8 @@ import geometry
 
 segmentation_rules = [['ei', 'EY'],['oo','UW'], ['ai', 'AY'], ['ae', 'AY'], ['au', 'AW'], ['oi', 'OY'], ['iu', 'IY|UW'], ['oa', 'OW|AA'], ['o', 'OW'], ['ia', 'IY|AA'], ['ua', 'UW|AA'], ['ou', 'OW|UW'], ['i', 'IY'], ['a', 'AA'],['e', 'EY'], ['u', 'UW'], ['ch', 'C'], ['c', 'k'], ['ng', 'N'], ['sh', 'S'], ['th', 'T'], ['b', 'b'], ['d', 'd'], ['f','f'],['g','g'], ['h','h'], ['j','J'], ['k','k'], ['l','l'], ['m','m'], ['n','n'], ['p','p'], ['r','r'], ['s','s'], ['t','t'], ['v','v'], ['w','w'], ['y','y'], ['z','z'], ['x','k|s'], ['d|y','d|IY'], ['k|y','k|IY'], ['z|y','z|IY'], ['OW|r','AO|r']]
 
-rounded_phonemes = ['b', 'd', 'g', 'l', 'm', 'n', 'N', 'OW', 'AO', 'UW']
-pointed_phonemes = ['EY', 'IY', 'k', 'p', 't']
-
-big_phonemes = ['b', 'd', 'g', 'l', 'm', 'w', 'AA', 'OW', 'AO', 'UW']
-small_phonemes = ['k', 'p', 't', 'EY', 'IY']
+roundedness_phonemes = [['b', 'd', 'g', 'l', 'm', 'n', 'N', 'OW', 'AO', 'UW'], ['EY', 'IY', 'k', 'p', 't']]
+bigness_phonemes = [['b', 'd', 'g', 'l', 'm', 'w', 'AA', 'OW', 'AO', 'UW'], ['k', 'p', 't', 'EY', 'IY']]
 
 ########################################
 
@@ -29,40 +26,31 @@ def generation_sound_symbolism(experiment, chain, generation, set_type, symbolis
   words = basics.getWords(experiment, chain, generation, set_type)
   triangles = basics.getTriangles(experiment, chain, generation, set_type)
   if symbolism == 'shape':
-    return correlate_form_and_symbolism(words, roundedness, triangles, geometry.equilateralness)
+    return correlate_form_and_symbolism(words, roundedness_phonemes, triangles, geometry.equilateralness)
   elif symbolism == 'size':
-    return correlate_form_and_symbolism(words, bigness, triangles, geometry.area)
+    return correlate_form_and_symbolism(words, bigness_phonemes, triangles, geometry.area)
   else:
     raise ValueError('Invalid symbolism argument. Should be "shape" or "size".')
 
 ########################################
 
-def correlate_form_and_symbolism(words, word_metric, triangles, triangle_metric):
-  word_scores = [word_metric(word) for word in words]
+def correlate_form_and_symbolism(words, symbolic_phonemes, triangles, triangle_metric):
+  word_scores = [score_word(word, symbolic_phonemes) for word in words]
   triangle_scores = [triangle_metric(triangle) for triangle in triangles]
   return np.corrcoef(word_scores, triangle_scores)[0,1]
 
 ########################################
 
-def roundedness(word):
+def score_word(word, symbolic_phonemes):
   segmented_word = segment(word)
-  rounded_score = 0
+  score = 0
   for phoneme in segmented_word:
-    if phoneme in rounded_phonemes:
-      rounded_score += 1
-    elif phoneme in pointed_phonemes:
-      rounded_score -= 1
-  return rounded_score
+    if phoneme in symbolic_phonemes[0]:
+      score += 1
+    elif phoneme in symbolic_phonemes[1]:
+      score -= 1
+  return score
 
-def bigness(word):
-  segmented_word = segment(word)
-  bigness_score = 0
-  for phoneme in segmented_word:
-    if phoneme in big_phonemes:
-      bigness_score += 1
-    elif phoneme in small_phonemes:
-      bigness_score -= 1
-  return bigness_score
 
 def segment(word):
   for rule in segmentation_rules:
