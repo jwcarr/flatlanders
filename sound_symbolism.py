@@ -39,8 +39,9 @@ def generation_sound_symbolism(experiment, chain, generation, set_type, symbolis
 
 ########################################
 
-# Given words and a list of sound symbolic phonemes, and triangles and triangle
-# metric, correlate the scores
+# Given words and a list of sound symbolic phonemes, and triangles and a triangle
+# metric, correlate the scores. If monte_carlo is False, just return the Pearson
+# correlation coefficient, else use Monte_Carlo() and return a z-score.
 
 def correlate_form_and_symbolism(words, symbolic_phonemes, triangles, triangle_metric, monte_carlo=False):
   word_scores = np.asarray([score_word(word, symbolic_phonemes) for word in words], dtype=int)
@@ -60,10 +61,12 @@ def Monte_Carlo(word_scores, triangle_scores, permutations):
     correlations[i] = np.corrcoef(word_scores, triangle_scores)[0,1]
   return (correlations[0] - correlations.mean()) / correlations.std()
 
+########################################
+
 # Score a word using a list of sound symbolic phonemes
 
 def score_word(word, symbolic_phonemes):
-  segmented_word = segment(word)
+  segmented_word = segment_word(word)
   score = 0
   for phoneme in segmented_word:
     if phoneme in symbolic_phonemes[0]:
@@ -74,7 +77,7 @@ def score_word(word, symbolic_phonemes):
 
 # Segment a word into a list of phonemes
 
-def segment(word):
+def segment_word(word):
   for rule in segmentation_rules:
     word = word.replace(rule[0], rule[1]+'|')
   word = word.replace('||', '|')
