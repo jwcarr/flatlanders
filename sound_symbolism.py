@@ -16,25 +16,25 @@ bigness_phonemes = [['b', 'd', 'g', 'l', 'm', 'w', 'AA', 'OW', 'AO', 'UW'], ['k'
 
 # Functions for generating experiment, chain, or generation results
 
-def experiment_sound_symbolism(experiment, set_type='s', symbolism='shape'):
+def experiment_sound_symbolism(experiment, set_type='s', symbolism='shape', monte_carlo=False):
   experiment_results = []
   for chain in basics.chain_codes[experiment-1]:
-    experiment_results.append(chain_sound_symbolism(experiment, chain, set_type, symbolism))
+    experiment_results.append(chain_sound_symbolism(experiment, chain, set_type, symbolism, monte_carlo))
   return experiment_results
 
-def chain_sound_symbolism(experiment, chain, set_type='s', symbolism='shape'):
+def chain_sound_symbolism(experiment, chain, set_type='s', symbolism='shape', monte_carlo=False):
   chain_results = []
   for generation in range(0, 11):
-    chain_results.append(generation_sound_symbolism(experiment, chain, generation, set_type, symbolism))
+    chain_results.append(generation_sound_symbolism(experiment, chain, generation, set_type, symbolism, monte_carlo))
   return chain_results
 
-def generation_sound_symbolism(experiment, chain, generation, set_type, symbolism='shape'):
+def generation_sound_symbolism(experiment, chain, generation, set_type, symbolism='shape', monte_carlo=False):
   words = basics.getWords(experiment, chain, generation, set_type)
   triangles = basics.getTriangles(experiment, chain, generation, set_type)
   if symbolism == 'shape':
-    return correlate_form_and_symbolism(words, roundedness_phonemes, triangles, geometry.equilateralness)
+    return correlate_form_and_symbolism(words, roundedness_phonemes, triangles, geometry.equilateralness, monte_carlo)
   elif symbolism == 'size':
-    return correlate_form_and_symbolism(words, bigness_phonemes, triangles, geometry.area)
+    return correlate_form_and_symbolism(words, bigness_phonemes, triangles, geometry.area, monte_carlo)
   else:
     raise ValueError('Invalid symbolism argument. Should be "shape" or "size".')
 
@@ -43,10 +43,23 @@ def generation_sound_symbolism(experiment, chain, generation, set_type, symbolis
 # Given words and a list of sound symbolic phonemes, and triangles and triangle
 # metric, correlate the scores
 
-def correlate_form_and_symbolism(words, symbolic_phonemes, triangles, triangle_metric):
-  word_scores = [score_word(word, symbolic_phonemes) for word in words]
-  triangle_scores = [triangle_metric(triangle) for triangle in triangles]
+def correlate_form_and_symbolism(words, symbolic_phonemes, triangles, triangle_metric, monte_carlo=False):
+  word_scores = np.asarray([score_word(word, symbolic_phonemes) for word in words], dtype=int)
+  triangle_scores = np.asarray([triangle_metric(triangle) for triangle in triangles], dtype=float)
+  if type(monte_carlo) == int:
+    return Monte_Carlo(word_scores, triangle_scores, monte_carlo)
   return np.corrcoef(word_scores, triangle_scores)[0,1]
+
+# Given word scores and triangle scores, randomize the mapping between them a large
+# number of times and compute a z-score for the significance of the veridical correlation
+
+def Monte_Carlo(word_scores, triangle_scores, permutations):
+  correlations = np.zeros(permutations, dtype=float)
+  correlations[0] = np.corrcoef(word_scores, triangle_scores)[0,1]
+  for i in range(1, permutations):
+    np.random.shuffle(word_scores)
+    correlations[i] = np.corrcoef(word_scores, triangle_scores)[0,1]
+  return (correlations[0] - correlations.mean()) / correlations.std()
 
 # Score a word using a list of sound symbolic phonemes
 
