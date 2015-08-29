@@ -173,3 +173,11 @@ def equilateralness(A):
   a = area(A)
   p = perimeter(A)
   return a / upper_bound_on_area(p)
+
+#############################################################################
+# Return Bookstain coordinates for triangle A
+
+def Bookstein_coordinates(A):
+  BC_x = ((A[1,0]-A[0,0])*(A[2,0]-A[0,0])+(A[1,1]-A[0,1])*(A[2,1]-A[0,1])) / (((A[1,0]-A[0,0])**2) + ((A[1,1]-A[0,1])**2))
+  BC_y = ((A[1,0]-A[0,0])*(A[2,1]-A[0,1])-(A[1,1]-A[0,1])*(A[2,0]-A[0,0])) / (((A[1,0]-A[0,0])**2) + ((A[1,1]-A[0,1])**2))
+  return np.array([BC_x, BC_y])
