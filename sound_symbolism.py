@@ -8,7 +8,7 @@ import geometry
 segmentation_rules = [['ei', 'EY'],['oo','UW'], ['ai', 'AY'], ['ae', 'AY'], ['au', 'AW'], ['oi', 'OY'], ['iu', 'IY|UW'], ['oa', 'OW|AA'], ['o', 'OW'], ['ia', 'IY|AA'], ['ua', 'UW|AA'], ['ou', 'OW|UW'], ['i', 'IY'], ['a', 'AA'],['e', 'EY'], ['u', 'UW'], ['ch', 'C'], ['c', 'k'], ['ng', 'N'], ['sh', 'S'], ['th', 'T'], ['b', 'b'], ['d', 'd'], ['f','f'],['g','g'], ['h','h'], ['j','J'], ['k','k'], ['l','l'], ['m','m'], ['n','n'], ['p','p'], ['r','r'], ['s','s'], ['t','t'], ['v','v'], ['w','w'], ['y','y'], ['z','z'], ['x','k|s'], ['d|y','d|IY'], ['k|y','k|IY'], ['z|y','z|IY'], ['OW|r','AO|r']]
 
 # Sets of phonemes associated with rounded/pointed and big/small stimuli
-roundedness_phonemes = [['b', 'd', 'g', 'l', 'm', 'n', 'N', 'OW', 'AO', 'UW'], ['EY', 'IY', 'k', 'p', 't']]
+roundedness_phonemes = [['b', 'd', 'g', 'l', 'm', 'n', 'N', 'OW', 'AO', 'UW'], ['k', 'p', 't', 'EY', 'IY']]
 bigness_phonemes = [['b', 'd', 'g', 'l', 'm', 'w', 'AA', 'OW', 'AO', 'UW'], ['k', 'p', 't', 'EY', 'IY']]
 
 ########################################
