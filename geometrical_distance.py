@@ -171,6 +171,20 @@ def most_and_least_similar_pairs(matrix):
         dissimilar_indices = (i, j)
   return similar_score, similar_indices, dissimilar_score, dissimilar_indices
 
+# Count the number of occurrences of each type
+# Pass in a list of results from experiment_results()
+
+def type_counts(results):
+  types = [0 for i in range(15)]
+  for experiment in results:
+    for chain in experiment:
+      for i in range(1, len(chain)):
+        try:
+          types[chain[i][0]-1] += 1
+        except TypeError:
+          continue
+  return types
+
 # Format results into a LaTeX table
 
 def latex_table(results, exp):
