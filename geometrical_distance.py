@@ -171,6 +171,32 @@ def most_and_least_similar_pairs(matrix):
         dissimilar_indices = (i, j)
   return similar_score, similar_indices, dissimilar_score, dissimilar_indices
 
+# Format results into a LaTeX table
+
+def latex_table(results, exp):
+  latex = ''
+  for chain in range(0, len(results)):
+    chain_line = []
+    chain_line.append( '\\bfseries %s' % basics.chain_codes[exp-1][chain] )
+    for generation in range(1,11):
+      try:
+        if results[chain][generation][1] >= 0:
+          corr = "{0:.2f}".format(results[chain][generation][1])[1:]
+        else:
+          corr = '-' + "{0:.2f}".format(results[chain][generation][1])[2:]
+        if corr[-1] == '0':
+          corr = corr[:-1]
+        cell = str(results[chain][generation][0]) + ' (' + corr  + ')'
+      except TypeError:
+        cell = '--'
+      chain_line.append(cell)
+    latex += ' & '.join(chain_line)
+    latex += '\\\\\n'
+  latex = ('\multicolumn{11}{c}{\\bfseries Experiment %i} \\\\ \\hline\n'% exp) + latex[0:-1] + ' \hline'
+  f = open('/Users/jon/Desktop/table', 'w')
+  f.write(latex)
+  f.close()
+
 ########################################
 
 # Functions for generating experiment, chain, or generation results
