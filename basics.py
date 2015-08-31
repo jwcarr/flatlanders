@@ -44,6 +44,19 @@ def uniqueStrings(experiment, chain, generation, set_type):
     raise ValueError('Invalid set type. Should be "s", "d", or "c".')
   return len(set(words))
 
+def allTrainingErrors(experiment):
+  results = []
+  for chain in basics.chain_codes[experiment-1]:
+    scores = []
+    for generation in range(1, 11):
+      try:
+        score = basics.trainingError(experiment, chain, generation)
+        scores.append(score)
+      except:
+        scores.append("N/A")
+    results.append(scores)
+  return results
+
 # Return the amount of training error made by a participant
 def trainingError(experiment, chain, generation, subject=False):
   if subject == 'A' or subject == 'B':
