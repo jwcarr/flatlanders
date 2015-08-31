@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from numpy import corrcoef, mean
 from copy import deepcopy
 import basics
-import krippendorff
+import Krippendorff
 
 ########################################################################################
 
@@ -28,7 +28,7 @@ class Rater:
   # Read in a ratings file
   def ReadFile(self):
     try:
-      f = open('Data/ratings_ca/completed/' + self.ID)
+      f = open('data/ratings_ca/completed/' + self.ID)
     except IOError:
       raise ValueError(self.ID + ' is not a valid rater')
     content = f.read()
@@ -38,7 +38,7 @@ class Rater:
   # Read in a comments file
   def ReadInComments(self):
     try:
-      f = open('Data/ratings_ca/comments/' + self.ID)
+      f = open('data/ratings_ca/comments/' + self.ID)
     except IOError:
       return None
     comment = f.read()
@@ -209,6 +209,38 @@ def RaterAgreement(display_histogram=False):
     plt.show()
   else:
     return agreements
+
+#############################################################################
+# CALCULATE COMMUNICATIVE ACCURACY
+
+def commAccuracy(chain, generation):
+  dynamic_set = basics.load(3, chain, generation, "d")
+  static_set = basics.load(3, chain, generation, "s")
+  target_triangles = []
+  select_triangles = []
+  for item in dynamic_set+static_set:
+    target_triangle = []
+    select_triangle = []
+    for i in [1,2,3]:
+      x, y = item[i].split(',')
+      target_triangle.append([int(x), int(y)])
+      x, y = item[i+4].split(',')
+      select_triangle.append([int(x), int(y)])
+    target_triangles.append(target_triangle)
+    select_triangles.append(select_triangle)
+  target_triangles = numpy.asarray(target_triangles, dtype=float)
+  select_triangles = numpy.asarray(select_triangles, dtype=float)
+  target_features = meaning_space.MakeFeatureMatrix(target_triangles, False)
+  select_features = meaning_space.MakeFeatureMatrix(select_triangles, False)
+  accuracy = 0.0
+  correct = 0.0
+  for i in range(0, len(target_features)):
+    acc = meaning_space.ED(target_features[i], select_features[i])
+    accuracy += acc
+    if acc == 0.0:
+      correct += 1
+  return accuracy / len(target_features), correct
+
 
 ########################################################################################
 
