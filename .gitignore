@@ -1,4 +1,4 @@
-Experiment/data/**/*
-Rater/data/**/*
-Rater_ca/data/**/*
-Data/**/*
+experiment/data/**/*
+rating_tasks/static_set_pairs/data/**/*
+rating_tasks/communicative_error/data/**/*
+data/**/*
