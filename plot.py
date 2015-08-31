@@ -1,9 +1,10 @@
 from string import ascii_uppercase
 from math import isinf, isnan
+from os import getenv
 import matplotlib.pyplot as plt
 import numpy as np
 
-
+desktop_location = getenv('HOME') + '/Desktop/'
 label_font_size = 10
 axis_font_size = 8
 legend_font_size = 10
@@ -153,7 +154,7 @@ def chains(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, t
   if experiment == False:
     experiment = 1
   if save_location == False:
-    save_location = '/Users/jon/Desktop/'
+    save_location = desktop_location
   if save_name == False:
     save_name = 'plot.eps'
 
@@ -191,7 +192,7 @@ def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, tex
   if experiment == False:
     experiment = 1
   if save_location == False:
-    save_location = '/Users/jon/Desktop/'
+    save_location = desktop_location
   if save_name == False:
     save_name = 'plot.eps'
 
@@ -291,7 +292,7 @@ def RemoveNaN(matrix):
     new_matrix.append(new_row)
   return new_matrix
 
-def triple(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_label="Score", conf=False, save=False):
+def triple(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_label="Score", conf=False, save_location=False, save_name='plot.pdf'):
   
   # Initialize figure
   plt.figure(1)
@@ -396,5 +397,9 @@ def triple(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_labe
   ax3_l.legend([handles[0], handles[2], handles[1], handles[3]], [labels[0], labels[2], labels[1], labels[3]], loc='upper center', frameon=False, prop={'size':7.5}, ncol=2, numpoints=1, handletextpad=0.2)
   
   plt.tight_layout(pad=0.2, w_pad=1.0, h_pad=0.00)
-  plt.savefig(save)
+
+  if save_location == False:
+    save_location = desktop_location
+
+  plt.savefig(save_location + save_name)
   plt.clf()
