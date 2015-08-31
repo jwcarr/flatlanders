@@ -3,6 +3,13 @@ from datetime import timedelta
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
 
+# Determine which experiment number a chain belongs to
+def determine_experiment_number(chain):
+  for experiment in range(0, len(chain_codes)):
+    if chain in chain_codes[experiment]:
+      return experiment + 1
+  return None
+
 # Get the words for a given set
 def getWords(experiment, chain, generation, set_type):
   if set_type == "c":
