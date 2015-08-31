@@ -119,16 +119,14 @@ def stringDistances(strings):
   distances = []
   for i in range(0,len(strings)):
     for j in range(i+1,len(strings)):
-      ld = LevenshteinDistance(strings[i], strings[j])
-      distances.append(ld/float(max(len(strings[i]), len(strings[j]))))
+      distances.append(LevenshteinDistance(strings[i], strings[j]))
   return distances
 
 # Compute mean normalized Levenshtein distance between consecutive static sets
 def meanNormLevenshtein(strings1, strings2):
   total = 0.0
   for i in range(0, len(strings1)):
-    ld = LevenshteinDistance(strings1[i], strings2[i])
-    total += ld/float(max(len(strings1[i]), len(strings2[i])))
+    total += LevenshteinDistance(strings1[i], strings2[i])
   return total/float(len(strings1))
 
 def LevenshteinDistance(s1, s2):
