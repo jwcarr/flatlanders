@@ -8,7 +8,7 @@ import rater_analysis
 # shuffling the categories that meanings belong to rather than shuffling the string-meaning
 # mapping freely.
 
-def Test(experiment, chain, generation, set_type, randomizations):
+def test(experiment, chain, generation, set_type, randomizations):
   words = basics.getWords(experiment, chain, generation, set_type)
   word_distances = basics.stringDistances(words)
   categorized_words, categorized_meanings = CategorizeWords(words)
