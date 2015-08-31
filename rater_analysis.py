@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from numpy import corrcoef, mean, zeros
 from copy import deepcopy
 from scipy import spatial
-import krippendorff
+import Krippendorff
 
 ########################################################################################
 
@@ -26,7 +26,7 @@ class Rater:
   # Read in a ratings file
   def ReadFile(self):
     try:
-      f = open('Data/ratings/' + self.ID)
+      f = open('data/ratings/' + self.ID)
     except IOError:
       raise ValueError(self.ID + ' is not a valid rater')
     content = f.read()

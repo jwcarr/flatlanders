@@ -69,7 +69,7 @@ def trainingError(experiment, chain, generation, subject=False):
   x = meanNormLevenshtein(words_A, words_B)
   return x
 
-# Calculate the average amount of time speant on each test item
+# Calculate the average amount of time spent on each test item
 def timePerItem(experiment, chain, generation):
   set_d = load(experiment, chain, generation, "d")
   timestamp_1 = stringToTimeStamp(set_d[0][4])
@@ -145,7 +145,7 @@ def LevenshteinDistance(s1, s2):
 
 # Load in a data file
 def load(experiment, chain, generation, set_type):
-  filename = "Data/" + str(experiment) + "/" + chain + "/" + str(generation) + set_type
+  filename = "data/" + str(experiment) + "/" + chain + "/" + str(generation) + set_type
   f = open(filename, 'r')
   data = f.read()
   f.close()
@@ -158,7 +158,7 @@ def writeOut(matrix, filename='file'):
     row = [str(x) for x in row]
     data = data + "\t".join(row) + "\n"
   data = data[0:-1]
-  f = open('/Users/jon/Desktop/' + filename + '.txt', 'w')
+  f = open(filename, 'w')
   f.write(data)
   f.close()
 

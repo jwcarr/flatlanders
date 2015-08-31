@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from random import randrange
 
 def assign(chain_codes, start_gen, end_gen):
