@@ -15,19 +15,19 @@ bigness_phonemes = [['b', 'd', 'g', 'l', 'm', 'w', 'AA', 'OW', 'AO', 'UW'], ['k'
 
 # Functions for generating experiment, chain, or generation results
 
-def experiment_sound_symbolism(experiment, set_type='s', symbolism='shape', monte_carlo=False):
+def experiment_results(experiment, set_type='s', symbolism='shape', monte_carlo=False):
   experiment_results = []
   for chain in basics.chain_codes[experiment-1]:
-    experiment_results.append(chain_sound_symbolism(experiment, chain, set_type, symbolism, monte_carlo))
+    experiment_results.append(chain_results(experiment, chain, set_type, symbolism, monte_carlo))
   return experiment_results
 
-def chain_sound_symbolism(experiment, chain, set_type='s', symbolism='shape', monte_carlo=False):
+def chain_results(experiment, chain, set_type='s', symbolism='shape', monte_carlo=False):
   chain_results = []
   for generation in range(0, 11):
-    chain_results.append(generation_sound_symbolism(experiment, chain, generation, set_type, symbolism, monte_carlo))
+    chain_results.append(generation_results(experiment, chain, generation, set_type, symbolism, monte_carlo))
   return chain_results
 
-def generation_sound_symbolism(experiment, chain, generation, set_type, symbolism='shape', monte_carlo=False):
+def generation_results(experiment, chain, generation, set_type, symbolism='shape', monte_carlo=False):
   words = basics.getWords(experiment, chain, generation, set_type)
   triangles = basics.getTriangles(experiment, chain, generation, set_type)
   if symbolism == 'shape':
