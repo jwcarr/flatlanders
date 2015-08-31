@@ -1,6 +1,7 @@
 import numpy as np
 import basics
 import geometry
+import plot as plt
 
 ########################################
 
@@ -84,3 +85,10 @@ def segment_word(word):
   if word[-1] == '|':
     word = word[:-1]
   return word.split('|')
+
+########################################
+
+# Function for producing a plot of sound symbolism data
+
+def plot(left_plot, right_plot, experiment, save_location=False):
+  plt.chains(left_plot, dataset2=right_plot, miny=-3, maxy=6, y_label='Sound symbolism', text='(A)', text2='(B)',  text_pos='top', experiment=experiment, conf=True, conf2=True, save_location=save_location, save_name='E%i_sound_symbolism.pdf'%experiment)
