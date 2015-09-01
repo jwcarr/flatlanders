@@ -131,6 +131,7 @@ def meanNormLevenshtein(strings1, strings2):
     total += LevenshteinDistance(strings1[i], strings2[i])
   return total/float(len(strings1))
 
+# Calculate the normalized Levenshtein distance between two strings
 def LevenshteinDistance(s1, s2):
   if len(s1) > len(s2):
     s1,s2 = s2,s1

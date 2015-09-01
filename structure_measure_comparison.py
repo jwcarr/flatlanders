@@ -1,9 +1,10 @@
-# Creates a figure showing the difference between the regular and
-# categorical structure measures.
+# Creates a figure showing the difference between the general and
+# sublexical structure measures.
 
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 import numpy as np
+import basics
 
 axis_font_size = 8
 label_font_size = 10
@@ -28,7 +29,7 @@ def plot():
   plt.annotate('z = 5', xy=(0.25, 2.2), ha='center', fontsize=7, xycoords='data', xytext=(0, 0), textcoords='offset points')
   configure_axes()
 
-  # Plot B: Compositional structure
+  # Plot B: Sublexical structure
   mean, variance = (0.2, 0.01)
   x, y = normal_distribution(mean, variance)
   ax2 = plt.subplot2grid((6,2), (0,1), rowspan=5)

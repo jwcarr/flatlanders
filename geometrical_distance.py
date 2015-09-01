@@ -116,11 +116,11 @@ def type_counts(results):
 
 # Format results into a LaTeX table
 
-def latex_table(results, exp):
+def latex_table(results, experiment):
   latex = ''
   for chain in range(0, len(results)):
     chain_line = []
-    chain_line.append( '\\bfseries %s' % basics.chain_codes[exp-1][chain] )
+    chain_line.append( '\\bfseries %s' % basics.chain_codes[experiment-1][chain] )
     for generation in range(1,11):
       try:
         if results[chain][generation][1] >= 0:
@@ -135,7 +135,7 @@ def latex_table(results, exp):
       chain_line.append(cell)
     latex += ' & '.join(chain_line)
     latex += '\\\\\n'
-  latex = ('\multicolumn{11}{c}{\\bfseries Experiment %i} \\\\ \\hline\n'% exp) + latex[0:-1] + ' \hline'
+  latex = ('\multicolumn{11}{c}{\\bfseries Experiment %i} \\\\ \\hline\n'% experiment) + latex[0:-1] + ' \hline'
   f = open(basics.desktop_location + 'E%i_typology.tex'%experiment, 'w')
   f.write(latex)
   f.close()
