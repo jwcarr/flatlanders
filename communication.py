@@ -174,8 +174,10 @@ def AverageRatings(agreement_filter=None, test_filter=None, distances=None, krip
     return mean_dist, counts, rater_n, ka_matrix
   return mean_dist, counts, rater_n, None
 
-# Measure communicative accuracy
-def CommAccuracy(chain, generation, distances=None):
+#############################################################################
+
+# Measure communicative error
+def CommError(chain, generation, distances=None):
   if distances == None:
     distances = reliable_distances
   dynamic_set = basics.load(3, chain, generation, "d")
@@ -186,61 +188,34 @@ def CommAccuracy(chain, generation, distances=None):
     selected_triangle = item[5] + ';' + item[6] + ';' + item[7]
     if target_triangle != selected_triangle:
       triangle_pairs.append(target_triangle + '~' + selected_triangle)
-  accuracy = 0.0
+  error = 0.0
   for pair in triangle_pairs:
-    accuracy += distances[pair]
+    error += distances[pair]
+  return error
+
+# Measure communicative accuracy for all chains and generations
+def error_results(distances=None):
+  return [[CommError(chain, gen, distances) for gen in range(1,11)] for chain in ['I', 'J', 'K', 'L']]
+
+#############################################################################
+
+# Measure communicative accuracy - number of correct trials
+def CommAccuracy(chain, generation):
+  dynamic_set = basics.load(3, chain, generation, "d")
+  static_set = basics.load(3, chain, generation, "s")
+  accuracy = 0
+  for item in dynamic_set+static_set:
+    target_triangle = item[1] + ';' + item[2] + ';' + item[3]
+    selected_triangle = item[5] + ';' + item[6] + ';' + item[7]
+    if target_triangle == selected_triangle:
+      accuracy += 1
   return accuracy
 
 # Measure communicative accuracy for all chains and generations
-def AllCommAccuracy(distances=None):
-  return [[CommAccuracy(chain, gen, distances) for gen in range(1,11)] for chain in ['I', 'J', 'K', 'L']]
+def accuracy_results():
+  return [[CommAccuracy(chain, gen) for gen in range(1,11)] for chain in ['I', 'J', 'K', 'L']]
 
-def RaterAgreement(display_histogram=False):
-  agreements = []
-  for rater in raters.values():
-    rater_agreement = rater.RaterAgreement()
-    if rater_agreement != None:
-      agreements.append(rater_agreement)
-  if display_histogram == True:
-    plt.hist(agreements, bins=[-1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
-    plt.xlim(-1, 1)
-    plt.xlabel("Rater agreement")
-    plt.ylabel("Frequency")
-    plt.title('Distribution of rater agreement scores')
-    plt.show()
-  else:
-    return agreements
-
-#############################################################################
-# CALCULATE COMMUNICATIVE ACCURACY
-
-def commAccuracy(chain, generation):
-  dynamic_set = basics.load(3, chain, generation, "d")
-  static_set = basics.load(3, chain, generation, "s")
-  target_triangles = []
-  select_triangles = []
-  for item in dynamic_set+static_set:
-    target_triangle = []
-    select_triangle = []
-    for i in [1,2,3]:
-      x, y = item[i].split(',')
-      target_triangle.append([int(x), int(y)])
-      x, y = item[i+4].split(',')
-      select_triangle.append([int(x), int(y)])
-    target_triangles.append(target_triangle)
-    select_triangles.append(select_triangle)
-  target_triangles = numpy.asarray(target_triangles, dtype=float)
-  select_triangles = numpy.asarray(select_triangles, dtype=float)
-  target_features = meaning_space.MakeFeatureMatrix(target_triangles, False)
-  select_features = meaning_space.MakeFeatureMatrix(select_triangles, False)
-  accuracy = 0.0
-  correct = 0.0
-  for i in range(0, len(target_features)):
-    acc = meaning_space.ED(target_features[i], select_features[i])
-    accuracy += acc
-    if acc == 0.0:
-      correct += 1
-  return accuracy / len(target_features), correct
+########################################################################################
 
 def plot(left_plot, right_plot, save_location=False):
   plt.chains(left_plot, dataset2=right_plot, miny=0, maxy=50, miny2=0, maxy2=60, y_label='Number of correct trials', y_label2='Communicative error', text='(A)', text2='(B)', text_pos='bottom', experiment=3, conf=16, conf2=False, save_location=save_location, save_name='E3_communication.pdf')
@@ -260,7 +235,7 @@ all_distances, all_counts, all_rater_n, ka_data = AverageRatings(None, None, Non
 
 # Average everyone's ratings together again, this time filtering out unreliable raters.
 # Reliable raters are defined as those whose agreement with the average ratings of all
-# raters is greater than 0.4.
+# raters is >= 0.4 and whose mean rating of reliability pairs <= 100.
 reliable_distances, reliable_counts, reliable_rater_n, ka_data = AverageRatings(0.4, 100, all_distances, True)
 
 #print krippendorff.alpha(ka_data) # Calculates Krippendorff's alpha - very slow
