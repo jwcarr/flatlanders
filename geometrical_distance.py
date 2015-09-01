@@ -136,7 +136,7 @@ def latex_table(results, exp):
     latex += ' & '.join(chain_line)
     latex += '\\\\\n'
   latex = ('\multicolumn{11}{c}{\\bfseries Experiment %i} \\\\ \\hline\n'% exp) + latex[0:-1] + ' \hline'
-  f = open('/Users/jon/Desktop/table', 'w')
+  f = open(basics.desktop_location + 'E%i_typology.tex'%experiment, 'w')
   f.write(latex)
   f.close()
 

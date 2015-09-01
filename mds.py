@@ -1,5 +1,4 @@
 from matplotlib import pyplot as plt, patches
-from os import getenv
 from scipy.spatial import distance
 from sklearn.manifold import MDS
 from subprocess import call
@@ -27,7 +26,7 @@ def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], pu
 
   # Set directory for saving
   if save_location == False:
-    save_location = getenv('HOME') + '/Desktop/'
+    save_location = basics.desktop_location
   save_location = save_location + str(experiment) + '/' + chain + '/'
 
   for chain in basics.chain_codes[experiment-1]:
@@ -52,7 +51,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
 
   # Set directory for saving
   if save_location == False:
-    save_location = getenv('HOME') + '/Desktop/'
+    save_location = basics.desktop_location
   save_location = save_location + chain + '/'
 
   # Produce a plot for each generation
@@ -137,7 +136,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
 
   # Determine filename and directory if none has been specified
   if type(save_location) == bool and save_location == False:
-    save_location = getenv('HOME') + '/Desktop/'
+    save_location = basics.desktop_location
   if type(save_name) == bool and save_name == False:
     save_name = chain + str(generation)
   if colour_candidates != False:

@@ -1,7 +1,9 @@
 import numpy as np
 from datetime import timedelta
+from os import getenv
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
+desktop_location = getenv('HOME') + '/Desktop/'
 
 # Determine which experiment number a chain belongs to
 def determine_experiment_number(chain):
@@ -158,7 +160,7 @@ def writeOut(matrix, filename='file'):
     row = [str(x) for x in row]
     data = data + "\t".join(row) + "\n"
   data = data[0:-1]
-  f = open(filename, 'w')
+  f = open(desktop_location + filename, 'w')
   f.write(data)
   f.close()
 

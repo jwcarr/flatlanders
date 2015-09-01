@@ -1,10 +1,10 @@
 from string import ascii_uppercase
 from math import isinf, isnan
-from os import getenv
 import matplotlib.pyplot as plt
 import numpy as np
+import basics
 
-desktop_location = getenv('HOME') + '/Desktop/'
+
 label_font_size = 10
 axis_font_size = 8
 legend_font_size = 10
@@ -154,7 +154,7 @@ def chains(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, t
   if experiment == False:
     experiment = 1
   if save_location == False:
-    save_location = desktop_location
+    save_location = basics.desktop_location
   if save_name == False:
     save_name = 'plot.eps'
 
@@ -192,7 +192,7 @@ def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, tex
   if experiment == False:
     experiment = 1
   if save_location == False:
-    save_location = desktop_location
+    save_location = basics.desktop_location
   if save_name == False:
     save_name = 'plot.eps'
 
@@ -399,7 +399,7 @@ def triple(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_labe
   plt.tight_layout(pad=0.2, w_pad=1.0, h_pad=0.00)
 
   if save_location == False:
-    save_location = desktop_location
+    save_location = basics.desktop_location
 
   plt.savefig(save_location + save_name)
   plt.clf()

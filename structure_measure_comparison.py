@@ -49,7 +49,7 @@ def plot():
   ax3.legend(handles, labels, loc='upper center', frameon=False, prop={'size':legend_font_size}, ncol=3, numpoints=1)
 
   plt.tight_layout(pad=0.2, w_pad=1.0, h_pad=0.00)
-  plt.savefig("/Users/jon/Documents/PhD/Manuscripts/Flatlanders/figures/structure_methods.eps")
+  plt.savefig(basics.desktop_location + "structure_methods.eps")
   plt.clf()
 
 def configure_axes():
