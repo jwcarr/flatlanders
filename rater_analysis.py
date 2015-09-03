@@ -189,4 +189,4 @@ all_distance_array, all_count_array, ka_data = AverageDistanceMatrix(raters, Non
 # raters is greater than 0.4.
 reliable_distance_array, reliable_count_array, ka_data = AverageDistanceMatrix(raters, 0.4, 100, all_distance_array, True)
 
-#print krippendorff.alpha(ka_data) # Calculates Krippendorff's alpha - very slow
+#print Krippendorff.alpha(ka_data) # Calculates Krippendorff's alpha - very slow
