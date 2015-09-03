@@ -1,5 +1,6 @@
 import numpy as np
 from datetime import timedelta
+from random import randrange
 from os import getenv
 
 chain_codes = [["A", "B", "C", "D"], ["E", "F", "G", "H"], ["I", "J", "K", "L"]]
@@ -183,3 +184,21 @@ def readIn(filename):
       row.append(cell)
     matrix.append(row)
   return matrix
+
+# Given a list of chain codes and a start and end generation, this outputs
+# a random order in which to run participants, such that generation i comes
+# after generation i-1. This is used to assign participants to a chain at
+# random.
+def assign_to_chain(chain_codes, start_gen, end_gen):
+  chain_gens = {}
+  for chain in chain_codes:
+    chain_gens[chain] = range(start_gen, end_gen+1)
+  random_assignment = []
+  for i in range(0, len(chain_codes)*(end_gen-start_gen+1)):
+    code = chain_codes[randrange(0, len(chain_codes))]
+    gen = chain_gens[code][0]
+    del chain_gens[code][0]
+    if len(chain_gens[code]) == 0:
+      chain_codes.remove(code)
+    random_assignment.append( code+str(gen) )
+  return random_assignment
