@@ -184,7 +184,7 @@ def most_and_least_similar_pairs(ratings_array):
 raters = [Rater(i) for i in range(0, 96)]
 
 # Average everyone's ratings together to form a (condensed) distance matrix
-all_distance_array, all_count_array, all_rater_n, ka_data = AverageDistanceMatrix(raters, None, None, None, True)
+all_distance_array, all_count_array, all_rater_n, ka_data = AverageDistanceMatrix(raters, None, 100, None, True)
 
 # Average everyone's ratings together again, this time filtering out unreliable raters.
 # Reliable raters are defined as those whose agreement with the average ratings of all

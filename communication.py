@@ -231,7 +231,7 @@ for rater_id in paid:
   raters[rater_id] = Rater(rater_id)
 
 # Average everyone's ratings together
-all_distances, all_counts, all_rater_n, ka_data = AverageRatings(None, None, None, False)
+all_distances, all_counts, all_rater_n, ka_data = AverageRatings(None, 100, None, False)
 
 # Average everyone's ratings together again, this time filtering out unreliable raters.
 # Reliable raters are defined as those whose agreement with the average ratings of all
