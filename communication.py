@@ -218,7 +218,7 @@ def accuracy_results():
 ########################################################################################
 
 def plot(left_plot, right_plot, save_location=False):
-  plt.chains(left_plot, dataset2=right_plot, miny=0, maxy=50, miny2=0, maxy2=60, y_label='Number of correct trials', y_label2='Communicative error', text='(A)', text2='(B)', text_pos='bottom', experiment=3, conf=16, conf2=False, save_location=save_location, save_name='E3_communication.pdf')
+  plt.chains(left_plot, dataset2=right_plot, miny=0, maxy=50, miny2=25, maxy2=55, y_label='Number of correct trials', y_label2='Communicative error', text='(A)', text2='(B)', text_pos='bottom', experiment=3, conf=16, conf2=False, save_location=save_location, save_name='E3_communication.pdf')
 
 ########################################################################################
 
