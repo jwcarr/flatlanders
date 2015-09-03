@@ -123,6 +123,7 @@ def AverageDistanceMatrix(raters, agreement_filter=None, test_filter=None, dista
   count_matrix = zeros([48, 48], dtype=int)
   sum_distance_matrix = zeros([48, 48], dtype=float)
   ka_data = []
+  rater_n = 0
   for rater in raters:
     normalized_matrix = rater.normalized_ratings
     if normalized_matrix == False:
@@ -139,6 +140,7 @@ def AverageDistanceMatrix(raters, agreement_filter=None, test_filter=None, dista
       if mean_test_rating > test_filter:
         #print 'Excluding rater %s due to a high average test rating: %f' % (rater.ID, mean_test_rating)
         continue # If test filter is being applied and the rater is not good enough, skip the rater
+    rater_n += 1
     if krippendorff == True:
       ka_matrix = [[None]*48 for i in range(48)]
     for row in normalized_matrix:
@@ -158,7 +160,7 @@ def AverageDistanceMatrix(raters, agreement_filter=None, test_filter=None, dista
   sum_distance_array = spatial.distance.squareform(sum_distance_matrix, 'tovector')
   count_array = spatial.distance.squareform(count_matrix, 'tovector')
   mean_distance_array = sum_distance_array / count_array
-  return mean_distance_array, count_array, ka_data
+  return mean_distance_array, count_array, rater_n, ka_data
 
 def most_and_least_similar_pairs(ratings_array):
   matrix = spatial.distance.squareform(ratings_array, 'tomatrix')
@@ -182,11 +184,11 @@ def most_and_least_similar_pairs(ratings_array):
 raters = [Rater(i) for i in range(0, 96)]
 
 # Average everyone's ratings together to form a (condensed) distance matrix
-all_distance_array, all_count_array, ka_data = AverageDistanceMatrix(raters, None, None, None, True)
+all_distance_array, all_count_array, all_rater_n, ka_data = AverageDistanceMatrix(raters, None, None, None, True)
 
 # Average everyone's ratings together again, this time filtering out unreliable raters.
 # Reliable raters are defined as those whose agreement with the average ratings of all
 # raters is greater than 0.4.
-reliable_distance_array, reliable_count_array, ka_data = AverageDistanceMatrix(raters, 0.4, 100, all_distance_array, True)
+reliable_distance_array, reliable_count_array, reliable_rater_n, ka_data = AverageDistanceMatrix(raters, 0.4, 100, all_distance_array, True)
 
 #print Krippendorff.alpha(ka_data) # Calculates Krippendorff's alpha - very slow
