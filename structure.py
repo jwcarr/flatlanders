@@ -1,4 +1,4 @@
-import MantelSublexical
+import sublexical_structure
 import Mantel
 import basics
 import rater_analysis
