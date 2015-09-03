@@ -237,4 +237,5 @@ all_distances, all_counts, all_rater_n, ka_data = AverageRatings(None, 100, None
 # raters is >= 0.4 and whose mean rating of reliability pairs <= 100.
 reliable_distances, reliable_counts, reliable_rater_n, ka_data = AverageRatings(0.4, 100, all_distances, True)
 
-#print krippendorff.alpha(ka_data) # Calculates Krippendorff's alpha - very slow
+# Calculate Krippendorff's alpha - this is very slow
+#print Krippendorff.alpha(ka_data)
