@@ -9,7 +9,7 @@ import Krippendorff
 class Rater:
 
   def __init__(self, ID):
-    self.ID = str(ID)
+    self.ID = ID
     self.matrix = self.ReadFile()
     self.orientation = self.matrix[0][1]
     self.ip_address = self.matrix[0][2]
@@ -180,8 +180,10 @@ def most_and_least_similar_pairs(ratings_array):
 
 ########################################################################################
 
+rater_ids = ['1iuoiX', '8lBsLg', 'iomj8H', 'Uv1Cz5', '6pONEP', 'G4jATI', 'FEjjhj', 'WcOyEo', 'Olsg9E', 'ntzryw', 'KU4BU1', 'QNXer0', 'sgu4Zk', 'RhDU4c', 'mqrNYh', 'xS8ZdN', 'y2UU38', 'CFbWtL', 'anrjOY', 'J4i8dm', 'Wfw8of', 'AqTLsh', 'W2JL0h', 'CYSrZk', '277fiX', 'k2AuXE', 'E4SJqH', 'Hl5kUl', 'I2Gbyg', 'wbaSjO', 'a2abMj', 'MTbOAZ', 'aY17za', 'krvm0W', 'eetbYU', 'RMDCcy', 'qEBAaS', 'aBXXiT', 'JLN0dy', '6o8syk', 'aEOaWJ', 'IB4wVt', 'ufeoHf', 'HutG2f', 'vPKCt3', 'rCHzzR', 'K3rvMd', 'qUZtEJ', 'nJmFj7', 'YgyWJ1', 'huX4Jz', 'chua85', 'jvBO9o', 'zUINg8', '0TiUmt', '2yr15o', '0bPp49', 'mbgoLT', 'lKQ2km', 'YM1TCH', 'EBXkBU', 'oXMKVA', 'N0LMRQ', 'MrX3AS', 'kdNtdY', 'pd55KD', 'ArvwOB', '7ysBYc', 'OiBlzF', 'eLBxSN', 'DlS5ut', 'oyh9eG', 'tzcUm5', 'KidSYY', 'ezOZvk', 'w6VA0U', '40THLn', 'kBy8V2', 'tAVMfZ', 'Bfsv32', 'Tx8WDh', 'efcw0Y', 'm3YPGN', 'gmey91', 'CGaUDW', 'JwYg7R', '4tkpPZ', 'jKdogx', 'onef7t', 'MuSqoP', 'o5GLbD', 'wNvkTK', 'wiNvtD', 'GsLucf', 'TcgHzi', 'Be4LKs']
+
 # Initialize a Rater object for each rater
-raters = [Rater(i) for i in range(0, 96)]
+raters = [Rater(ID) for ID in rater_ids]
 
 # Average everyone's ratings together to form a (condensed) distance matrix
 all_distance_array, all_count_array, all_rater_n, ka_data = AverageDistanceMatrix(raters, None, 100, None, True)
