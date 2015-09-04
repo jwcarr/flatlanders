@@ -185,12 +185,15 @@ rater_ids = ['1iuoiX', '8lBsLg', 'iomj8H', 'Uv1Cz5', '6pONEP', 'G4jATI', 'FEjjhj
 # Initialize a Rater object for each rater
 raters = [Rater(ID) for ID in rater_ids]
 
-# Average everyone's ratings together to form a (condensed) distance matrix
+# First Pass
+# Average everyone's ratings together to form a (condensed) distance matrix, but
+# ignore raters whose mean reliability rating is > 100
 all_distance_array, all_count_array, all_rater_n, ka_data = AverageDistanceMatrix(raters, None, 100, None, True)
 
-# Average everyone's ratings together again, this time filtering out unreliable raters.
-# Reliable raters are defined as those whose agreement with the average ratings of all
-# raters is greater than 0.4.
+# Second Pass
+# Average everyone's ratings together again, this time filtering out raters whose
+# agreement with the average ratings of all raters in the first pass is < 0.4.
 reliable_distance_array, reliable_count_array, reliable_rater_n, ka_data = AverageDistanceMatrix(raters, 0.4, 100, all_distance_array, True)
 
-#print Krippendorff.alpha(ka_data) # Calculates Krippendorff's alpha - very slow
+# Calculate Krippendorff's alpha - this is very slow
+#print Krippendorff.alpha(ka_data)

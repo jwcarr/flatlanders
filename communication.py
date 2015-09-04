@@ -229,12 +229,14 @@ raters = {}
 for rater_id in rater_ids:
   raters[rater_id] = Rater(rater_id)
 
-# Average everyone's ratings together
+# First Pass
+# Average everyone's ratings together, but ignore raters whose mean reliability
+# rating is > 100.
 all_distances, all_counts, all_rater_n, ka_data = AverageRatings(None, 100, None, False)
 
-# Average everyone's ratings together again, this time filtering out unreliable raters.
-# Reliable raters are defined as those whose agreement with the average ratings of all
-# raters is >= 0.4 and whose mean rating of reliability pairs <= 100.
+# Second Pass
+# Average everyone's ratings together again, this time filtering out raters whose
+# agreement with the average ratings of all raters in the first pass is < 0.4.
 reliable_distances, reliable_counts, reliable_rater_n, ka_data = AverageRatings(0.4, 100, all_distances, True)
 
 # Calculate Krippendorff's alpha - this is very slow
