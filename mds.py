@@ -37,7 +37,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
 
   # Determine experiment number if none is supplied
   if experiment == None:
-    experiment = determine_experiment_number(chain)
+    experiment = basics.determine_experiment_number(chain)
 
   # If one palette has been requested, get all strings from entire chain and create a colour palette
   if chain_wide_palette == True:
@@ -62,7 +62,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
 
   # Determine experiment number if none supplied
   if experiment == None:
-    experiment = determine_experiment_number(chain)
+    experiment = basics.determine_experiment_number(chain)
 
   # Get strings and triangles for this generation
   strings = basics.getWords(experiment, chain, generation, 's')
@@ -290,14 +290,6 @@ def make_prototype(triangles, spot_based=True):
   prototype[:, 1] += ((500.0 - (max([prototype[1,1], prototype[2,1]]) - prototype[0,1])) / 2.0) - prototype[0,1]
 
   return prototype
-
-
-# Determine which experiment number a chain belongs to
-def determine_experiment_number(chain):
-  for experiment in range(0, len(basics.chain_codes)):
-    if chain in basics.chain_codes[experiment]:
-      return experiment + 1
-  return None
 
 
 # Rearrange a list of words so that when displayed in a Matplotlib legend, they will be
