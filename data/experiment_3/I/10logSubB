@@ -1,0 +1,57 @@
+Cond.	Chain	Gen.	Sub.	Timestamp
+3	I	10	SubB	02/12/2014 13:05:05
+
+TR-27||TR-28||TR-3||MT-28||TR-9||TR-29||TR-16||MT-16||TR-6||TR-26||TR-21||MT-26||TR-39||TR-1||TR-20||MT-39||TR-5||TR-37||TR-8||MT-8||TR-25||TR-17||TR-13||MT-13||TR-36||TR-2||TR-0||MT-2||TR-19||TR-11||TR-15||MT-19||TR-23||TR-22||TR-40||MT-40||TR-32||TR-45||TR-46||MT-46||TR-10||TR-38||TR-14||MT-10||TR-41||TR-7||TR-43||MT-7||TR-42||TR-18||TR-24||MT-18||TR-47||TR-34||TR-33||MT-47||TR-12||TR-4||TR-31||MT-31||TR-30||TR-35||TR-44||MT-35||TR-21||TR-33||TR-11||MT-21||TR-29||TR-12||TR-0||MT-12||TR-2||TR-42||TR-9||MT-9||TR-20||TR-27||TR-1||MT-1||TR-40||TR-17||TR-35||MT-17||TR-37||TR-6||TR-41||MT-6||TR-25||TR-18||TR-3||MT-3||TR-28||TR-39||TR-43||MT-43||TR-34||TR-16||TR-31||MT-34||TR-23||TR-10||TR-46||MT-23||TR-5||TR-36||TR-30||MT-36||TR-13||TR-15||TR-19||MT-15||TR-8||TR-32||TR-47||MT-32||TR-26||TR-14||TR-22||MT-22||TR-38||TR-24||TR-44||MT-44||TR-45||TR-4||TR-7||MT-45||TR-25||TR-39||TR-19||MT-25||TR-15||TR-33||TR-28||MT-33||TR-23||TR-9||TR-41||MT-41||TR-0||TR-26||TR-45||MT-0||TR-11||TR-44||TR-12||MT-11||TR-1||TR-4||TR-21||MT-4||TR-8||TR-3||TR-38||MT-38||TR-10||TR-29||TR-31||MT-29||TR-13||TR-20||TR-32||MT-20||TR-37||TR-46||TR-40||MT-37||TR-42||TR-6||TR-36||MT-42||TR-27||TR-47||TR-35||MT-27||TR-22||TR-34||TR-5||MT-5||TR-18||TR-43||TR-24||MT-24||TR-14||TR-17||TR-16||MT-14||TR-2||TR-7||TR-30||MT-30||WAIT||MR-d.32||DR-s.36||MR-d.8||DR-s.1||MR-d.42||DR-s.4||MR-d.12||DR-s.19||MR-d.13||DR-s.21||MR-d.30||DR-s.8||MR-d.29||DR-s.38||MR-d.39||DR-s.30||MR-d.5||DR-s.41||MR-d.31||DR-s.34||MR-d.41||DR-s.42||MR-d.26||DR-s.43||MR-d.20||DR-s.11||MR-d.9||DR-s.0||MR-d.7||DR-s.7||MR-d.4||DR-s.25||MR-d.25||DR-s.27||MR-d.36||DR-s.15||MR-d.28||DR-s.23||MR-d.15||DR-s.24||MR-d.24||DR-s.13||MR-d.47||DR-s.6||MR-d.44||DR-s.5||MR-d.14||DR-s.10||MR-d.46||DR-s.17||MR-d.34||DR-s.45||MR-d.23||DR-s.22||MR-d.3||DR-s.2||MR-d.16||DR-s.33||MR-d.11||DR-s.16||MR-d.38||DR-s.47||MR-d.33||DR-s.12||MR-d.1||DR-s.29||MR-d.43||DR-s.32||MR-d.2||DR-s.44||MR-d.21||DR-s.26||MR-d.0||DR-s.35||MR-d.19||DR-s.9||MR-d.10||DR-s.37||MR-d.37||DR-s.3||MR-d.35||DR-s.18||MR-d.27||DR-s.40||MR-d.6||DR-s.20||MR-d.40||DR-s.31||MR-d.45||DR-s.39||MR-d.22||DR-s.46||MR-d.18||DR-s.28||MR-d.17||DR-s.14||END
+
+dojasake	domisake
+zuma	zuma
+zumisake	zumisake
+dojapadu	domipadu
+zumi	zumi
+doja	doja
+zuma	padu
+dojasake	dojasake
+dojasuma	dojasuma
+dojapadu	dojapadu
+zumisake	dojasake
+padu	padu
+zumi	paduzumasake
+zuma	zamu
+zuma	zuma
+doja	doja
+padu	padu
+doja	doji
+suma	suma
+padu	padu
+doja	doja
+suma	sake
+padu	padu
+paduzumasaki	paduzumasaki
+zuma	zuma
+padu	dojasake
+padu	doja
+doja	padu
+padu	doja
+zumi	zumi
+zumasaki	zumasaki
+suma	suma
+zumisake	dojapadu
+padu	doja
+zumasuma	zumasuma
+zuma	padu
+padu	doja
+suma	suma
+doja	doja
+zumi	dojisake
+suma	suma
+dojasake	dojazumi
+paduzumasaki	dojasumasake
+zumisake	zumisake
+doja	doja
+zuma	zuma
+zumi	zumi
+zumisake	zumisake
+
+END AT 02/12/2014 14:03:43
+-------------------------------------------------------
+
