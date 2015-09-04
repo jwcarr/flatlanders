@@ -26,10 +26,10 @@ def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], pu
   # Set directory for saving
   if save_location == False:
     save_location = basics.desktop_location
-  save_location = save_location + str(experiment) + '/' + chain + '/'
 
   for chain in basics.chain_codes[experiment-1]:
     print 'Chain: ' + chain
+    save_location = save_location + str(experiment) + '/' + chain + '/'
     plot_chain(chain, experiment, chain_wide_palette, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
 
 
