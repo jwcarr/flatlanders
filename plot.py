@@ -156,7 +156,7 @@ def chains(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, t
   if save_location == False:
     save_location = basics.desktop_location
   if save_name == False:
-    save_name = 'plot.eps'
+    save_name = 'plot.pdf'
 
   if dataset2 != False:
     if starting_gen2 == False:
@@ -194,7 +194,7 @@ def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, tex
   if save_location == False:
     save_location = basics.desktop_location
   if save_name == False:
-    save_name = 'plot.eps'
+    save_name = 'plot.pdf'
 
   if dataset2 != False:
     if starting_gen2 == False:

@@ -1,9 +1,8 @@
 from matplotlib import pyplot as plt, patches
 from scipy.spatial import distance
 from sklearn.manifold import MDS
-from subprocess import call
-import basics
 import numpy as np
+import basics
 import rater_analysis
 import svg_polygons
 import voronoi
@@ -152,10 +151,6 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   # Draw the triangle images and splice them into the matplotlib SVG file
   triangle_code = draw_triangles(triangle_dict, colour_palette, show_prototypes, grid_size)
   splice_in_triangles(filename, triangle_code)
-
-  # Use Inkscape to convert to PDF (-A) or EPS (-E) and then delete the SVG file
-  call(["inkscape", filename, "-E", filename[0:-3] + 'eps'])
-  call(["rm", filename])
 
   # If multiple colour palette candidates have been requested, run plot() again.
   if colour_candidates > 1:
