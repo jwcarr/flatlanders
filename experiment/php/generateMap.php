@@ -150,7 +150,7 @@ function generateMap($condition, $chain, $generation) {
     $map = $mapA;
 
     // Write mapB to the client file for the other subject to pick up from their terminal
-    writeFile('data/client', "page=experiment&subject=SubB&cond={$condition}&chain={$chain}&gen={$generation}&map={$mapB}||END");
+    writeFile('client', "page=experiment&subject=SubB&cond={$condition}&chain={$chain}&gen={$generation}&map={$mapB}||END");
   }
   else {
     // Add the test pages to the map, interleaving the dynamic flow and stable flow

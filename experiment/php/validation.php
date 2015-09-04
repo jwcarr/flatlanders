@@ -14,8 +14,8 @@ function checkGen($generation_number) {
 
 // Check that the output data files exist and are writeable
 function checkOutputFiles($condition, $chain_code, $generation) {
-  $dynamic_file = is_writable('data/'. $condition .'/' . $chain_code .'/' . $generation .'d');
-  $stable_file = is_writable('data/'. $condition .'/' . $chain_code .'/' . $generation .'s');
+  $dynamic_file = is_writable('../data/experiment_'. $condition .'/' . $chain_code .'/' . $generation .'d');
+  $stable_file = is_writable('../data/experiment_'. $condition .'/' . $chain_code .'/' . $generation .'s');
   if ($dynamic_file == True AND $stable_file == True) { return True; } else { return False; }
 }
 
@@ -77,7 +77,7 @@ else { echo validationTableRow('red', 'Input file does not contain $set_size wor
 
 // Check that the data files exist for writing
 if (checkOutputFiles($_REQUEST['condition'], $_REQUEST['chain'], $_REQUEST['gen']) == True) { echo validationTableRow('green', 'Output data files are ready for writing'); }
-else { echo validationTableRow('red', 'Output data files at <i>/data/' . $_REQUEST['condition'] . '/' . $_REQUEST['chain'] . '/</i> are not writeable. Check Permissions'); $error_count ++; }
+else { echo validationTableRow('red', 'Output data files at <i>/data/experiment_' . $_REQUEST['condition'] . '/' . $_REQUEST['chain'] . '/</i> are not writeable. Check Permissions'); $error_count ++; }
 
 // Check that sound files exist for the words in the input set
 $words = getWords($_REQUEST['condition'], $_REQUEST['chain'], ($_REQUEST['gen']-1));

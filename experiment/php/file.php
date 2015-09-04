@@ -56,7 +56,7 @@ function writeFile($filename, $data) {
 // Load the file for a given participant's dynamic or stable set
 function loadFile($condition, $chain_code, $generation, $set) {
   // Get the data from that file
-  $data = openFile('data/'. $condition .'/'. $chain_code .'/'. $generation . $set);
+  $data = openFile('../data/experiment_'. $condition .'/'. $chain_code .'/'. $generation . $set);
   // Separate the raw data at line breaks
   $lines = explode("\n", $data);
   // Return the lines as an array
@@ -91,10 +91,10 @@ function getWord($condition, $chain_code, $generation, $word_number) {
 // Save log data to the log file
 function saveLogData($condition, $chain_code, $generation, $subject='', $new_data) {
   // Open the log file as it stands
-  $data = openFile('data/'. $condition .'/'. $chain_code .'/'. $generation .'log'. $subject);
+  $data = openFile('../data/experiment_'. $condition .'/'. $chain_code .'/'. $generation .'log'. $subject);
   if ($data == "") { $data = $new_data; } else { $data = $data ."\n". $new_data; }
   // Write out the new log file
-  writeFile('data/'. $condition .'/'. $chain_code .'/'. $generation .'log'. $subject, $data);
+  writeFile('../data/experiment_'. $condition .'/'. $chain_code .'/'. $generation .'log'. $subject, $data);
 }
 
 // Save a test answer to a participant's dynamic or stable set file
@@ -112,7 +112,7 @@ function saveAnswer($condition, $chain_code, $generation, $position, $answer, $x
     $answer = $position[1] .'|||'. trim($answer) ."\t". $xy[0] .','. $xy[3] ."\t". $xy[1] .','. $xy[4] ."\t". $xy[2] .','. $xy[5] ."\t". date("H:i:s");
   }
   // Determine the filename you want to write to
-  $filename = 'data/'. $condition .'/'. $chain_code .'/'. $generation . $position[0];
+  $filename = '../data/experiment_'. $condition .'/'. $chain_code .'/'. $generation . $position[0];
   // Read the content of that file as it currently stands
   $current_data = openFile($filename);
   // The new content of the file is the old data + the new answer
@@ -136,7 +136,7 @@ function saveCommAnswer($condition, $chain_code, $generation, $position, $answer
     $answer = $position[1] ."|||". trim($answer) ."\t". $xy[0] .','. $xy[3] ."\t". $xy[1] .','. $xy[4] ."\t". $xy[2] .','. $xy[5] ."\t". date("H:i:s") ."\t". $sel_xy[0] .','. $sel_xy[3] ."\t". $sel_xy[1] .','. $sel_xy[4] ."\t". $sel_xy[2] .','. $sel_xy[5];
   }
   // Determine the filename you want to write to
-  $filename = 'data/'. $condition .'/'. $chain_code .'/'. $generation . $position[0];
+  $filename = '../data/experiment_'. $condition .'/'. $chain_code .'/'. $generation . $position[0];
   // Read the content of that file as it currently stands
   $current_data = openFile($filename);
   // The new content of the file is the old data + the new answer
@@ -171,7 +171,7 @@ function saveFinalAnswer($condition, $chain_code, $generation, $position, $answe
   // Implode the $mappings array, using a line break as the glue
   $new_data = implode("\n", $mappings);
   // Write the new data to the data file
-  writeFile('data/'. $condition .'/' . $chain_code .'/'. $generation.'s', $new_data);
+  writeFile('../data/experiment_'. $condition .'/' . $chain_code .'/'. $generation.'s', $new_data);
 }
 
 // Save a test answer to a participant's dynamic or stable set file
@@ -200,15 +200,15 @@ function saveFinalCommAnswer($condition, $chain_code, $generation, $position, $a
   // Implode the $mappings array, using a line break as the glue
   $new_data = implode("\n", $mappings);
   // Write the new data to the data file
-  writeFile('data/'. $condition .'/' . $chain_code .'/'. $generation.'s', $new_data);
+  writeFile('../data/experiment_'. $condition .'/' . $chain_code .'/'. $generation.'s', $new_data);
 }
 
 // Clear the data files for a specific participant
 function clearFiles($condition, $chain_code, $generation) {
   // Overwrite the dynamic set file with "" (null)
-  writeFile('data/'. $condition .'/'. $chain_code .'/'. $generation.'d', '');
+  writeFile('../data/experiment_'. $condition .'/'. $chain_code .'/'. $generation.'d', '');
   // Overwrite the stable set file with "" (null)
-  writeFile('data/'. $condition .'/'. $chain_code .'/'. $generation.'s', '');
+  writeFile('../data/experiment_'. $condition .'/'. $chain_code .'/'. $generation.'s', '');
 }
 
 function parseMap($map) {
