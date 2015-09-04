@@ -149,7 +149,7 @@ def LevenshteinDistance(s1, s2):
 
 # Load in a data file
 def load(experiment, chain, generation, set_type):
-  filename = "data/" + str(experiment) + "/" + chain + "/" + str(generation) + set_type
+  filename = "data/experiment_" + str(experiment) + "/" + chain + "/" + str(generation) + set_type
   f = open(filename, 'r')
   data = f.read()
   f.close()

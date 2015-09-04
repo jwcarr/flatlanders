@@ -26,7 +26,7 @@ class Rater:
   # Read in a ratings file
   def ReadFile(self):
     try:
-      f = open('data/ratings/' + self.ID)
+      f = open('data/task_1/' + self.ID)
     except IOError:
       raise ValueError(self.ID + ' is not a valid rater')
     content = f.read()

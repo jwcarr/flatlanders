@@ -60,7 +60,7 @@ def randomTriangle():
 
 ## Write out a file
 def writeFile(condition, chain_code, set_type, data):
-    file_path = "Experiment/data/" + condition + "/" + chain_code + "/0" + set_type
+    file_path = "experiment/data/" + condition + "/" + chain_code + "/0" + set_type
     f = open(file_path, 'w')
     f.write(data)
     f.close()
