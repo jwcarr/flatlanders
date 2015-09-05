@@ -1,6 +1,6 @@
 from itertools import permutations
 from math import factorial
-from numpy import array, corrcoef, random, zeros
+import numpy as np
 import basics
 import rater_analysis
 
@@ -13,7 +13,7 @@ def test(experiment, chain, generation, set_type, randomizations):
   word_distances = basics.stringDistances(words)
   categorized_words, categorized_meanings = CategorizeWords(words)
   meaning_distances = rater_analysis.reliable_distance_array
-  r = corrcoef(meaning_distances, word_distances)[0,1]
+  r = np.corrcoef(meaning_distances, word_distances)[0,1]
   n = len(words)
   m, sd = Mantel(meaning_distances, categorized_words, categorized_meanings, r, n, generation, randomizations)
   z = (r-m)/sd
@@ -48,14 +48,14 @@ def Mantel(meaning_distances, categorized_words, categorized_meanings, r, n, gen
 # Stochasitc Mantel test - randomly sample the space of category-meaning mappings
 
 def StochasticMantel(meaning_distances, categorized_words, categorized_meanings, r, n, randomizations):
-  correlations = zeros(randomizations, dtype=float)
+  correlations = np.zeros(randomizations, dtype=float)
   correlations[0] = r
   for i in xrange(1, randomizations):
-    correlations[i] = corrcoef(meaning_distances, GeneratePermutation(categorized_words, categorized_meanings, n))[0,1]
+    correlations[i] = np.corrcoef(meaning_distances, GeneratePermutation(categorized_words, categorized_meanings, n))[0,1]
   return correlations.mean(), correlations.std()
 
 def GeneratePermutation(categorized_words, categorized_meanings, n):
-  random.shuffle(categorized_words)
+  np.random.shuffle(categorized_words)
   permuted_words = [None] * n
   for i in range(len(categorized_meanings)):
     for j in categorized_meanings[i]:
@@ -66,11 +66,11 @@ def GeneratePermutation(categorized_words, categorized_meanings, n):
 
 def DeterministicMantel(meaning_distances, categorized_words, categorized_meanings, n):
   m = len(categorized_words)
-  correlations = zeros(factorial(m), dtype=float)
+  correlations = np.zeros(factorial(m), dtype=float)
   orders = permutations(range(m))
   i = 0
   for order in orders:
-    correlations[i] = corrcoef(meaning_distances, GenerateDeterministicPermutation(categorized_words, categorized_meanings, order, n))[0,1]
+    correlations[i] = np.corrcoef(meaning_distances, GenerateDeterministicPermutation(categorized_words, categorized_meanings, order, n))[0,1]
     i += 1
   return correlations.mean(), correlations.std()
 
