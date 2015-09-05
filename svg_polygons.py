@@ -174,7 +174,7 @@ class Canvas:
     f = open(filename + '.svg', 'w')
     f.write(canvas)
     f.close()
-    print "File saved as %s.svg" % filename
+    print('File saved as %s.svg' % filename)
 
   def clear(self):
     self.canvas = ''

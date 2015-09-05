@@ -133,20 +133,20 @@ def AverageRatings(agreement_filter=None, test_filter=None, distances=None, krip
   for rater in raters.keys():
     rater_i += 1
     if raters[rater].normalized_ratings == False:
-      #print 'Excluding rater %s because the ratings cannot be normalized' % raters[rater].ID
+      #print('Excluding rater %s because the ratings cannot be normalized' % raters[rater].ID)
       ka_ignore.append(rater_i)
       continue # If the normalized matrix doesn't exist, skip the rater. This can occur if
                # the rater gives the same rating for every pair of triangles.
     if agreement_filter != None:
       rater_agreement = raters[rater].RaterAgreement(distances)
       if rater_agreement < agreement_filter:
-        #print 'Excluding rater %s due to low rater agreement: %f' % (raters[rater].ID, rater_agreement)
+        #print('Excluding rater %s due to low rater agreement: %f' % (raters[rater].ID, rater_agreement))
         ka_ignore.append(rater_i)
         continue # If filter is being applied and the rater is not good enough, skip the rater
     if test_filter != None:
       mean_test_rating = raters[rater].MeanTestRating()
       if mean_test_rating > test_filter:
-        #print 'Excluding rater %s due to a high average test rating: %f' % (raters[rater].ID, mean_test_rating)
+        #print('Excluding rater %s due to a high average test rating: %f' % (raters[rater].ID, mean_test_rating))
         ka_ignore.append(rater_i)
         continue # If test filter is being applied and the rater is not good enough, skip the rater
     rater_n += 1
@@ -240,4 +240,4 @@ all_distances, all_counts, all_rater_n, ka_data = AverageRatings(None, 100, None
 reliable_distances, reliable_counts, reliable_rater_n, ka_data = AverageRatings(0.4, 100, all_distances, True)
 
 # Calculate Krippendorff's alpha - this is very slow
-#print Krippendorff.alpha(ka_data)
+#print(Krippendorff.alpha(ka_data))

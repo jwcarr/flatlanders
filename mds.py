@@ -35,7 +35,7 @@ def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], pu
     os.makedirs(save_location)
 
   for chain in basics.chain_codes[experiment-1]:
-    print 'Chain: ' + chain
+    print('Chain: ' + chain)
     plot_chain(chain, experiment, chain_wide_palette, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
 
 
@@ -204,8 +204,8 @@ def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
     hex_colour_light = convert_to_hex(lighten(r, g, b))
     hex_colour_values.append((hex_colour, hex_colour_light))
 
-  #print 'Correspondence: %s' % correspondence_correlation(string_distances, string_coordinates)
-  #print 'Stress: %s' % stress_1(string_mds.stress_, string_distances)
+  #print('Correspondence: %s' % correspondence_correlation(string_distances, string_coordinates))
+  #print('Stress: %s' % stress_1(string_mds.stress_, string_distances))
 
   # Return the colour palette
   return dict(zip(words, hex_colour_values))
@@ -344,6 +344,7 @@ def light(val):
 
 
 # Return the centroid of an arbitrary polygon
+# https://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
 def centroid(polygon):
   n = len(polygon)
   a_sum, x_sum, y_sum = 0.0, 0.0, 0.0
@@ -394,5 +395,5 @@ for dim in range(0, triangle_coordinates.shape[1]):
 voronoi_polygons = voronoi.polygons(triangle_coordinates, [[-1,-1], [-1,1], [1,1], [1,-1]])
 
 # Print MDS goodness-of-fit stats
-#print 'Correspondence: %s' % correspondence_correlation(triangle_distances, triangle_coordinates)
-#print 'Stress-1: %s' % stress_1(triangle_mds.stress_, triangle_distances)
+#print('Correspondence: %s' % correspondence_correlation(triangle_distances, triangle_coordinates))
+#print('Stress-1: %s' % stress_1(triangle_mds.stress_, triangle_distances))

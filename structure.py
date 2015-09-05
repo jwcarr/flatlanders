@@ -9,7 +9,7 @@ def experiment_results(experiment, sublexical=False, permutations=1000, meaning_
     meaning_distances = rater_analysis.reliable_distance_array
   results = []
   for chain in basics.chain_codes[experiment-1]:
-    print "  Chain " + chain + "..."
+    print('  Chain ' + chain + '...')
     results.append(chain_results(chain, sublexical, permutations, meaning_distances, experiment))
   return results
 

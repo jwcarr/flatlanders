@@ -57,7 +57,7 @@ class Rater:
     try:
       minimum = min(ratings)
     except ValueError:
-      print self.ID, ratings
+      print(self.ID, ratings)
     difference = float(max(ratings) - minimum)
     if difference == 0.0:
       return False
@@ -127,18 +127,18 @@ def AverageDistanceMatrix(raters, agreement_filter=None, test_filter=None, dista
   for rater in raters:
     normalized_matrix = rater.normalized_ratings
     if normalized_matrix == False:
-      #print 'Excluding rater %s because the ratings cannot be normalized' % rater.ID
+      #print('Excluding rater %s because the ratings cannot be normalized' % rater.ID)
       continue # If the normalized matrix doesn't exist, skip the rater. This can occur if
                # the rater gives the same rating for every pair of triangles.
     if agreement_filter != None:
       rater_agreement = rater.RaterAgreement(distances)
       if rater_agreement < agreement_filter:
-        #print 'Excluding rater %s due to low rater agreement: %f' % (rater.ID, rater_agreement)
+        #print('Excluding rater %s due to low rater agreement: %f' % (rater.ID, rater_agreement))
         continue # If agreement filter is being applied and the rater is not good enough, skip the rater
     if test_filter != None:
       mean_test_rating = rater.MeanTestRating()
       if mean_test_rating > test_filter:
-        #print 'Excluding rater %s due to a high average test rating: %f' % (rater.ID, mean_test_rating)
+        #print('Excluding rater %s due to a high average test rating: %f' % (rater.ID, mean_test_rating))
         continue # If test filter is being applied and the rater is not good enough, skip the rater
     rater_n += 1
     if krippendorff == True:
@@ -196,4 +196,4 @@ all_distance_array, all_count_array, all_rater_n, ka_data = AverageDistanceMatri
 reliable_distance_array, reliable_count_array, reliable_rater_n, ka_data = AverageDistanceMatrix(raters, 0.4, 100, all_distance_array, True)
 
 # Calculate Krippendorff's alpha - this is very slow
-#print Krippendorff.alpha(ka_data)
+#print(Krippendorff.alpha(ka_data))

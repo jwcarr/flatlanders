@@ -41,7 +41,7 @@ def CategorizeWords(words):
 
 def Mantel(meaning_distances, categorized_words, categorized_meanings, r, n, generation, randomizations):
   if factorial(len(categorized_words)) <= randomizations:
-    print '    Generation %d: Only %d possible permutations - computing result deterministically' % (generation, factorial(len(categorized_words)))
+    print('    Generation %d: Only %d possible permutations - computing result deterministically' % (generation, factorial(len(categorized_words))))
     return DeterministicMantel(meaning_distances, categorized_words, categorized_meanings, n)
   return StochasticMantel(meaning_distances, categorized_words, categorized_meanings, r, n, randomizations)
 
