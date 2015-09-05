@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt, patches
 from scipy.spatial import distance
 from sklearn.manifold import MDS
 import numpy as np
+import os
 import basics
 import rater_analysis
 import svg_polygons
@@ -23,13 +24,18 @@ def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show
 
 def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
 
-  # Set directory for saving
+  # Set directory for saving, and create it if it doesn't exist
   if save_location == False:
     save_location = basics.desktop_location
+  save_location += str(experiment) + '/'
+  if os.path.exists(save_location) == True:
+    if raw_input(save_location + ' already exists. Do you want to overwrite? (y/n) ') != 'y':
+      return
+  else:
+    os.makedirs(save_location)
 
   for chain in basics.chain_codes[experiment-1]:
     print 'Chain: ' + chain
-    save_location = save_location + str(experiment) + '/' + chain + '/'
     plot_chain(chain, experiment, chain_wide_palette, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
 
 
@@ -41,6 +47,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
 
   # If one palette has been requested, get all strings from entire chain and create a colour palette
   if chain_wide_palette == True:
+    print('Generating colour palette...')
     all_strings = []
     for generation in range(0, 11):
       all_strings += basics.getWords(experiment, chain, generation, 's')
@@ -48,12 +55,18 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
   else:
     colour_palette = None
 
-  # Set directory for saving
+  # Set directory for saving, and create it if it doesn't exist
   if save_location == False:
     save_location = basics.desktop_location
-  save_location = save_location + chain + '/'
+  save_location += chain + '/'
+  if os.path.exists(save_location) == True:
+    if raw_input(save_location + ' already exists. Do you want to overwrite? (y/n) ') != 'y':
+      return
+  else:
+    os.makedirs(save_location)
 
   # Produce a plot for each generation
+  print('Generating graphics...')
   for generation in range(0, 11):
     plot(chain, generation, experiment, colour_palette, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, False, save_location, str(generation))
 
