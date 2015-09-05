@@ -275,7 +275,7 @@ def make_prototype(triangles, spot_based=True):
   for t in triangles:
 
     # Centralize the triangle in the plane
-    t = geometry.translate(t, np.array([[250.0, 250.0],[250.0, 250.0],[250.0, 250.0]]))
+    t += np.array([250.0, 250.0]) - geometry.centroid(t)
 
     # If non-spot-based pototype is requested, swap the vertices around so that vertex 1 is
     # the pointiest one.
