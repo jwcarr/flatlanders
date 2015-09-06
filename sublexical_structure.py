@@ -2,13 +2,12 @@ from itertools import permutations
 from math import factorial
 from scipy.spatial.distance import squareform
 import numpy as np
-import basics
 
 def test(strings, meaning_distances, perms):
 
   # Determine category labels and the edit-distances between them
   category_labels = list(set(strings))
-  label_distances = squareform(basics.stringDistances(category_labels), force='tomatrix')
+  label_distances = squareform(pairwise_string_distances(category_labels))
 
   # Compute meaning distance residuals
   meaning_residuals = residualize(meaning_distances)
@@ -34,8 +33,8 @@ def test(strings, meaning_distances, perms):
 
   # Stochasitc test - randomly sample the space of category-meaning mappings
   else:
-    string_residuals = residualize(basics.stringDistances(strings))
     covariences = np.zeros(perms, dtype=float)
+    string_residuals = residualize(pairwise_string_distances(strings))
     covariences[0] = (meaning_residuals * string_residuals).sum()
     for i in range(1, perms):
       np.random.shuffle(category_labels)
@@ -54,3 +53,26 @@ def test(strings, meaning_distances, perms):
 def residualize(distances):
   distances = np.array(distances, dtype=float)
   return distances - distances.mean()
+
+# Take a list of strings and compute the pairwise edit-distances
+def pairwise_string_distances(strings):
+  distances = []
+  for i in range(0, len(strings)):
+    for j in range(i+1, len(strings)):
+      distances.append(norm_Levenshtein_distance(strings[i], strings[j]))
+  return np.array(distances, dtype=float)
+
+# Calculate the normalized Levenshtein distance between two strings
+def norm_Levenshtein_distance(string1, string2):
+  if len(string1) > len(string2):
+    string1, string2 = string2, string1
+  distances = range(len(string1) + 1)
+  for index2, char2 in enumerate(string2):
+    newDistances = [index2 + 1]
+    for index1, char1 in enumerate(string1):
+      if char1 == char2:
+        newDistances.append(distances[index1])
+      else:
+        newDistances.append(1 + min((distances[index1], distances[index1+1], newDistances[-1])))
+    distances = newDistances
+  return float(distances[-1]) / max(len(string1), len(string2))
