@@ -21,12 +21,12 @@ def test(strings, meaning_distances, perms):
   if p <= perms:
     covariences = np.zeros(p, dtype=float)
     for i, order in enumerate(permutations(range(n))):
-      permuted_categories = [category_labels[j] for j in order]
+      permuted_category_labels = [category_labels[j] for j in order]
       string_distances = []
       for j in range(0, m):
-        idx1 = permuted_categories.index(strings[j])
+        idx1 = permuted_category_labels.index(strings[j])
         for k in range(j+1, m):
-          idx2 = permuted_categories.index(strings[k])
+          idx2 = permuted_category_labels.index(strings[k])
           string_distances.append(label_distances[idx1, idx2])
       string_residuals = residualize(string_distances)
       covariences[i] = (meaning_residuals * string_residuals).sum()
