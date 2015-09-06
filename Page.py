@@ -1,4 +1,4 @@
-# PageTest v1.0.0
+# PageTest v1.0.1
 # http://jwcarr.github.io/PageTest/
 #
 # Copyright (c) 2013-2015 Jon W. Carr
@@ -12,7 +12,7 @@ from scipy import stats
 def test(matrix, ascending=False, use_critical_values=False):
   """
   Takes a matrix, with treatments along the columns and replications along the
-  rows, and returns Page’s (1963) L statistic, along with its p-value.
+  rows, and returns Page's (1963) L statistic, along with its p-value.
 
   Parameters
   ----------
@@ -115,9 +115,6 @@ def validate_input(matrix, ascending, use_critical_values):
   for row_type in [type(row) for row in matrix]:
     if row_type != list:
       raise TypeError('Rows of the matrix should be represented as Python lists')
-  for cell_type in [type(matrix[i][j]) for i in range(len(matrix)) for j in range(len(matrix[i]))]:
-    if cell_type not in (int, float):
-      raise TypeError('Matrix should contain integers or floating points')
   if len(set([len(row) for row in matrix])) != 1:
     raise ValueError('Rows in matrix should have same length')
   if len(matrix) < 2:
