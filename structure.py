@@ -9,7 +9,7 @@ def experiment_results(experiment, sublexical=False, permutations=1000, meaning_
     meaning_distances = rater_analysis.reliable_distance_array
   results = []
   for chain in basics.chain_codes[experiment-1]:
-    print('  Chain ' + chain + '...')
+    print('Chain ' + chain + '...')
     results.append(chain_results(chain, sublexical, permutations, meaning_distances, experiment))
   return results
 
@@ -31,7 +31,7 @@ def generation_results(chain, generation, sublexical=False, permutations=1000, m
   strings = basics.getWords(experiment, chain, generation, 's')
   if len(set(strings)) > 2:
     if sublexical == True:
-      return MantelSublexical.test(experiment, chain, generation, 's', permutations)[3]
+      return sublexical_structure.test(strings, meaning_distances, permutations)
     string_distances = basics.stringDistances(strings)
     return Mantel.test(string_distances, meaning_distances, permutations)[2]
   return None
