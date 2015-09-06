@@ -29,7 +29,7 @@ def generation_results(chain, generation, sublexical=False, permutations=1000, m
   if type(experiment) == bool and experiment == False:
     experiment = basics.determine_experiment_number(chain)
   strings = basics.getWords(experiment, chain, generation, 's')
-  if len(set(strings)) > 2:
+  if len(set(strings)) > 1:
     if sublexical == True:
       return sublexical_structure.test(strings, meaning_distances, permutations)
     string_distances = basics.stringDistances(strings)
