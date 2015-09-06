@@ -19,39 +19,68 @@ def test(strings, meaning_distances, perms):
 
   # Deterministic test - measure every possible category-meaning mapping
   if p <= perms:
+
+    # Create an empty array to store the covariences
     covariences = np.zeros(p, dtype=float)
+
+    # Enumerate all permutations of category label orders
     for i, order in enumerate(permutations(range(n))):
+
+      # Rearrange the category labels into a new order
       permuted_category_labels = [category_labels[j] for j in order]
+
+      # Compile the string distances from the pre-computed label_distances matrix
+      # This is faster than recomputing all the Levenshtein edit-distances from scratch
       string_distances = []
       for j in range(0, m):
         idx1 = permuted_category_labels.index(strings[j])
         for k in range(j+1, m):
           idx2 = permuted_category_labels.index(strings[k])
           string_distances.append(label_distances[idx1, idx2])
+
+      # Residualize the string distances
       string_residuals = residualize(string_distances)
+
+      # Store the covarience between meaning distances and string distances
       covariences[i] = (meaning_residuals * string_residuals).sum()
 
   # Stochasitc test - randomly sample the space of category-meaning mappings
   else:
+
+    # Create an empty array to store the covariences
     covariences = np.zeros(perms, dtype=float)
+
+    # Compute the veridical covarience and store it in first position
     string_residuals = residualize(pairwise_string_distances(strings))
     covariences[0] = (meaning_residuals * string_residuals).sum()
+
+    # For each permutation...
     for i in range(1, perms):
+
+      # Shuffle the order of category labels
       np.random.shuffle(category_labels)
+
+      # Compile the string distances from the pre-computed label_distances matrix
+      # This is faster than recomputing all the Levenshtein edit-distances from scratch
       string_distances = []
       for j in range(0, m):
         idx1 = category_labels.index(strings[j])
         for k in range(j+1, m):
           idx2 = category_labels.index(strings[k])
           string_distances.append(label_distances[idx1, idx2])
+
+      # Residualize the string distances
       string_residuals = residualize(string_distances)
+
+      # Store the covarience between meaning distances and string distances
       covariences[i] = (meaning_residuals * string_residuals).sum()
 
   # Return standard score (z-score)
   return (covariences[0] - covariences.mean()) / covariences.std()
 
+# Return the residuals of an array
 def residualize(distances):
-  distances = np.array(distances, dtype=float)
+  distances = np.asarray(distances, dtype=float)
   return distances - distances.mean()
 
 # Take a list of strings and compute the pairwise edit-distances
