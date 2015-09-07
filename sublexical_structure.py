@@ -32,11 +32,8 @@ def test(strings, meaning_distances, perms):
       # Compile the string distances from the pre-computed label_distances matrix
       string_distances = [label_distances[string_remapping[j], string_remapping[k]] for j in range(0, m) for k in range(j+1, m)]
 
-      # Residualize the string distances
-      string_residuals = residualize(string_distances)
-
       # Store the covarience between meaning distances and string distances
-      covariences[i] = (meaning_residuals * string_residuals).sum()
+      covariences[i] = (meaning_residuals * residualize(string_distances)).sum()
 
   # Stochasitc test - randomly sample the space of category-meaning mappings
   else:
@@ -45,8 +42,7 @@ def test(strings, meaning_distances, perms):
     covariences = np.zeros(perms, dtype=float)
 
     # Compute the veridical covarience and store it in first position
-    string_residuals = residualize(pairwise_string_distances(strings))
-    covariences[0] = (meaning_residuals * string_residuals).sum()
+    covariences[0] = (meaning_residuals * residualize(pairwise_string_distances(strings))).sum()
 
     # For each permutation...
     for i in range(1, perms):
@@ -60,11 +56,8 @@ def test(strings, meaning_distances, perms):
       # Compile the string distances from the pre-computed label_distances matrix
       string_distances = [label_distances[string_remapping[j], string_remapping[k]] for j in range(0, m) for k in range(j+1, m)]
 
-      # Residualize the string distances
-      string_residuals = residualize(string_distances)
-
       # Store the covarience between meaning distances and string distances
-      covariences[i] = (meaning_residuals * string_residuals).sum()
+      covariences[i] = (meaning_residuals * residualize(string_distances)).sum()
 
   # Return standard score (z-score)
   return (covariences[0] - covariences.mean()) / covariences.std()
