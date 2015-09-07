@@ -5,12 +5,12 @@ import numpy as np
 
 def test(strings, meaning_distances, perms):
 
+  # Compute meaning distance residuals
+  meaning_residuals = residualize(meaning_distances)
+
   # Determine category labels and the edit-distances between them
   category_labels = list(set(strings))
   label_distances = squareform(pairwise_string_distances(category_labels))
-
-  # Compute meaning distance residuals
-  meaning_residuals = residualize(meaning_distances)
 
   # Number of strings, number of categories, and number of category permutations
   m = len(strings)
