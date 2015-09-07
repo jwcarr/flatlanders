@@ -24,13 +24,10 @@ def test(strings, meaning_distances, perms):
     covariences = np.zeros(p, dtype=float)
 
     # Iterate over an enumeration of all permutations of category label orders
-    for i, order in enumerate(permutations(range(n))):
-
-      # Rearrange the category labels into the new order
-      permuted_category_labels = [category_labels[j] for j in order]
+    for i, category_labels in enumerate(permutations(category_labels)):
 
       # Map each string to its index in the permuted category_labels
-      string_remapping = [permuted_category_labels.index(string) for string in strings]
+      string_remapping = [category_labels.index(string) for string in strings]
 
       # Compile the string distances from the pre-computed label_distances matrix
       string_distances = [label_distances[string_remapping[j], string_remapping[k]] for j in range(0, m) for k in range(j+1, m)]
