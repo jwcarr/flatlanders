@@ -29,14 +29,11 @@ def test(strings, meaning_distances, perms):
       # Rearrange the category labels into the new order
       permuted_category_labels = [category_labels[j] for j in order]
 
+      # Map each string to its index in the permuted category_labels
+      string_remapping = [permuted_category_labels.index(string) for string in strings]
+
       # Compile the string distances from the pre-computed label_distances matrix
-      # This is faster than recomputing all the Levenshtein edit-distances from scratch
-      string_distances = []
-      for j in range(0, m):
-        idx1 = permuted_category_labels.index(strings[j])
-        for k in range(j+1, m):
-          idx2 = permuted_category_labels.index(strings[k])
-          string_distances.append(label_distances[idx1, idx2])
+      string_distances = [label_distances[string_remapping[j], string_remapping[k]] for j in range(0, m) for k in range(j+1, m)]
 
       # Residualize the string distances
       string_residuals = residualize(string_distances)
@@ -60,14 +57,11 @@ def test(strings, meaning_distances, perms):
       # Shuffle the order of category labels
       np.random.shuffle(category_labels)
 
+      # Map each string to its index in the permuted category_labels
+      string_remapping = [category_labels.index(string) for string in strings]
+
       # Compile the string distances from the pre-computed label_distances matrix
-      # This is faster than recomputing all the Levenshtein edit-distances from scratch
-      string_distances = []
-      for j in range(0, m):
-        idx1 = category_labels.index(strings[j])
-        for k in range(j+1, m):
-          idx2 = category_labels.index(strings[k])
-          string_distances.append(label_distances[idx1, idx2])
+      string_distances = [label_distances[string_remapping[j], string_remapping[k]] for j in range(0, m) for k in range(j+1, m)]
 
       # Residualize the string distances
       string_residuals = residualize(string_distances)
