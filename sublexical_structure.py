@@ -12,16 +12,15 @@ def test(strings, meaning_distances, perms):
   category_labels = list(set(strings))
   label_distances = squareform(pairwise_string_distances(category_labels))
 
-  # Number of strings, number of categories, and number of possible category permutations
+  # Number of strings and number of possible category permutations
   m = len(strings)
-  n = len(category_labels)
-  p = factorial(n)
+  n = factorial(len(category_labels))
 
   # Deterministic test - measure every possible category-meaning mapping
-  if p <= perms:
+  if n <= perms:
 
     # Create an empty array to store the covarience for each permutation
-    covariences = np.zeros(p, dtype=float)
+    covariences = np.zeros(n, dtype=float)
 
     # Iterate over an enumeration of all permutations of category label orders
     for i, category_labels in enumerate(permutations(category_labels)):
