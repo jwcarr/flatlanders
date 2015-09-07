@@ -72,7 +72,7 @@ def pairwise_string_distances(strings):
   for i in range(0, len(strings)):
     for j in range(i+1, len(strings)):
       distances.append(norm_Levenshtein_distance(strings[i], strings[j]))
-  return np.array(distances, dtype=float)
+  return distances
 
 # Calculate the normalized Levenshtein distance between two strings
 def norm_Levenshtein_distance(string1, string2):
