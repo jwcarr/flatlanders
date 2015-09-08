@@ -3,10 +3,12 @@ The Cultural Evolution of Structured Languages in an Open-Ended Continuous World
 
 Jon W. Carr, Kenny Smith, Hannah Cornish, Simon Kirby
 
+
 Description
 -----------
 
-A repository containing the raw data and the code used to run the experiments and analyses is available on GitHub: ```https://github.com/jwcarr/flatlanders``` The following sections describe the content of the repository, the organization of the raw data, and how to replicate the results and figures reported in this paper. The enthusiastic reader is encouraged to find and report any bugs!
+A repository containing code for conducting a series of experiments looking at the evolution of language structure in an open-ended meaning space through iterated learning and the raw data. More information to follow. The enthusiastic reader is encouraged to find and report any bugs!
+
 
 Repository Content
 ------------------
@@ -33,8 +35,7 @@ and the following Python modules:
 
 -   ```initial_set_generator.py```: Code for producing an initial Generation-0 set file used to initiate a chain.
 
--   ```Krippendorff.py```: Module for computing Krippendorff’s alpha
-    coefficient.
+-   ```Krippendorff.py```: Module for computing Krippendorff’s alpha coefficient. Adapted from: http://grrrr.org/2011/05/31/krippendorff_alpha-python/
 
 -   ```language_generator.py```: Functions for generating an initial Generation-0 randomized language.
 
@@ -64,7 +65,8 @@ and the following Python modules:
 
 -   ```vocalize.py```: Functions for transforming a string into a synthesized vocalization using the Apple MacinTalk speech synthesizer.
 
--   ```voronoi.py```: Module for creating a Voronoi tessellation.
+-   ```voronoi.py```: Module for creating a Voronoi tessellation. Adapted from https://gist.github.com/neothemachine/8803860
+
 
 Raw Data
 --------
@@ -84,6 +86,7 @@ The Experiment 3 data (42 files per chain) is organized in the same way as descr
 The ```/task_1``` directory contains 96 plain text files, one for each of the participants who completed the first dissimilarity rating task. The filename is a unique “rater ID” used to identify participants. The first line gives the current trial number (the task is complete, so this will always read 151), the direction in which the sliding scale was oriented (```L``` = *very similar* on the left; ```R``` = *very similar* on the right), the participant’s IP address (all IP addresses have been concealed), and a Unix timestamp for the time the task was started. The subsequent lines give the results for each of the 150 rating trials. The first six trials are practice trials; in addition, three reliability trials are randomly interspersed among the normal trials. Column 1 gives a reference number for the triangle in the static set presented on the left; column 2 gives the reference number for the triangle presented on the right; column 3 gives the participant’s rating on the 1,000 point scale (0 is always *very similar* and 1000 is always *very dissimilar* regardless of the direction of the sliding scale); and column 4 gives a Unix timestamp for the time the rating was submitted. Negative reference numbers refer to a small fixed set of triangles used only in practice and reliability trials. The final line in the file is a unique code generated at the time the participant finished the task allowing him or her to collect payment. In some cases, the rating is given as ```undefined```; this was caused by a browser compatibility issue that was later fixed.
 
 The ```/task_2``` directory contains 184 files, one for each of the participants who completed the second dissimilarity rating task. The contents of the files are organized in the same way as described above with the following exceptions: (1) Task 2 is comprised of 135 or 136 trials rather than 150, and (2) the coordinates of each triangle are given in full for each trial rather then represented by reference numbers, since the triangles rated in this task are not drawn from a fixed set as in the case in Task 1.
+
 
 Replicating the Reported Results
 --------------------------------
@@ -116,7 +119,7 @@ E1_exp_static = expressivity.experiment_results(1, set_type='s')
 expressivity.plot(E1_exp_dynamic, E1_exp_static, experiment=1)
 ```
 
-By default the plot will be saved to your desktop, although this can be changed by passing a path to the ```plot``` function using the ```save_location``` argument or by editing the ```desktop_location``` variable in ```basics.py```. To run the analysis on Experiment 2 or 3, change all ```1```s to ```2```s or ```3```s. To get expressivity results for the union of the dynamic and static set the ```set_type``` argument to ```’c’```.
+By default the plot will be saved to your desktop, although this can be changed by passing a path to the ```plot``` function using the ```save_location``` argument or by editing the ```desktop_location``` variable in ```basics.py```. To run the analysis on Experiment 2 or 3, change all ```1```s to ```2```s or ```3```s. To get expressivity results for the union of the dynamic and static set the ```set_type``` argument to ```'c'```.
 
 ### Structure
 
@@ -248,6 +251,4 @@ This saves a ```.tex``` file to your desktop containing the source for producing
 License
 -------
 
-
-References and Links
---------------------
+Unless otherwise noted, all code in this repository is licensed under the terms of the MIT License.
