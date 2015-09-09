@@ -1,13 +1,11 @@
-The Cultural Evolution of Structured Languages in an Open-Ended Continuous World
-================================================================================
-
-Jon W. Carr, Kenny Smith, Hannah Cornish, Simon Kirby
+flatlanders
+===========
 
 
 Description
 -----------
 
-A repository containing code for conducting a series of experiments looking at the evolution of language structure in an open-ended meaning space through iterated learning and the raw data. More information to follow. The enthusiastic reader is encouraged to find and report any bugs!
+Code for conducting a series of experiments looking at the evolution of language structure in an open-ended meaning space through iterated learning. More information to follow.
 
 
 Repository Content
@@ -15,57 +13,63 @@ Repository Content
 
 The repository contains the following directories:
 
--   ```/data```: Plain text files containing the data for the three experiments and the two rating tasks.
+- ```/analysis```: Python code for analyzing the data.
 
--   ```/experiment```: HTML, JavaScript, and PHP code for running the experiments.
+- ```/data```: Plain text files containing the data for the three experiments and the two rating tasks.
 
--   ```/rating_tasks```: HTML, JavaScript, and PHP code for running the online rating tasks.
+- ```/experiment```: HTML, JavaScript, and PHP code for running the experiments.
 
-and the following Python modules:
+- ```/rating_tasks```: HTML, JavaScript, and PHP code for running the online rating tasks.
 
--   ```basics.py```: Basic functions called from various other modules; mainly used for loading in data.
 
--   ```communication.py```: Functions for retrieving and plotting communicative accuracy and communicative error results, and for analyzing the data from the second online ratings task.
+Analytical Code
+---------------
 
--   ```expressivity.py```: Functions for retrieving and plotting expressivity results.
+The ```/analysis``` directory contains Python code for analyzing the three experiments and the two rating tasks. The Python modules are listed below with a brief description. See below for examples of how to use the code.
 
--   ```geometrical_distance.py```: Functions for computing the geometrical dissimilarity between pairs of triangles.
+- ```basics.py```: Basic functions called from various other modules; mainly used for loading in data.
 
--   ```geometry.py```: Various basic geometrical functions for dealing with triangles.
+- ```communication.py```: Functions for retrieving and plotting communicative accuracy and communicative error results, and for analyzing the data from the second online ratings task.
 
--   ```initial_set_generator.py```: Code for producing an initial Generation-0 set file used to initiate a chain.
+- ```expressivity.py```: Functions for retrieving and plotting expressivity results.
 
--   ```Krippendorff.py```: Module for computing Krippendorff’s alpha coefficient. Adapted from: http://grrrr.org/2011/05/31/krippendorff_alpha-python/
+- ```geometrical_distance.py```: Functions for computing the geometrical dissimilarity between pairs of triangles.
 
--   ```language_generator.py```: Functions for generating an initial Generation-0 randomized language.
+- ```geometry.py```: Various basic geometrical functions for dealing with triangles.
 
--   ```Mantel.py```: Module for running a Mantel test on two distance matrices.
+- ```initial_set_generator.py```: Code for producing an initial Generation-0 set file used to initiate a chain.
 
--   ```mds.py```: Module for computing an MDS solution to the naïve raters’ dissimilarity ratings and producing Voronoi-tessellated plots and triangle graphics.
+- ```Krippendorff.py```: Module for computing Krippendorff’s alpha coefficient. Adapted from: http://grrrr.org/2011/05/31/krippendorff_alpha-python/
 
--   ```Page.py```: Module for running Page’s test.
+- ```language_generator.py```: Functions for generating an initial Generation-0 randomized language.
 
--   ```plot.py```: Module that interfaces with Matplotlib for producing plots of a consistent style.
+- ```Mantel.py```: Module for running a Mantel test on two distance matrices.
 
--   ```rater_analysis.py```: Functions for analyzing the dissimilarity data from the naïve raters and forming a distance matrix that can be used by other modules.
+- ```mds.py```: Module for computing an MDS solution to the naïve raters’ dissimilarity ratings and producing Voronoi-tessellated plots and triangle graphics.
 
--   ```rater_generator.py```: Functions for generating the stimulus sets for naïve raters in Tasks 1 and 2 to work on.
+- ```Page.py```: Module for running Page’s test.
 
--   ```sound_symbolism.py```: Functions for analyzing sound symbolism.
+- ```plot.py```: Module that interfaces with Matplotlib for producing plots of a consistent style.
 
--   ```structure_measure_comparison.py```: Code for plotting a comparison of the general and sublexical structure measures.
+- ```rater_analysis.py```: Functions for analyzing the dissimilarity data from the naïve raters and forming a distance matrix that can be used by other modules.
 
--   ```structure.py```: Functions for computing and plotting structure results.
+- ```rater_generator.py```: Functions for generating the stimulus sets for naïve raters in Tasks 1 and 2 to work on.
 
--   ```sublexical_structure.py```: Module for measuring sublexical structure.
+- ```sound_symbolism.py```: Functions for analyzing sound symbolism.
 
--   ```svg_polygons.py```: A simple class for drawing polygons and saving to an SVG file.
+- ```structure_measure_comparison.py```: Code for plotting a comparison of the general and sublexical structure measures.
 
--   ```transmission_error.py```: Functions for computing and plotting transmission error results.
+- ```structure.py```: Functions for computing and plotting structure results.
 
--   ```vocalize.py```: Functions for transforming a string into a synthesized vocalization using the Apple MacinTalk speech synthesizer.
+- ```sublexical_structure.py```: Module for measuring sublexical structure.
 
--   ```voronoi.py```: Module for creating a Voronoi tessellation. Adapted from https://gist.github.com/neothemachine/8803860
+- ```svg_polygons.py```: A simple class for drawing polygons and saving to an SVG file.
+
+- ```transmission_error.py```: Functions for computing and plotting transmission error results.
+
+- ```vocalize.py```: Functions for transforming a string into a synthesized vocalization using the Apple MacinTalk speech synthesizer.
+
+- ```voronoi.py```: Module for creating a Voronoi tessellation. Adapted from https://gist.github.com/neothemachine/8803860
 
 
 Raw Data
@@ -93,16 +97,16 @@ Replicating the Reported Results
 
 All analytical code is written in Python and has only been tested under version 2.7 of the language. The following nonstandard libraries are used extensively throughout the codebase and should be installed first (if not already available):
 
--   Matplotlib: http://matplotlib.org
+- Matplotlib: http://matplotlib.org
 
--   NumPy: http://www.numpy.org
+- NumPy: http://www.numpy.org
 
--   SciPy: https://www.scipy.org
+- SciPy: https://www.scipy.org
 
-All analyses were performed on OS X, but the instructions that follow should also apply to Linux or Windows systems. The instructions begin with the assumption that you have ```cd```’d into the ```flatlanders/``` directory and opened a Python interpreter, e.g.:
+All analyses were performed on OS X, but the instructions that follow should also apply to Linux or Windows systems. The instructions begin with the assumption that you have ```cd```’d into the ```analysis/``` directory and opened a Python interpreter, e.g.:
 
 ```
-$ cd flatlanders/
+$ cd flatlanders/analysis/
 $ python
 ```
 
@@ -181,9 +185,9 @@ The ```ascending``` argument defines whether we are hypothesizing an upward on d
 
 The MDS plots and triangle visualizations are produced using the code in ```mds.py```. This module requires two nonstandard libraries to be installed:
 
--   scikit-learn: http://scikit-learn.org
+- scikit-learn: http://scikit-learn.org
 
--   Polygon: http://www.j-raedler.de/projects/polygon/
+- Polygon: http://www.j-raedler.de/projects/polygon/
 
 The following generates a graphic for Generation 10 in Chain A with the default parameters:
 
