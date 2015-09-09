@@ -43,7 +43,7 @@ def generate_task_1(reps, per_rep, tests):
       data = ''
       for line in this_set:
         data += str(line[0]) + "\t" + str(line[1]) + "\n"
-      f = open("rating_tasks/static_set_pairs/data/" + agent_id, 'w')
+      f = open("../rating_tasks/static_set_pairs/data/" + agent_id, 'w')
       f.write(data[:-1])
       f.close()
   return agent_ids
@@ -80,10 +80,10 @@ def generate_task_2(reps):
         data = ''
         for line in this_set:
           data += str(line[0]) + "\t" + str(line[1]) + "\n"
-        f = open("Rater_ca/data/raw_sets/" + agent_id, 'w')
+        f = open("../rating_tasks/communicative_error/data/raw_sets/" + agent_id, 'w')
         f.write(data[:-1])
         f.close()
-        f = open("rating_tasks/communicative_error/data/valid_id", 'w')
+        f = open("../rating_tasks/communicative_error/data/valid_id", 'w')
         f.write('\n'.join(agent_ids))
         f.close()
   return agent_ids

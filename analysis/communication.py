@@ -29,7 +29,7 @@ class Rater:
   # Read in a ratings file
   def ReadFile(self):
     try:
-      f = open('data/task_2/' + self.ID)
+      f = open('../data/task_2/' + self.ID)
     except IOError:
       raise ValueError(self.ID + ' is not a valid rater')
     content = f.read()
@@ -39,7 +39,7 @@ class Rater:
   # Read in a comments file
   def ReadInComments(self):
     try:
-      f = open('data/task_2/comments/' + self.ID)
+      f = open('../data/task_2/comments/' + self.ID)
     except IOError:
       return None
     comment = f.read()
