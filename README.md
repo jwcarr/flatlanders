@@ -69,7 +69,7 @@ The ```/analysis``` directory contains Python code for analyzing the three exper
 
 - ```vocalize.py```: Functions for transforming a string into a synthesized vocalization using the Apple MacinTalk speech synthesizer.
 
-- ```voronoi.py```: Module for creating a Voronoi tessellation. Adapted from https://gist.github.com/neothemachine/8803860
+- ```Voronoi.py```: Module for creating a Voronoi tessellation. Adapted from: https://gist.github.com/neothemachine/8803860
 
 
 Raw Data

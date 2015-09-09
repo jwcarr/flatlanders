@@ -6,7 +6,7 @@ import os
 import basics
 import rater_analysis
 import svg_polygons
-import voronoi
+import Voronoi
 import geometry
 
 
@@ -117,7 +117,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
     X, Y = triangle_coordinates[indices, 0], triangle_coordinates[indices, 1]
     plt.scatter(X, Y, c=colour, label=word, marker='o', s=15, linewidth=0, zorder=1)
     if join_contiguous_cells == True:
-      regional_polys = voronoi.join_contiguous_polygons(voronoi_polygons[indices])
+      regional_polys = Voronoi.join_contiguous_polygons(voronoi_polygons[indices])
       for poly in regional_polys:
         ax1.add_patch(patches.Polygon(poly, facecolor=colour_light, edgecolor='white', linewidth=0.5, zorder=0))
     else:
@@ -392,7 +392,7 @@ for dim in range(0, triangle_coordinates.shape[1]):
   triangle_coordinates[:, dim] = (((triangle_coordinates[:, dim] - minimum) / difference) * 1.8) - 0.9
 
 # Compute the Voronoi polygons for these MDS coordinates
-voronoi_polygons = voronoi.polygons(triangle_coordinates, [[-1,-1], [-1,1], [1,1], [1,-1]])
+voronoi_polygons = Voronoi.polygons(triangle_coordinates, [[-1,-1], [-1,1], [1,1], [1,-1]])
 
 # Print MDS goodness-of-fit stats
 #print('Correspondence: %s' % correspondence_correlation(triangle_distances, triangle_coordinates))
