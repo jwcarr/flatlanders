@@ -56,6 +56,10 @@ class Plot:
     plt.clf()
 
   def make_subplot(self, position_x, position_y, subplot_i):
+  def resize(self, width, height):
+    self.height = height
+    self.width = width
+
   def set_label_size(self, size):
     self.label_font_size = size
 
