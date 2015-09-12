@@ -195,7 +195,9 @@ def CommError(chain, generation, distances=None):
 
 # Measure communicative accuracy for all chains and generations
 def error_results(distances=None):
-  return [[CommError(chain, gen, distances) for gen in range(1,11)] for chain in ['I', 'J', 'K', 'L']]
+  results = [[CommError(chain, gen, distances) for gen in range(1,11)] for chain in ['I', 'J', 'K', 'L']]
+  dataset = {'data':results, 'experiment':3, 'starting_generation':1, 'data_type':'communicative_error'}
+  return dataset
 
 #############################################################################
 
@@ -213,7 +215,9 @@ def CommAccuracy(chain, generation):
 
 # Measure communicative accuracy for all chains and generations
 def accuracy_results():
-  return [[CommAccuracy(chain, gen) for gen in range(1,11)] for chain in ['I', 'J', 'K', 'L']]
+  results = [[CommAccuracy(chain, gen) for gen in range(1,11)] for chain in ['I', 'J', 'K', 'L']]
+  dataset = {'data':results, 'experiment':3, 'starting_generation':1, 'data_type':'communicative_accuracy'}
+  return dataset
 
 ########################################################################################
 

@@ -17,10 +17,11 @@ bigness_phonemes = [['b', 'd', 'g', 'l', 'm', 'w', 'AA', 'OW', 'AO', 'UW'], ['k'
 # Functions for generating experiment, chain, or generation results
 
 def experiment_results(experiment, set_type='s', symbolism='shape', permutations=1000):
-  experiment_results = []
+  results = []
   for chain in basics.chain_codes[experiment-1]:
-    experiment_results.append(chain_results(experiment, chain, set_type, symbolism, permutations))
-  return experiment_results
+    results.append(chain_results(experiment, chain, set_type, symbolism, permutations))
+  dataset = {'data':results, 'experiment':experiment, 'starting_generation':0, 'data_type':'sound_symbolism'}
+  return dataset
 
 def chain_results(experiment, chain, set_type='s', symbolism='shape', permutations=1000):
   chain_results = []

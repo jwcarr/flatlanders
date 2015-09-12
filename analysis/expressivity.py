@@ -5,7 +5,8 @@ def experiment_results(experiment, set_type='s'):
   results = []
   for chain in basics.chain_codes[experiment-1]:
     results.append(chain_results(chain, set_type, experiment))
-  return results
+  dataset = {'data':results, 'experiment': experiment, 'starting_generation':0, 'data_type':'expressivity_' + set_type}
+  return dataset
 
 def chain_results(chain, set_type='s', experiment=False):
   if type(experiment) == bool and experiment == False:

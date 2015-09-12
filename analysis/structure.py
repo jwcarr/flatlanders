@@ -11,7 +11,11 @@ def experiment_results(experiment, sublexical=False, permutations=1000, meaning_
   for chain in basics.chain_codes[experiment-1]:
     print('Chain ' + chain + '...')
     results.append(chain_results(chain, sublexical, permutations, meaning_distances, experiment))
-  return results
+  if sublexical == True:
+    dataset = {'data':results, 'experiment': experiment, 'starting_generation':0, 'data_type':'sublexical_structure'}
+  else:
+    dataset = {'data':results, 'experiment': experiment, 'starting_generation':0, 'data_type':'structure'}
+  return dataset
 
 def chain_results(chain, sublexical=False, permutations=1000, meaning_distances=False, experiment=False):
   if type(meaning_distances) == bool and meaning_distances == False:
