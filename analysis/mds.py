@@ -105,7 +105,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
   for square in [1, 4, 9, 16, 25, 36, 49]:
     if square >= len(word_dict.keys()):
       break
-  grid_size = np.sqrt(square)
+  grid_size = int(np.sqrt(square))
 
   # Rearrange words so that they'll appear in alphabetical order along rows of the legend
   words = rearrange(word_dict.keys(), grid_size)
@@ -141,7 +141,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
 
   # Produce the legend
   handles, labels = ax1.get_legend_handles_labels()
-  ax2.legend(handles, labels, loc='upper center', bbox_to_anchor=[0.45, 0.5], frameon=False, prop={'size':legend_font_size}, ncol=int(grid_size), scatterpoints=1, handletextpad=0.01)
+  ax2.legend(handles, labels, loc='upper center', bbox_to_anchor=[0.45, 0.5], frameon=False, prop={'size':legend_font_size}, ncol=grid_size, scatterpoints=1, handletextpad=0.01)
   
   # Tighten plot layout
   plt.tight_layout(pad=0.2, h_pad=0.0)
@@ -221,7 +221,7 @@ def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
   canvas.clear()
 
   # Determine the size of each triangle cell, giving 5 points of cell spacing
-  point_size = (171.2 / float(grid_size)) - 5.0
+  point_size = (171.2 / grid_size) - 5.0
 
   # Determine scaling factor by which all triangles will need to be scaled
   scale_factor = point_size / 500.0
@@ -308,13 +308,12 @@ def make_prototype(triangles, spot_based=True):
 # Rearrange a list of words so that when displayed in a Matplotlib legend, they will be
 # alphabetical along the rows, rather than down the columns.
 def rearrange(words, grid_size):
-  int_grid_size = int(grid_size)
   words = sorted(words)
   words_rearranged = []
-  for i in range(int_grid_size):
-    for j in range(int_grid_size):
+  for i in range(grid_size):
+    for j in range(grid_size):
       try:
-        words_rearranged.append(words[(j*int_grid_size)+i])
+        words_rearranged.append(words[(j*grid_size)+i])
       except IndexError:
         break
   return words_rearranged
