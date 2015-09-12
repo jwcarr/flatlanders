@@ -179,7 +179,7 @@ import Page
 Page.test(E1_str, ascending=True)
 ```
 
-The ```ascending``` argument defines whether we are hypothesizing an upward on downward trend (in this case an upward trend).
+The ```ascending``` argument defines whether we are hypothesizing an upward or downward trend (in this case an upward trend).
 
 ### MDS plots
 
@@ -205,18 +205,19 @@ mds.plot_experiment(1)
 
 The ```plot```, ```plot_chain```, and ```plot_experiment``` functions can take a variety of arguments to further refine the plots:
 
--   The ```chain_wide_palette``` argument determines whether the color palette is selected based on the string distances across an entire chain or within each generation. Setting this to ```True``` is useful if you want to be able to compare across generations.
+- The ```chain_wide_palette``` argument (Boolean) determines whether the color palette is selected based on the string distances across an entire chain or within each generation. Setting this to ```True``` is useful if you want to be able to compare across generations.
 
--   The ```spectrum``` argument determines how much of the color spectrum to use, allowing you to avoid extremely light and extremely dark colors which often don’t work very well.
+- The ```use_hsb``` argument (Boolean) allows you to use HSB (hue, saturation, brightness) instead of RGB to determine the colors in the color palette.
 
--   The ```push_factor``` argument artificially makes colors more distinct, which is useful if you’re using a chain-wide palette where colors
-    can become too similar to interpret.
+- The ```spectrum``` argument (list) determines how much of the color spectrum to use, allowing you to avoid extremely light and extremely dark colors which often don’t work very well.
 
--   The ```show_prototypes``` argument adds prototype triangles to the triangle graphics.
+- The ```push_factor``` argument (float) artificially makes colors more distinct, which is useful if you’re using a chain-wide palette where colors can become too similar to interpret.
 
--   The ```label_cells``` argument adds string labels to the Voronoi cells.
+- The ```show_prototypes``` argument (Boolean) adds prototype triangles to the triangle graphics.
 
--   The ```join_contiguous_cells``` argument joins together cells that form a continuous region of one color. However, this does not always work correctly, so use with caution.
+- The ```label_cells``` argument (Boolean) adds string labels to the Voronoi cells.
+
+- The ```join_contiguous_cells``` argument (Boolean) joins together cells that form a continuous region of one color. However, this does not always work correctly, so use with caution.
 
 ### Geometrical measure of triangle dissimilarity
 
