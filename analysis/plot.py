@@ -41,22 +41,26 @@ class Plot:
     for y in range(self.shape_y):
       for x in range(self.shape_x):
         if self.datasets[y][x] == None:
-          self.make_empty_subplot(x, y)
+          self.__make_empty_subplot(x, y)
           continue
-        self.make_subplot(x, y, subplot_i)
+        self.__make_subplot(x, y, subplot_i)
         subplot_i += 1
     if save_location == False:
       save_location = basics.desktop_location
     if save_name == False:
       save_name = 'plot'
-    self.add_legend()
+    self.__add_legend()
     self.grid.tight_layout(self.fig, pad=0.1, h_pad=-.5, w_pad=1)
     plt.savefig(save_location + save_name + '.eps')
     plt.clf()
 
   def make_subplot(self, position_x, position_y, subplot_i):
+  #############################################
+  # PRIVATE METHODS
+
+  def __make_subplot(self, position_x, position_y, subplot_i):
     dataset = self.datasets[position_y][position_x]
-    matrix = self.remove_NaN(dataset['data'])
+    matrix = self.__remove_NaN(dataset['data'])
     experiment = dataset['experiment']
     data_type = dataset['data_type']
     starting_generation = dataset['starting_generation']
@@ -65,9 +69,9 @@ class Plot:
     chain_n = len(matrix)
     generation_n = len(matrix[0])
     if data_type in ['structure', 'sublexical_structure', 'sound_symbolism']:
-      self.add_confidence_intervals(data_type_ranges[data_type][0], generation_n)
+      self.__add_confidence_intervals(data_type_ranges[data_type][0], generation_n)
     elif (data_type == 'expressivity_d' and experiment == 2) or (data_type == 'communicative_accuracy'):
-      self.add_chance_level(16, generation_n)
+      self.__add_chance_level(16, generation_n)
     for chain_i in range(0, chain_n):
       x_vals = range(starting_generation, len(matrix[chain_i]) + starting_generation)
       y_vals = [y for y in matrix[chain_i]]
@@ -79,38 +83,38 @@ class Plot:
     plt.tick_params(axis='x', which='both', bottom='off', top='off')
     plt.ylabel(data_type_labels[data_type], fontsize=label_font_size)
     if data_type in ['expressivity_d', 'expressivity_s', 'expressivity_c', 'communicative_accuracy', 'communicative_error', 'transmission_error']:
-      self.add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'bottom')
+      self.__add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'bottom')
     else:
-      self.add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'top')
+      self.__add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'top')
     if position_y == self.shape_y - 1:
       plt.xlabel('Generation number', fontsize=label_font_size)
 
-  def make_empty_subplot(self, position_x, position_y):
+  def __make_empty_subplot(self, position_x, position_y):
     self.subplots[position_y][position_x] = self.fig.add_subplot(self.grid[position_y, position_x])
     plt.axis('off')
 
-  def next_available_position(self):
+  def __next_available_position(self):
     for y in range(self.shape_y):
       for x in range(self.shape_x):
         if self.datasets[y][x] == None:
           return x, y
 
-  def add_confidence_intervals(self, min_y, n):
+  def __add_confidence_intervals(self, min_y, n):
     plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
     if min_y < -2:
       plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
 
-  def add_chance_level(self, level, n):
+  def __add_chance_level(self, level, n):
     plt.plot(range(-1,n+2), [level] * (n+3), color='gray', linestyle=':', linewidth=0.5)
 
-  def add_legend(self):
+  def __add_legend(self):
     legend = self.fig.add_subplot(self.grid[self.shape_y, :])
     plt.axis('off')
     handles, labels = self.subplots[0][0].get_legend_handles_labels()
     plt.legend(handles, labels, loc='upper center', frameon=False, prop={'size':legend_font_size}, ncol=4, numpoints=1)
     return
 
-  def add_subplot_label(self, subplot_i, min_y, max_y, position):
+  def __add_subplot_label(self, subplot_i, min_y, max_y, position):
     try:
       label = '(' + ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'[subplot_i]) + ')'
     except IndexError:
@@ -121,7 +125,7 @@ class Plot:
     else:
       plt.text(0.2, min_y + padding, label, {'fontsize':8}, fontweight='bold', ha='left', va='bottom')
 
-  def remove_NaN(self, matrix):
+  def __remove_NaN(self, matrix):
     new_matrix = []
     for row in matrix:
       new_row = []
