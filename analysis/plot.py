@@ -56,6 +56,18 @@ class Plot:
     plt.clf()
 
   def make_subplot(self, position_x, position_y, subplot_i):
+  # Peek inside the current state of the multipanel plot
+  def peek(self):
+    print '  ' + ''.join([' %i  '%(x+1) for x in range(self.shape_x)])
+    for y in range(self.shape_y):
+      print_row = '%i '%(y+1)
+      for x in range(self.shape_x):
+        if self.datasets[y][x] == None:
+          print_row += '[ ] '
+        else:
+          print_row += '[x] '
+      print(print_row)
+
   def resize(self, width, height):
     self.height = height
     self.width = width
