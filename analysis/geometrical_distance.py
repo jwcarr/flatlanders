@@ -1,5 +1,5 @@
 from itertools import combinations
-from scipy.spatial.distance import squareform
+from scipy.spatial import distance
 from scipy.stats import rankdata
 import numpy as np
 import basics
@@ -82,10 +82,13 @@ def shape_distance(t1, t2):
 
 ########################################
 
-# Given a sparse distance matrix, return the most similar and most dissimilar pairs
+# Given a distance matrix, return the most similar and most dissimilar pairs
 
-def most_and_least_similar_pairs(distance_array):
-  distance_matrix = squareform(distance_array, force='tomatrix')
+def most_and_least_similar_pairs(distance_matrix):
+  if distance.is_valid_dm(distance_matrix) == False:
+    if distance.is_valid_y(distance_matrix) == False:
+      raise ValueError('Invalid distance matrix. Please supply a condensed or redundant distance matrix.')
+    distance_matrix = distance.squareform(distance_matrix, force='tomatrix')
   similar_score = 1
   dissimilar_score = 0
   n = distance_matrix.shape[0]
