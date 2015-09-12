@@ -17,12 +17,12 @@ legend_font_size = 10 # points
 figure_width = 5.5 # inches
 
 
-def plot_all(chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
+def plot_all(chain_wide_palette=True, use_hsb=False, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
   for experiment in range(0, len(basics.chain_codes)):
-    plot_experiment(experiment+1, chain_wide_palette, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
+    plot_experiment(experiment+1, chain_wide_palette, use_hsb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
 
 
-def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
+def plot_experiment(experiment, chain_wide_palette=True, use_hsb=False, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
 
   # Set directory for saving, and create it if it doesn't exist
   if save_location == False:
@@ -36,10 +36,10 @@ def plot_experiment(experiment, chain_wide_palette=True, spectrum=[0.2, 0.9], pu
 
   for chain in basics.chain_codes[experiment-1]:
     print('Chain: ' + chain)
-    plot_chain(chain, experiment, chain_wide_palette, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
+    plot_chain(chain, experiment, chain_wide_palette, use_hsb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
 
 
-def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
+def plot_chain(chain, experiment=None, chain_wide_palette=True, use_hsb=False, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
 
   # Determine experiment number if none is supplied
   if experiment == None:
@@ -68,10 +68,10 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, spectrum=[0.2, 0
   # Produce a plot for each generation
   print('Generating graphics...')
   for generation in range(0, 11):
-    plot(chain, generation, experiment, colour_palette, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, False, save_location, str(generation))
+    plot(chain, generation, experiment, colour_palette, use_hsb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, False, save_location, str(generation))
 
 
-def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2, 0.9], push_factor=0.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, colour_candidates=False, save_location=False, save_name=False):
+def plot(chain, generation, experiment=None, colour_palette=None, use_hsb=False, spectrum=[0.2, 0.9], push_factor=0.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, colour_candidates=False, save_location=False, save_name=False):
 
   # Determine experiment number if none supplied
   if experiment == None:
@@ -83,7 +83,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
 
   # Pick a colour palette if none has been supplied
   if colour_palette == None:
-    colour_palette = generate_colour_palette(strings, spectrum, push_factor)
+    colour_palette = generate_colour_palette(strings, use_hsb, spectrum, push_factor)
 
   # Organize strings and triangles into categories
   word_dict = {}
@@ -167,10 +167,10 @@ def plot(chain, generation, experiment=None, colour_palette=None, spectrum=[0.2,
 
   # If multiple colour palette candidates have been requested, run plot() again.
   if colour_candidates > 1:
-    plot(chain, generation, experiment, None, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, colour_candidates-1, save_location, save_name)
+    plot(chain, generation, experiment, None, use_hsb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, colour_candidates-1, save_location, save_name)
 
 
-def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
+def generate_colour_palette(strings, use_hsb=False, spectrum=[0.0, 1.0], push_factor=0.0):
 
   # Get list of unique strings
   words = list(set(strings))
@@ -182,30 +182,48 @@ def generate_colour_palette(strings, spectrum=[0.0, 1.0], push_factor=0.0):
 
   # Create distance matrix giving normalized Levenshtein distances between the words
   # Add on the given push factor to prevent colours from being too similar
-  string_distances = np.asarray(basics.stringDistances(words), dtype=float) + push_factor
+  string_distances = np.array(basics.stringDistances(words), dtype=float) + push_factor
   string_distance_matrix = distance.squareform(string_distances, 'tomatrix')
 
   # Run distance matrix through MDS to determine the position of each word in 3-dimensional space
   string_mds = MDS(dissimilarity='precomputed', n_components=3, n_init=25, max_iter=2000)
   string_coordinates = string_mds.fit_transform(string_distance_matrix)
 
-  # Scale the dimensions of the space over the interval [0, 255] to create an RGB colour space.
-  # The spectrum argument determines how much of the colour space will be used, allowing you to
-  # avoid very dark and very light colours.
-  for dim in range(0, string_coordinates.shape[1]):
-    minimum = string_coordinates[:, dim].min()
-    difference = string_coordinates[:, dim].max() - minimum
-    string_coordinates[:, dim] = (((string_coordinates[:, dim] - minimum) / difference) * (255 * (spectrum[1] - spectrum[0]))) + (255 * spectrum[0])
-
-  # Convert RGB values to hexadecimal triplets
   hex_colour_values = []
-  for r, g, b in string_coordinates:
-    hex_colour = convert_to_hex((r, g, b))
-    hex_colour_light = convert_to_hex(lighten(r, g, b))
-    hex_colour_values.append((hex_colour, hex_colour_light))
+
+  if use_hsb == True:
+
+    # Scale the MDS dimensions over the interval [0.4, 0.9] to map the string distances on to HSB
+    # colour space which uses 144-324 degrees of hue, 40-90% of saturation, and 40-90% of brightness
+    for dim in range(0, 3):
+      minimum = string_coordinates[:, dim].min()
+      difference = string_coordinates[:, dim].max() - minimum
+      string_coordinates[:, dim] = (((string_coordinates[:, dim] - minimum) / difference) * 0.5) + 0.4
+
+    # Convert HSB values to hexadecimal triplets (the light version is for the Voronoi cells)
+    for h, s, b in string_coordinates:
+      hex_colour = rgb_to_hex(hsb_to_rgb((h, s, b)))
+      hex_colour_light = rgb_to_hex(hsb_to_rgb((h, s, b+0.1)))
+      hex_colour_values.append((hex_colour, hex_colour_light))
+
+  else:
+
+    # Scale the dimensions of the space over the interval [0, 255] to create an RGB colour space.
+    # The spectrum argument determines how much of the colour space will be used, allowing you to
+    # avoid very dark and very light colours.
+    for dim in range(0, 3):
+      minimum = string_coordinates[:, dim].min()
+      difference = string_coordinates[:, dim].max() - minimum
+      string_coordinates[:, dim] = (((string_coordinates[:, dim] - minimum) / difference) * (255 * (spectrum[1] - spectrum[0]))) + (255 * spectrum[0])
+
+    # Convert RGB values to hexadecimal triplets (the light version is for the Voronoi cells)
+    for r, g, b in string_coordinates:
+      hex_colour = rgb_to_hex((r, g, b))
+      hex_colour_light = rgb_to_hex(lighten((r, g, b)))
+      hex_colour_values.append((hex_colour, hex_colour_light))
 
   #print('Correspondence: %s' % correspondence_correlation(string_distances, string_coordinates))
-  #print('Stress: %s' % stress_1(string_mds.stress_, string_distances))
+  #print('Stress-1: %s' % stress_1(string_mds.stress_, string_distances))
 
   # Return the colour palette
   return dict(zip(words, hex_colour_values))
@@ -331,13 +349,26 @@ def splice_in_triangles(filename, triangle_code):
 
 
 # Convert RGB value to hexadecimal triplet
-def convert_to_hex(rgb):
+def rgb_to_hex(rgb):
   return '#' + ''.join(map(chr, map(int, map(round, rgb)))).encode('hex')
 
+# Convert HSB (hue, saturation, brightness) to RGB
+def hsb_to_rgb(hsb):
+  if hsb[1] == 0.0: return hsb[2]*255, hsb[2]*255, hsb[2]*255
+  i = int(hsb[0]*6.)
+  f = (hsb[0]*6.)-i
+  p, q, t = hsb[2]*(1.-hsb[1]), hsb[2]*(1.-hsb[1]*f), hsb[2]*(1.-hsb[1]*(1.-f))
+  i %= 6
+  if i == 0: return hsb[2]*255, t*255, p*255
+  elif i == 1: return q*255, hsb[2]*255, p*255
+  elif i == 2: return p*255, hsb[2]*255, t*255
+  elif i == 3: return p*255, q*255, hsb[2]*255
+  elif i == 4: return t*255, p*255, hsb[2]*255
+  return hsb[2]*255, p*255, q*255
 
 # Lighten a colour by blending in 50% white
-def lighten(r, g, b):
-  return light(r), light(g), light(b)
+def lighten(rgb):
+  return light(rgb[0]), light(rgb[1]), light(rgb[2])
 def light(val):
   return int(round(val + ((255 - val) * 0.5)))
 
