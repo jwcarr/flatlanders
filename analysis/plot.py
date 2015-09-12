@@ -12,12 +12,12 @@ data_type_labels = {'expressivity_d':'Expressivity (dynamic set)', 'expressivity
 
 class Plot:
 
-  def __init__(self, shape_x, shape_y, width, height):
   label_font_size = 8.0
   axis_font_size = 7.0
   legend_font_size = 8.0
   line_thickness = 1.0
 
+  def __init__(self, shape_x=1, shape_y=1, width=4.0, height=4.0):
     self.shape_x = shape_x
     self.shape_y = shape_y
     self.height = height
@@ -26,15 +26,24 @@ class Plot:
     self.datasets = [[None] * self.shape_x for y in range(self.shape_y)]
     self.subplots = [[None] * self.shape_x for y in range(self.shape_y)]
 
+  #############################################
+  # PUBLIC METHODS
+
+  # Add a subplot to the multipanel plot
   def add(self, dataset, position_x=False, position_y=False):
-    if position_x == False:
-      position_x, position_y = self.next_available_position()
+    if type(dataset) != dict:
+      raise ValueError('Please pass a data dictionary generated from one of the experiment_results() functions.')
+    if (type(position_x) == bool and position_x == False) or (type(position_y) == bool and position_y == False):
+      position_x, position_y = self.__next_available_position()
+    else:
+      position_x, position_y = position_x-1, position_y-1
     if (position_x * position_y) > self.n:
       raise ValueError('Insufficient size for this position. Multiplot size is %ix%i' % (self.shape_x, self.shape_y))
-    if self.datasets[position_y][position_x] != None and raw_input('Position %i,%i in use. Overwrite? (y/n) ' % (position_x, position_y)) != 'y':
+    if self.datasets[position_y][position_x] != None and raw_input('Position %i,%i in use. Overwrite? (y/n) ' % (position_x+1, position_y+1)) != 'y':
       return
     self.datasets[position_y][position_x] = dataset
 
+  # Make the multipanel plot a reality and save as PDF
   def make(self, save_name=False, save_location=False):
     self.fig = plt.figure(figsize=(self.width, self.height))
     self.grid = gridspec.GridSpec(nrows=self.shape_y+1, ncols=self.shape_x, height_ratios=([0.95 / self.shape_y] * self.shape_y) + [0.05])
@@ -55,7 +64,6 @@ class Plot:
     plt.savefig(save_location + save_name + '.eps')
     plt.clf()
 
-  def make_subplot(self, position_x, position_y, subplot_i):
   # Peek inside the current state of the multipanel plot
   def peek(self):
     print '  ' + ''.join([' %i  '%(x+1) for x in range(self.shape_x)])
@@ -148,7 +156,7 @@ class Plot:
       label = '(' + ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'[subplot_i]) + ')'
     except IndexError:
       label = '(' + str(subplot_i + 1) + ')'
-    padding = abs(min_y - max_y) / 10.
+    padding = abs(min_y - max_y) / 15.
     if position == 'top':
       plt.text(0.2, max_y - padding, label, {'fontsize':8}, fontweight='bold', ha='left', va='top')
     else:
