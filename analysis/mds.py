@@ -365,14 +365,14 @@ def ED(a, b):
 
 
 # Calculate the correspondence correlation - how well do the distances in
-# MDS space correlate with the original ratings
-def correspondence_correlation(ratings, coordinates):
-  n = len(coordinates)
-  triangle_dists = [ED(coordinates[i], coordinates[j]) for i in range(n) for j in range(i+1, n)]
-  return np.corrcoef(triangle_dists, ratings)[0,1]
+# MDS space correlate with the original distances
+def correspondence_correlation(distances, mds_coordinates):
+  n = len(mds_coordinates)
+  mds_distances = [ED(mds_coordinates[i], mds_coordinates[j]) for i in range(n) for j in range(i+1, n)]
+  return np.corrcoef(distances, mds_distances)[0,1]
 
 
-# Calcualte stress-1
+# Calculate stress-1
 def stress_1(raw_stress, distances):
   return np.sqrt(raw_stress / sum(distances ** 2))
 
