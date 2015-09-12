@@ -37,6 +37,12 @@ def test(matrix, ascending=False, use_critical_values=False):
   p : float or str
       P-value
   """
+  if type(matrix) == dict:
+    if matrix['data_type'] in ['communicative_accuracy', 'structure', 'sublexical_structure', 'sound_symbolism']:
+      ascending = True
+    else:
+      ascending = False
+    matrix = matrix['data']
   validate_input(matrix, ascending, use_critical_values)
   if ascending == True:
     matrix = reverse_matrix(matrix)
