@@ -1,405 +1,137 @@
-from string import ascii_uppercase
 from math import isinf, isnan
 import matplotlib.pyplot as plt
-import numpy as np
+from matplotlib import gridspec
 import basics
 
 
-label_font_size = 10
-axis_font_size = 8
-legend_font_size = 10
+label_font_size = 8
+axis_font_size = 7
+legend_font_size = 8
 line_thickness = 1.0
 markers_by_chain = ['s', 'o', 'p', '^']
-colours_by_experiment = [['#01AAE9', '#1B346C', '#F44B1A', '#E5C39E'],
-                         ['#F6C83C', '#4C5B28', '#DB4472', '#B77F60'],
-                         ['#CBB345', '#609F80', '#4B574D', '#AF420A']]
+colours_by_experiment = [['#01AAE9', '#1B346C', '#F44B1A', '#E5C39E'], ['#F6C83C', '#4C5B28', '#DB4472', '#B77F60'], ['#CBB345', '#609F80', '#4B574D', '#AF420A']]
+data_type_ranges = {'expressivity_d':(0,50), 'expressivity_s':(0,50), 'expressivity_c':(0,100), 'structure':(-3,14), 'sublexical_structure':(-3,14), 'transmission_error':(0,1), 'communicative_accuracy':(0,50), 'communicative_error':(25,55), 'sound_symbolism':(-3,6)}
+data_type_labels = {'expressivity_d':'Expressivity (dynamic set)', 'expressivity_s':'Expressivity (static set)', 'expressivity_c':'Expressivity', 'structure':'Structure', 'sublexical_structure':'Sublexical structure', 'transmission_error':'Transmission error', 'communicative_accuracy':'Communicative accuracy', 'communicative_error':'Communicative error', 'sound_symbolism':'Sound symbolism'}
 
 
-def plot(matrix, mean_line=False, starting_gen=1, miny=0.0, maxy=1.0, y_label="Score", text=False, conf=False, col=1, text_pos='bottom', save=False, matrix_2=False, starting_gen_2=1, miny_2=0.0, maxy_2=1.0, y_label_2="Score", text_2=False, conf_2=False, col_2=1):
-  
-  # Initialize figure
-  plt.figure(1)
+class Plot:
 
-  # Replace NaN with None if present in the matrix
-  matrix = RemoveNaN(matrix)
+  def __init__(self, shape_x, shape_y, width, height):
+    self.shape_x = shape_x
+    self.shape_y = shape_y
+    self.height = height
+    self.width = width
+    self.n = self.shape_x * self.shape_y
+    self.datasets = [[None] * self.shape_x for y in range(self.shape_y)]
+    self.subplots = [[None] * self.shape_x for y in range(self.shape_y)]
 
-  if matrix_2 != False:
-    matrix_2 = RemoveNaN(matrix_2)
-    if mean_line == True:
-      plt.subplots(figsize=(5.5, 2.5))
-      ax1 = plt.subplot2grid((6,2), (0,0), rowspan=6)
-    else:
-      plt.subplots(figsize=(5.5, 3.0))
-      ax1 = plt.subplot2grid((6,2), (0,0), rowspan=5)
-  else:
-    if mean_line == True:
-      plt.subplots(figsize=(4.8, 2.5))
-      ax1 = plt.subplot2grid((6,1), (0,0), rowspan=6)
-    else:
-      plt.subplots(figsize=(4.8, 3.0))
-      ax1 = plt.subplot2grid((6,1), (0,0), rowspan=5)
+  def add(self, dataset, position_x=False, position_y=False):
+    if position_x == False:
+      position_x, position_y = self.next_available_position()
+    if (position_x * position_y) > self.n:
+      raise ValueError('Insufficient size for this position. Multiplot size is %ix%i' % (self.shape_x, self.shape_y))
+    if self.datasets[position_y][position_x] != None and raw_input('Position %i,%i in use. Overwrite? (y/n) ' % (position_x, position_y)) != 'y':
+      return
+    self.datasets[position_y][position_x] = dataset
 
-  n = len(matrix[0])
-  colours = colours_by_experiment[col-1]
-  xvals = range(starting_gen, n+starting_gen)
-  if conf == True:
-    plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-    if miny < -2.0:
-      plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-  elif type(conf) == int:
-    plt.plot(range(-1,n+2), [conf] * (n+3), color='gray', linestyle=':', linewidth=0.5)
+  def make(self, save_name=False, save_location=False):
+    self.fig = plt.figure(figsize=(self.width, self.height))
+    self.grid = gridspec.GridSpec(nrows=self.shape_y+1, ncols=self.shape_x, height_ratios=([0.95 / self.shape_y] * self.shape_y) + [0.05])
+    subplot_i = 0
+    for y in range(self.shape_y):
+      for x in range(self.shape_x):
+        if self.datasets[y][x] == None:
+          self.make_empty_subplot(x, y)
+          continue
+        self.make_subplot(x, y, subplot_i)
+        subplot_i += 1
+    if save_location == False:
+      save_location = basics.desktop_location
+    if save_name == False:
+      save_name = 'plot'
+    self.add_legend()
+    self.grid.tight_layout(self.fig, pad=0.1, h_pad=-.5, w_pad=1)
+    plt.savefig(save_location + save_name + '.eps')
+    plt.clf()
 
-  if mean_line == True:
-    x_vals = range(starting_gen, len(matrix[0])+starting_gen)
-    means, errors = MeanWithErrors(matrix)
-    _, caps, _ = ax1.errorbar(x_vals, means, yerr=errors, color='k', marker='o', markersize=3.0, linestyle="-", linewidth=line_thickness, capsize=1, elinewidth=0.5)
-    for cap in caps:
-      cap.set_markeredgewidth(0.5)
-  else:
-    for i in range(0,len(matrix)):
-      x_vals = range(starting_gen, len(matrix[i])+starting_gen)
-      y_vals = [item for item in matrix[i]]
-      plt.plot(x_vals, y_vals, color=colours[i], marker=markers_by_chain[i], markersize=5.0, markeredgecolor=colours[i], linewidth=line_thickness, label='Chain ' + ascii_uppercase[((col-1)*4)+i:((col-1)*4)+i+1])
-
-  labels = range(starting_gen, starting_gen+n)
-  plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
-  plt.ylim(miny, maxy)
-  plt.xticks(xvals, labels, fontsize=axis_font_size)
-  plt.yticks(fontsize=axis_font_size)
-  plt.xlabel("Generation number", fontsize=label_font_size)
-  plt.ylabel(y_label, fontsize=label_font_size)
-  plt.tick_params(axis='x', which='both', bottom='off', top='off')
-  if text != False:
-    if text_pos == 'bottom':
-      text_y = miny + (abs(miny-maxy)/15.)
-    else:
-      text_y = maxy - ((abs(miny-maxy)/15.)*1.45)
-    plt.text(starting_gen, text_y, text, {'fontsize':8}, fontweight='bold')
-  
-  if matrix_2 != False:
-    if mean_line == True:
-      ax2 = plt.subplot2grid((6,2), (0,1), rowspan=6)
-    else:
-      ax2 = plt.subplot2grid((6,2), (0,1), rowspan=5)
-    n = len(matrix_2[0])
-    colours = colours_by_experiment[col_2-1]
-    xvals = range(starting_gen_2, n+starting_gen_2)
-    if conf_2 == True:
-      plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-      if miny_2 < -2.0:
-        plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-    elif type(conf_2) == int:
-      plt.plot(range(-1,n+2), [conf_2] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-
-    if mean_line == True:
-      x_vals = range(starting_gen_2, len(matrix_2[0])+starting_gen_2)
-      means, errors = MeanWithErrors(matrix_2)
-      _, caps, _ = ax2.errorbar(x_vals, means, yerr=errors, marker='o', markersize=3.0, color='k', linestyle="-", linewidth=line_thickness, capsize=1, elinewidth=0.5)
-      for cap in caps:
-        cap.set_markeredgewidth(0.5)
-    else:
-      for i in range(0,len(matrix_2)):
-        x_vals = range(starting_gen_2, len(matrix_2[i])+starting_gen_2)
-        y_vals = [item for item in matrix_2[i]]
-        plt.plot(x_vals, y_vals, color=colours[i], marker=markers_by_chain[i], markersize=5.0, markeredgecolor=colours[i], linewidth=line_thickness)
-
-    labels = range(starting_gen_2, starting_gen_2+n)
-    plt.xlim(starting_gen_2-0.5, n+starting_gen_2-0.5)
-    plt.ylim(miny_2, maxy_2)
-    plt.xticks(xvals, labels, fontsize=axis_font_size)
+  def make_subplot(self, position_x, position_y, subplot_i):
+    dataset = self.datasets[position_y][position_x]
+    matrix = self.remove_NaN(dataset['data'])
+    experiment = dataset['experiment']
+    data_type = dataset['data_type']
+    starting_generation = dataset['starting_generation']
+    self.subplots[position_y][position_x] = self.fig.add_subplot(self.grid[position_y, position_x])
+    colours = colours_by_experiment[experiment-1]
+    chain_n = len(matrix)
+    generation_n = len(matrix[0])
+    if data_type in ['structure', 'sublexical_structure', 'sound_symbolism']:
+      self.add_confidence_intervals(data_type_ranges[data_type][0], generation_n)
+    elif (data_type == 'expressivity_d' and experiment == 2) or (data_type == 'communicative_accuracy'):
+      self.add_chance_level(16, generation_n)
+    for chain_i in range(0, chain_n):
+      x_vals = range(starting_generation, len(matrix[chain_i]) + starting_generation)
+      y_vals = [y for y in matrix[chain_i]]
+      plt.plot(x_vals, y_vals, color=colours[chain_i], marker=markers_by_chain[chain_i], markersize=5.0, markeredgecolor=colours[chain_i], linewidth=line_thickness, label='Chain ' + basics.chain_codes[experiment-1][chain_i])
+    plt.xlim(-0.5, generation_n + starting_generation - 0.5)
+    plt.ylim(data_type_ranges[data_type][0], data_type_ranges[data_type][1])
+    plt.xticks(range(0, 11), range(0, 11), fontsize=axis_font_size)
     plt.yticks(fontsize=axis_font_size)
-    plt.xlabel("Generation number", fontsize=label_font_size)
-    if y_label_2 != False:
-      plt.ylabel(y_label_2, fontsize=label_font_size)
-    if (miny == miny_2) and (maxy == maxy_2):
-      ax2.set_yticklabels([])
     plt.tick_params(axis='x', which='both', bottom='off', top='off')
-    if text_2 != False:
-      if text_pos == 'bottom':
-        text_y = miny_2 + (abs(miny_2-maxy_2)/15.)
-      else:
-        text_y = maxy_2 - ((abs(miny_2-maxy_2)/15.)*1.45)
-      plt.text(starting_gen_2, text_y, text_2, {'fontsize':8}, fontweight='bold')
-
-  if mean_line == False:
-    if matrix_2 != False:
-      ax3 = plt.subplot2grid((6,2), (5,0), colspan=2)
+    plt.ylabel(data_type_labels[data_type], fontsize=label_font_size)
+    if data_type in ['expressivity_d', 'expressivity_s', 'expressivity_c', 'communicative_accuracy', 'communicative_error', 'transmission_error']:
+      self.add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'bottom')
     else:
-      ax3 = plt.subplot2grid((6,1), (5,0))
+      self.add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'top')
+    if position_y == self.shape_y - 1:
+      plt.xlabel('Generation number', fontsize=label_font_size)
+
+  def make_empty_subplot(self, position_x, position_y):
+    self.subplots[position_y][position_x] = self.fig.add_subplot(self.grid[position_y, position_x])
     plt.axis('off')
-    handles, labels = ax1.get_legend_handles_labels()
-    ax3.legend(handles, labels, loc='upper center', frameon=False, prop={'size':legend_font_size}, ncol=4, numpoints=1)
 
-  plt.tight_layout(pad=0.2, w_pad=1.0, h_pad=0.00)
+  def next_available_position(self):
+    for y in range(self.shape_y):
+      for x in range(self.shape_x):
+        if self.datasets[y][x] == None:
+          return x, y
 
-  plt.savefig(save)
-  plt.clf()
+  def add_confidence_intervals(self, min_y, n):
+    plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
+    if min_y < -2:
+      plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
 
+  def add_chance_level(self, level, n):
+    plt.plot(range(-1,n+2), [level] * (n+3), color='gray', linestyle=':', linewidth=0.5)
 
-def chains(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text=False, conf=False, experiment=False, text_pos=False, save_location=False, save_name=False, dataset2=False, starting_gen2=False, miny2=False, maxy2=False, y_label2=False, text2=False, conf2=False, experiment2=False):
-  
-  if starting_gen == False:
-    if len(dataset[0]) == 10:
-      starting_gen = 1
+  def add_legend(self):
+    legend = self.fig.add_subplot(self.grid[self.shape_y, :])
+    plt.axis('off')
+    handles, labels = self.subplots[0][0].get_legend_handles_labels()
+    plt.legend(handles, labels, loc='upper center', frameon=False, prop={'size':legend_font_size}, ncol=4, numpoints=1)
+    return
+
+  def add_subplot_label(self, subplot_i, min_y, max_y, position):
+    try:
+      label = '(' + ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'[subplot_i]) + ')'
+    except IndexError:
+      label = '(' + str(subplot_i + 1) + ')'
+    padding = abs(min_y - max_y) / 10.
+    if position == 'top':
+      plt.text(0.2, max_y - padding, label, {'fontsize':8}, fontweight='bold', ha='left', va='top')
     else:
-      starting_gen = 0
-  if miny == False:
-    miny = 0
-  if maxy == False:
-    maxy = 1
-  if y_label == False:
-    y_label = "Score"
-  if text != False and text_pos == False:
-    text_pos = 'bottom'
-  if experiment == False:
-    experiment = 1
-  if save_location == False:
-    save_location = basics.desktop_location
-  if save_name == False:
-    save_name = 'plot.pdf'
+      plt.text(0.2, min_y + padding, label, {'fontsize':8}, fontweight='bold', ha='left', va='bottom')
 
-  if dataset2 != False:
-    if starting_gen2 == False:
-      if len(dataset2[0]) == 10:
-        starting_gen2 = 1
-      else:
-        starting_gen2 = 0
-    if type(miny2) == bool and miny2 == False:
-      miny2 = miny
-    if type(maxy2) == bool and maxy2 == False:
-      maxy2 = maxy
-    if experiment2 == False:
-      experiment2 = experiment
-  plot(dataset, False, starting_gen, miny, maxy, y_label, text, conf, experiment, text_pos, save_location+save_name, dataset2, starting_gen2, miny2, maxy2, y_label2, text2, conf2, experiment2)
-
-
-
-def mean(dataset, starting_gen=False, miny=False, maxy=False, y_label=False, text=False, conf=False, experiment=False, text_pos=False, save_location=False, save_name=False, dataset2=False, starting_gen2=False, miny2=False, maxy2=False, y_label2=False, text2=False, conf2=False, experiment2=False):
-  
-  if starting_gen == False:
-    if len(dataset[0]) == 10:
-      starting_gen = 1
-    else:
-      starting_gen = 0
-  if type(miny) == bool and miny == False:
-    miny = 0
-  if type(maxy) == bool and maxy == False:
-    maxy = 1
-  if y_label == False:
-    y_label = "Score"
-  if text != False and text_pos == False:
-    text_pos = 'bottom'
-  if experiment == False:
-    experiment = 1
-  if save_location == False:
-    save_location = basics.desktop_location
-  if save_name == False:
-    save_name = 'plot.pdf'
-
-  if dataset2 != False:
-    if starting_gen2 == False:
-      if len(dataset2[0]) == 10:
-        starting_gen2 = 1
-      else:
-        starting_gen2 = 0
-    if type(miny2) == bool and miny2 == False:
-      miny2 = miny
-    if type(maxy2) == bool and maxy2 == False:
-      maxy2 = maxy
-    if experiment2 == False:
-      experiment2 = experiment
-
-  plot(dataset, True, starting_gen, miny, maxy, y_label, text, conf, experiment, text_pos, save_location+save_name, dataset2, starting_gen2, miny2, maxy2, y_label2, text2, conf2, experiment2)
-
-
-def mean_with_chains(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_label="Score", conf=False, save=False):
-  
-  # Initialize figure
-  plt.figure(1)
-
-  # Replace NaN with None if present in the matrices
-  matrix1 = RemoveNaN(matrix1)
-  matrix2 = RemoveNaN(matrix2)
-  matrix3 = RemoveNaN(matrix3)
-
-  plt.subplots(figsize=(5.5, 3.0))
-  ax1 = plt.subplot2grid((6,1), (0,0), rowspan=5)
-
-  n = len(matrix1[0])
-  colours = ['red', 'blue', 'green']
-  xvals = range(starting_gen, n+starting_gen)
-
-  if conf == True:
-    plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-    if miny < -2.0:
-      plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-  elif type(conf) == int:
-    plt.plot(range(-1,n+2), [conf] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-
-  x_vals = range(starting_gen, len(matrix1[0])+starting_gen)
-
-  means, errors = MeanWithErrors(matrix1)
-  _, caps, _ = ax1.errorbar(x_vals, means, yerr=errors, markersize=3.0, color='red', linestyle="-", linewidth=line_thickness, capsize=1, elinewidth=0.5, label='Experiment 1')
-
-  means, errors = MeanWithErrors(matrix2)
-  _, caps, _ = ax1.errorbar(x_vals, means, yerr=errors, markersize=3.0, color='green', linestyle="-", linewidth=line_thickness, capsize=1, elinewidth=0.5, label='Experiment 2')
-  
-  means, errors = MeanWithErrors(matrix3)
-  _, caps, _ = ax1.errorbar(x_vals, means, yerr=errors, markersize=3.0, color='blue', linestyle="-", linewidth=line_thickness, capsize=1, elinewidth=0.5, label='Experiment 3')
-
-  labels = range(starting_gen, starting_gen+n)
-  plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
-  plt.ylim(miny, maxy)
-  plt.xticks(xvals, labels, fontsize=axis_font_size)
-  plt.yticks(fontsize=axis_font_size)
-  plt.xlabel("Generation number", fontsize=label_font_size)
-  plt.ylabel(y_label, fontsize=label_font_size)
-  plt.tick_params(axis='x', which='both', bottom='off', top='off')
-
-  ax3 = plt.subplot2grid((6,1), (5,0))
-  plt.axis('off')
-  handles, labels = ax1.get_legend_handles_labels()
-  ax3.legend(handles, labels, loc='upper center', frameon=False, prop={'size':legend_font_size}, ncol=4, numpoints=1)
-
-
-  plt.tight_layout(pad=0.2, w_pad=1.0, h_pad=0.00)
-
-  plt.savefig(save)
-  plt.clf()
-
-def MeanWithErrors(matrix):
-  means = []
-  errors = []
-  for i in range(0,len(matrix[0])):
-    column = [row[i] for row in matrix if row[i] != None]
-    means.append(np.mean(column))
-    errors.append((np.std(column) / np.sqrt(len(column))) * 1.959964)
-  return means, errors
-
-
-def RemoveNaN(matrix):
-  new_matrix = []
-  for row in matrix:
-    new_row = []
-    for cell in row:
-      if cell != None:
-        if isnan(cell) == True:
-          new_row.append(None)
-        elif isinf(cell) == True:
-          new_row.append(None)
-        else:
-          new_row.append(cell)
-    new_matrix.append(new_row)
-  return new_matrix
-
-def triple(matrix1, matrix2, matrix3, starting_gen=1, miny=0.0, maxy=1.0, y_label="Score", conf=False, save_location=False, save_name='plot.pdf'):
-  
-  # Initialize figure
-  plt.figure(1)
-
-  # Replace NaN with None if present in the matrices
-  matrix1 = RemoveNaN(matrix1)
-  matrix2 = RemoveNaN(matrix2)
-  matrix3 = RemoveNaN(matrix3)
-
-  plt.subplots(figsize=(5.5, 3.0))
-
-  ax1 = plt.subplot2grid((4,3), (0,0), rowspan=3)
-  n = len(matrix1[0])
-  if conf == True:
-    plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-    if miny < -2.0:
-      plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-  elif type(conf) == int:
-    plt.plot(range(-1,n+2), [conf] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-  for i in range(0, len(matrix1)):
-    x_vals = range(starting_gen, len(matrix1[i])+starting_gen)
-    y_vals = [item for item in matrix1[i]]
-    plt.plot(x_vals, y_vals, color=colours_by_experiment[0][i], marker=markers_by_chain[i], markersize=5.0, markeredgecolor=colours_by_experiment[0][i], linewidth=line_thickness, label='Chain ' + ascii_uppercase[i:i+1])
-  labels = range(starting_gen, starting_gen+n)
-  plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
-  plt.ylim(miny, maxy)
-  plt.xticks(range(starting_gen, len(matrix1[0])+starting_gen), labels, fontsize=axis_font_size)
-  plt.yticks(fontsize=axis_font_size)
-  plt.xlabel("Generation number", fontsize=label_font_size)
-  plt.ylabel(y_label, fontsize=label_font_size)
-  plt.tick_params(axis='x', which='both', bottom='off', top='off')
-  text_y = maxy - ((abs(miny-maxy)/15.)*1.45)
-  plt.text(starting_gen, text_y, '(A)', {'fontsize':8}, fontweight='bold')
-  handles, labels = ax1.get_legend_handles_labels()
-
-  ax1_l = plt.subplot2grid((4,3), (3,0))
-  plt.axis('off')
-  ax1_l.set_yticklabels([])
-  ax1_l.set_xticklabels([])
-  ax1_l.legend([handles[0], handles[2], handles[1], handles[3]], [labels[0], labels[2], labels[1], labels[3]], loc='upper center', frameon=False, prop={'size':7.5}, ncol=2, numpoints=1, handletextpad=0.2)
-
-
-  ax2 = plt.subplot2grid((4,3), (0,1), rowspan=3)
-  n = len(matrix2[0])
-  if conf == True:
-    plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-    if miny < -2.0:
-      plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-  elif type(conf) == int:
-    plt.plot(range(-1,n+2), [conf] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-  for i in range(0, len(matrix2)):
-    x_vals = range(starting_gen, len(matrix2[i])+starting_gen)
-    y_vals = [item for item in matrix2[i]]
-    plt.plot(x_vals, y_vals, color=colours_by_experiment[1][i], marker=markers_by_chain[i], markersize=5.0, markeredgecolor=colours_by_experiment[1][i], linewidth=line_thickness, label='Chain ' + ascii_uppercase[4+i:i+5])
-  labels = range(starting_gen, starting_gen+n)
-  plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
-  plt.ylim(miny, maxy)
-  plt.xticks(x_vals, labels, fontsize=axis_font_size)
-  plt.yticks(fontsize=axis_font_size)
-  plt.xlabel("Generation number", fontsize=label_font_size)
-  plt.ylabel('')
-  plt.tick_params(axis='x', which='both', bottom='off', top='off')
-  ax2.set_yticklabels([])
-  plt.text(starting_gen, text_y, '(B)', {'fontsize':8}, fontweight='bold')
-  handles, labels = ax2.get_legend_handles_labels()
-
-  ax2_l = plt.subplot2grid((4,3), (3,1))
-  plt.axis('off')
-  ax2_l.set_yticklabels([])
-  ax2_l.set_xticklabels([])
-  ax2_l.legend([handles[0], handles[2], handles[1], handles[3]], [labels[0], labels[2], labels[1], labels[3]], loc='upper center', frameon=False, prop={'size':7.5}, ncol=2, numpoints=1, handletextpad=0.2)
-
-
-  ax3 = plt.subplot2grid((4,3), (0,2), rowspan=3)
-  n = len(matrix3[0])
-  if conf == True:
-    plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-    if miny < -2.0:
-      plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-  elif type(conf) == int:
-    plt.plot(range(-1,n+2), [conf] * (n+3), color='gray', linestyle=':', linewidth=0.5)
-  for i in range(0, len(matrix3)):
-    x_vals = range(starting_gen, len(matrix3[i])+starting_gen)
-    y_vals = [item for item in matrix3[i]]
-    plt.plot(x_vals, y_vals, color=colours_by_experiment[2][i], marker=markers_by_chain[i], markersize=5.0, markeredgecolor=colours_by_experiment[2][i], linewidth=line_thickness, label='Chain ' + ascii_uppercase[8+i:i+9])
-  labels = range(starting_gen, starting_gen+n)
-  plt.xlim(starting_gen-0.5, n+starting_gen-0.5)
-  plt.ylim(miny, maxy)
-  plt.xticks(x_vals, labels, fontsize=axis_font_size)
-  plt.yticks(fontsize=axis_font_size)
-  plt.xlabel("Generation number", fontsize=label_font_size)
-  plt.ylabel('')
-  plt.tick_params(axis='x', which='both', bottom='off', top='off')
-  ax3.set_yticklabels([])
-  plt.text(starting_gen, text_y, '(C)', {'fontsize':8}, fontweight='bold')
-  handles, labels = ax3.get_legend_handles_labels()
-
-  ax3_l = plt.subplot2grid((4,3), (3,2))
-  plt.axis('off')
-  ax3_l.set_yticklabels([])
-  ax3_l.set_xticklabels([])
-  ax3_l.legend([handles[0], handles[2], handles[1], handles[3]], [labels[0], labels[2], labels[1], labels[3]], loc='upper center', frameon=False, prop={'size':7.5}, ncol=2, numpoints=1, handletextpad=0.2)
-  
-  plt.tight_layout(pad=0.2, w_pad=1.0, h_pad=0.00)
-
-  if save_location == False:
-    save_location = basics.desktop_location
-
-  plt.savefig(save_location + save_name)
-  plt.clf()
+  def remove_NaN(self, matrix):
+    new_matrix = []
+    for row in matrix:
+      new_row = []
+      for cell in row:
+        if cell != None:
+          if isnan(cell) == True:
+            new_row.append(None)
+          elif isinf(cell) == True:
+            new_row.append(None)
+          else:
+            new_row.append(cell)
+      new_matrix.append(new_row)
+    return new_matrix
