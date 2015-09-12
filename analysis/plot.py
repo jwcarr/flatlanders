@@ -4,10 +4,6 @@ from matplotlib import gridspec
 import basics
 
 
-label_font_size = 8
-axis_font_size = 7
-legend_font_size = 8
-line_thickness = 1.0
 markers_by_chain = ['s', 'o', 'p', '^']
 colours_by_experiment = [['#01AAE9', '#1B346C', '#F44B1A', '#E5C39E'], ['#F6C83C', '#4C5B28', '#DB4472', '#B77F60'], ['#CBB345', '#609F80', '#4B574D', '#AF420A']]
 data_type_ranges = {'expressivity_d':(0,50), 'expressivity_s':(0,50), 'expressivity_c':(0,100), 'structure':(-3,14), 'sublexical_structure':(-3,14), 'transmission_error':(0,1), 'communicative_accuracy':(0,50), 'communicative_error':(25,55), 'sound_symbolism':(-3,6)}
@@ -17,6 +13,11 @@ data_type_labels = {'expressivity_d':'Expressivity (dynamic set)', 'expressivity
 class Plot:
 
   def __init__(self, shape_x, shape_y, width, height):
+  label_font_size = 8.0
+  axis_font_size = 7.0
+  legend_font_size = 8.0
+  line_thickness = 1.0
+
     self.shape_x = shape_x
     self.shape_y = shape_y
     self.height = height
@@ -55,6 +56,18 @@ class Plot:
     plt.clf()
 
   def make_subplot(self, position_x, position_y, subplot_i):
+  def set_label_size(self, size):
+    self.label_font_size = size
+
+  def set_axis_size(self, size):
+    self.axis_font_size = size
+
+  def set_legend_size(self, size):
+    self.legend_font_size = size
+
+  def set_line_thickness(self, size):
+    self.line_thickness = size
+
   #############################################
   # PRIVATE METHODS
 
@@ -75,19 +88,19 @@ class Plot:
     for chain_i in range(0, chain_n):
       x_vals = range(starting_generation, len(matrix[chain_i]) + starting_generation)
       y_vals = [y for y in matrix[chain_i]]
-      plt.plot(x_vals, y_vals, color=colours[chain_i], marker=markers_by_chain[chain_i], markersize=5.0, markeredgecolor=colours[chain_i], linewidth=line_thickness, label='Chain ' + basics.chain_codes[experiment-1][chain_i])
+      plt.plot(x_vals, y_vals, color=colours[chain_i], marker=markers_by_chain[chain_i], markersize=5.0, markeredgecolor=colours[chain_i], linewidth=self.line_thickness, label='Chain ' + basics.chain_codes[experiment-1][chain_i])
     plt.xlim(-0.5, generation_n + starting_generation - 0.5)
     plt.ylim(data_type_ranges[data_type][0], data_type_ranges[data_type][1])
-    plt.xticks(range(0, 11), range(0, 11), fontsize=axis_font_size)
-    plt.yticks(fontsize=axis_font_size)
+    plt.xticks(range(0, 11), range(0, 11), fontsize=self.axis_font_size)
+    plt.yticks(fontsize=self.axis_font_size)
     plt.tick_params(axis='x', which='both', bottom='off', top='off')
-    plt.ylabel(data_type_labels[data_type], fontsize=label_font_size)
+    plt.ylabel(data_type_labels[data_type], fontsize=self.label_font_size)
     if data_type in ['expressivity_d', 'expressivity_s', 'expressivity_c', 'communicative_accuracy', 'communicative_error', 'transmission_error']:
       self.__add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'bottom')
     else:
       self.__add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'top')
     if position_y == self.shape_y - 1:
-      plt.xlabel('Generation number', fontsize=label_font_size)
+      plt.xlabel('Generation number', fontsize=self.label_font_size)
 
   def __make_empty_subplot(self, position_x, position_y):
     self.subplots[position_y][position_x] = self.fig.add_subplot(self.grid[position_y, position_x])
@@ -111,7 +124,7 @@ class Plot:
     legend = self.fig.add_subplot(self.grid[self.shape_y, :])
     plt.axis('off')
     handles, labels = self.subplots[0][0].get_legend_handles_labels()
-    plt.legend(handles, labels, loc='upper center', frameon=False, prop={'size':legend_font_size}, ncol=4, numpoints=1)
+    plt.legend(handles, labels, loc='upper center', frameon=False, prop={'size':self.legend_font_size}, ncol=4, numpoints=1)
     return
 
   def __add_subplot_label(self, subplot_i, min_y, max_y, position):
