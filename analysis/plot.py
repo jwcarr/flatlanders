@@ -51,7 +51,7 @@ class Plot:
   label_font_size = 8.0
   axis_font_size = 7.0
   legend_font_size = 8.0
-  legend_height = 0.2
+  legend_height = 0.15
 
   def __init__(self, shape_x=1, shape_y=1, width=4.0, height=4.0):
     self.shape_x = int(shape_x)
@@ -98,7 +98,7 @@ class Plot:
         self.__make_subplot(x, y, subplot_i, one_y_label)
         subplot_i += 1
     self.__add_legend(per_column_legend)
-    self.grid.tight_layout(self.fig, pad=0.1, h_pad=-.5, w_pad=1)
+    self.grid.tight_layout(self.fig, pad=0.1, h_pad=-1.0, w_pad=1.0)
     filename = self.__determine_filename(save_name, save_location)
     plt.savefig(filename)
     plt.clf()
@@ -201,7 +201,7 @@ class Plot:
   def __determine_height_ratios(self, per_column_legend):
     legend_height = self.legend_height
     if per_column_legend == True:
-      legend_height *= 3.0
+      legend_height *= 4.0
     row_height = (self.height - legend_height) / self.shape_y
     ratios = ([row_height] * self.shape_y) + [legend_height]
     return ratios
@@ -242,7 +242,7 @@ class Plot:
       legend = self.fig.add_subplot(self.grid[self.shape_y, :])
       plt.axis('off')
       handles, labels = self.subplots[0][0].get_legend_handles_labels()
-      plt.legend(handles, labels, loc='upper center', frameon=False, prop={'size':self.legend_font_size}, ncol=4, numpoints=1)
+      plt.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, -0.2), frameon=False, prop={'size':self.legend_font_size}, ncol=4, numpoints=1)
 
   def __add_subplot_label(self, subplot_i, min_y, max_y, position):
     try:
