@@ -86,11 +86,8 @@ class Plot:
   # Make the multipanel plot a reality and save as PDF
   def make(self, save_name=False, save_location=False, per_column_legend=False):
     self.fig = plt.figure(figsize=(self.width, self.height))
-    legend_height = 0.2 # inches
-    if per_column_legend == True:
-      legend_height = 0.6
-    row_height = (self.height - legend_height) / self.shape_y # inches
-    self.grid = gridspec.GridSpec(nrows=self.shape_y+1, ncols=self.shape_x, height_ratios=([row_height] * self.shape_y) + [legend_height])
+    ratios = self.__determine_height_ratios(per_column_legend)
+    self.grid = gridspec.GridSpec(nrows=self.shape_y+1, ncols=self.shape_x, height_ratios=ratios)
     subplot_i = 0
     for y in range(self.shape_y):
       one_y_label = False
@@ -205,6 +202,14 @@ class Plot:
         if self.datasets[y][x] == None:
           return x, y
     return False, False
+
+  def __determine_height_ratios(self, per_column_legend):
+    legend_height = self.legend_height
+    if per_column_legend == True:
+      legend_height *= 3.0
+    row_height = (self.height - legend_height) / self.shape_y
+    ratios = ([row_height] * self.shape_y) + [legend_height]
+    return ratios
 
   def __add_confidence_intervals(self, min_y, n):
     plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
