@@ -53,10 +53,10 @@ class Plot:
   line_thickness = 1.0
 
   def __init__(self, shape_x=1, shape_y=1, width=4.0, height=4.0):
-    self.shape_x = shape_x
-    self.shape_y = shape_y
-    self.height = height
-    self.width = width
+    self.shape_x = int(shape_x)
+    self.shape_y = int(shape_y)
+    self.height = float(height)
+    self.width = float(width)
     self.n = self.shape_x * self.shape_y
     self.datasets = [[None] * self.shape_x for y in range(self.shape_y)]
     self.subplots = [[None] * self.shape_x for y in range(self.shape_y)]
@@ -117,10 +117,12 @@ class Plot:
       print(print_row)
 
   def resize(self, width, height):
-    self.height = height
-    self.width = width
+    self.height = float(height)
+    self.width = float(width)
 
   def reshape(self, shape_x, shape_y):
+    shape_x = int(shape_x)
+    shape_y = int(shape_y)
     if shape_x > self.shape_x:
       if self.__add_columns(shape_x - self.shape_x) == True:
         self.shape_x = shape_x
@@ -135,16 +137,16 @@ class Plot:
         self.shape_y = shape_y
 
   def set_label_size(self, size):
-    self.label_font_size = size
+    self.label_font_size = float(size)
 
   def set_axis_size(self, size):
-    self.axis_font_size = size
+    self.axis_font_size = float(size)
 
   def set_legend_size(self, size):
-    self.legend_font_size = size
+    self.legend_font_size = float(size)
 
   def set_line_thickness(self, size):
-    self.line_thickness = size
+    self.line_thickness = float(size)
 
   #############################################
   # PRIVATE METHODS
