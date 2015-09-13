@@ -237,7 +237,7 @@ class Plot:
         legend.set_yticklabels([])
         legend.set_xticklabels([])
         handles, labels = self.subplots[0][x].get_legend_handles_labels()
-        plt.legend(handles, labels, loc='lower center', frameon=False, prop={'size':self.legend_font_size}, ncol=2, numpoints=1, handletextpad=0.2)
+        plt.legend([handles[0], handles[2], handles[1], handles[3]], [labels[0], labels[2], labels[1], labels[3]], loc='lower center', bbox_to_anchor=(0.5, -0.2), frameon=False, prop={'size':self.legend_font_size}, ncol=2, numpoints=1, handletextpad=0.2)
     else:
       legend = self.fig.add_subplot(self.grid[self.shape_y, :])
       plt.axis('off')
