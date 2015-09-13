@@ -90,9 +90,7 @@ class Plot:
     self.grid = gridspec.GridSpec(nrows=self.shape_y+1, ncols=self.shape_x, height_ratios=ratios)
     subplot_i = 0
     for y in range(self.shape_y):
-      one_y_label = False
-      if len(set([self.datasets[y][x]['data_type'] for x in range(self.shape_x)])) == 1:
-        one_y_label = True
+      one_y_label = self.__determine_one_y_label(y)
       for x in range(self.shape_x):
         if self.datasets[y][x] == None:
           self.__make_empty_subplot(x, y)
@@ -210,6 +208,14 @@ class Plot:
     row_height = (self.height - legend_height) / self.shape_y
     ratios = ([row_height] * self.shape_y) + [legend_height]
     return ratios
+
+  def __determine_one_y_label(self, y):
+    try:
+      if len(set([self.datasets[y][x]['data_type'] for x in range(self.shape_x)])) == 1:
+        return True
+      return False
+    except:
+      return False
 
   def __add_confidence_intervals(self, min_y, n):
     plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
