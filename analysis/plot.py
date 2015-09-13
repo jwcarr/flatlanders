@@ -84,9 +84,13 @@ class Plot:
     self.datasets[position_y][position_x] = dataset
 
   # Make the multipanel plot a reality and save as PDF
-  def make(self, save_name=False, save_location=False):
+  def make(self, save_name=False, save_location=False, per_column_legend=False):
     self.fig = plt.figure(figsize=(self.width, self.height))
-    self.grid = gridspec.GridSpec(nrows=self.shape_y+1, ncols=self.shape_x, height_ratios=([0.95 / self.shape_y] * self.shape_y) + [0.05])
+    legend_height = 0.2 # inches
+    if per_column_legend == True:
+      legend_height = 0.6
+    row_height = (self.height - legend_height) / self.shape_y # inches
+    self.grid = gridspec.GridSpec(nrows=self.shape_y+1, ncols=self.shape_x, height_ratios=([row_height] * self.shape_y) + [legend_height])
     subplot_i = 0
     for y in range(self.shape_y):
       for x in range(self.shape_x):
@@ -99,7 +103,7 @@ class Plot:
       save_location = basics.desktop_location
     if save_name == False:
       save_name = 'plot'
-    self.__add_legend()
+    self.__add_legend(per_column_legend)
     self.grid.tight_layout(self.fig, pad=0.1, h_pad=-.5, w_pad=1)
     plt.savefig(save_location + save_name + '.eps')
     plt.clf()
@@ -201,12 +205,20 @@ class Plot:
   def __add_chance_level(self, level, n):
     plt.plot(range(-1,n+2), [level] * (n+3), color='gray', linestyle=':', linewidth=0.5)
 
-  def __add_legend(self):
-    legend = self.fig.add_subplot(self.grid[self.shape_y, :])
-    plt.axis('off')
-    handles, labels = self.subplots[0][0].get_legend_handles_labels()
-    plt.legend(handles, labels, loc='upper center', frameon=False, prop={'size':self.legend_font_size}, ncol=4, numpoints=1)
-    return
+  def __add_legend(self, per_column_legend):
+    if per_column_legend == True:
+      for x in range(self.shape_x):
+        legend = self.fig.add_subplot(self.grid[self.shape_y, x])
+        plt.axis('off')
+        legend.set_yticklabels([])
+        legend.set_xticklabels([])
+        handles, labels = self.subplots[0][x].get_legend_handles_labels()
+        plt.legend(handles, labels, loc='lower center', frameon=False, prop={'size':self.legend_font_size}, ncol=2, numpoints=1, handletextpad=0.2)
+    else:
+      legend = self.fig.add_subplot(self.grid[self.shape_y, :])
+      plt.axis('off')
+      handles, labels = self.subplots[0][0].get_legend_handles_labels()
+      plt.legend(handles, labels, loc='upper center', frameon=False, prop={'size':self.legend_font_size}, ncol=4, numpoints=1)
 
   def __add_subplot_label(self, subplot_i, min_y, max_y, position):
     try:
