@@ -80,6 +80,20 @@ class Plot:
     self.height = height
     self.width = width
 
+  def reshape(self, shape_x, shape_y):
+    if shape_x > self.shape_x:
+      if self.__add_columns(shape_x - self.shape_x) == True:
+        self.shape_x = shape_x
+    elif shape_x < self.shape_x:
+      if self.__remove_columns(self.shape_x - shape_x) == True:
+        self.shape_x = shape_x
+    if shape_y > self.shape_y:
+      if self.__add_rows(shape_y - self.shape_y) == True:
+        self.shape_y = shape_y
+    elif shape_y < self.shape_y:
+      if self.__remove_rows(self.shape_y - shape_y) == True:
+        self.shape_y = shape_y
+
   def set_label_size(self, size):
     self.label_font_size = size
 
@@ -176,3 +190,49 @@ class Plot:
             new_row.append(cell)
       new_matrix.append(new_row)
     return new_matrix
+
+  def __add_columns(self, n):
+    for y in range(self.shape_y):
+      self.datasets[y] += [None] * n
+      self.subplots[y] += [None] * n
+    return True
+
+  def __remove_columns(self, n):
+    cells_in_use = 0
+    for row in self.datasets:
+      for i in range(1, n+1):
+        if row[i*-1] != None:
+          cells_in_use += 1
+    if cells_in_use > 0:
+      plural = ''
+      if cells_in_use > 1: plural = 's'
+      if raw_input('This will erase %i plot%s. Continue? (y/n) ' % (cells_in_use, plural)) != 'y':
+        return False
+    for row in self.datasets:
+      for i in range(n):
+        del row[-1]
+    for row in self.subplots:
+      for i in range(n):
+        del row[-1]
+    return True
+
+  def __add_rows(self, n):
+    self.datasets += [[None] * self.shape_x for i in range(n)]
+    self.subplots += [[None] * self.shape_x for i in range(n)]
+    return True
+
+  def __remove_rows(self, n):
+    cells_in_use = 0
+    for i in range(1, n+1):
+      for cell in self.datasets[i*-1]:
+        if cell != None:
+          cells_in_use += 1
+    if cells_in_use > 0:
+      plural = ''
+      if cells_in_use > 1: plural = 's'
+      if raw_input('This will erase %i plot%s. Continue? (y/n) ' % (cells_in_use, plural)) != 'y':
+        return False
+    for i in range(n):
+      del self.datasets[-1]
+      del self.subplots[-1]
+    return True
