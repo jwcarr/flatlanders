@@ -57,7 +57,6 @@ class Plot:
     self.shape_y = int(shape_y)
     self.height = float(height)
     self.width = float(width)
-    self.n = self.shape_x * self.shape_y
     self.datasets = [[None] * self.shape_x for y in range(self.shape_y)]
     self.subplots = [[None] * self.shape_x for y in range(self.shape_y)]
 
@@ -75,10 +74,10 @@ class Plot:
         print('No space left to add a new subplot. Reshape the plot or specify a position to overwrite.')
         return
     else:
+      if (position_x > self.shape_x) or (position_y > self.shape_y):
+        print('Plot shape is %ix%i. Reshape the plot or specify a different position.' % (self.shape_x, self.shape_y))
+        return
       position_x, position_y = position_x-1, position_y-1
-    if (position_x * position_y) > self.n:
-      print('Plot shape is %ix%i. Reshape the plot or specify a different position.' % (self.shape_x, self.shape_y))
-      return
     if self.datasets[position_y][position_x] != None and raw_input('Position %i,%i is in use. Overwrite? (y/n) ' % (position_x+1, position_y+1)) != 'y':
       return
     self.datasets[position_y][position_x] = dataset
