@@ -47,10 +47,11 @@ data_type_labels = {'expressivity_d':'Expressivity (dynamic set)', 'expressivity
 
 class Plot:
 
+  line_thickness = 1.0
   label_font_size = 8.0
   axis_font_size = 7.0
   legend_font_size = 8.0
-  line_thickness = 1.0
+  legend_height = 0.2
 
   def __init__(self, shape_x=1, shape_y=1, width=4.0, height=4.0):
     self.shape_x = int(shape_x)
@@ -150,6 +151,9 @@ class Plot:
 
   def set_legend_size(self, size):
     self.legend_font_size = float(size)
+
+  def set_legend_height(self, size):
+    self.legend_height = float(size)
 
   def set_line_thickness(self, size):
     self.line_thickness = float(size)
