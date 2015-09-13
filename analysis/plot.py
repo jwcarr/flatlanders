@@ -93,11 +93,14 @@ class Plot:
     self.grid = gridspec.GridSpec(nrows=self.shape_y+1, ncols=self.shape_x, height_ratios=([row_height] * self.shape_y) + [legend_height])
     subplot_i = 0
     for y in range(self.shape_y):
+      one_y_label = False
+      if len(set([self.datasets[y][x]['data_type'] for x in range(self.shape_x)])) == 1:
+        one_y_label = True
       for x in range(self.shape_x):
         if self.datasets[y][x] == None:
           self.__make_empty_subplot(x, y)
           continue
-        self.__make_subplot(x, y, subplot_i)
+        self.__make_subplot(x, y, subplot_i, one_y_label)
         subplot_i += 1
     if save_location == False:
       save_location = basics.desktop_location
@@ -155,7 +158,7 @@ class Plot:
   #############################################
   # PRIVATE METHODS
 
-  def __make_subplot(self, position_x, position_y, subplot_i):
+  def __make_subplot(self, position_x, position_y, subplot_i, one_y_label):
     dataset = self.datasets[position_y][position_x]
     matrix = self.__remove_NaN(dataset['data'])
     experiment = dataset['experiment']
@@ -178,7 +181,10 @@ class Plot:
     plt.xticks(range(0, 11), range(0, 11), fontsize=self.axis_font_size)
     plt.yticks(fontsize=self.axis_font_size)
     plt.tick_params(axis='x', which='both', bottom='off', top='off')
-    plt.ylabel(data_type_labels[data_type], fontsize=self.label_font_size)
+    if position_x == 0 or one_y_label == False:
+      plt.ylabel(data_type_labels[data_type], fontsize=self.label_font_size)
+    if position_x > 0 and one_y_label == True:
+      self.subplots[position_y][position_x].set_yticklabels([])
     if data_type in ['expressivity_d', 'expressivity_s', 'expressivity_c', 'communicative_accuracy', 'communicative_error', 'transmission_error']:
       self.__add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'bottom')
     else:
