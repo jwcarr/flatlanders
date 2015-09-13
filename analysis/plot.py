@@ -3,9 +3,44 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import basics
 
+# Colour palettes adapted from:
+#   http://wesandersonpalettes.tumblr.com
+#   https://github.com/karthik/wesanderson
+#   https://github.com/jiffyclub/palettable
 
+Bottle_Rocket = ["#9B110E", "#3F5151", "#0C1707", "#550307"]
+Cavalcanti = ['#D1AA00', '#083213', '#929460', '#6F9879', '#842111']
+Chevalier = ['#355243', '#FECA49', '#C9D5D5', '#BBA289']
+Darjeeling1 = ["#FF0000", "#F2AD00", "#F98400", "#5BBCD6"]
+Darjeeling2 = ["#046C9A", "#D69C4E", "#ECCBAE", "#000000"]
+Darjeeling3 = ['#9E9797', '#C28E00', '#836659', '#9C5A33']
+Darjeeling4 = ['#D5E3D8', '#618A98', '#F9DA95', '#AE4B16', '#787064']
+Fantastic_Fox1 = ["#E2D200", "#46ACC8", "#E58601", "#B40F20"]
+Fantastic_Fox2 = ['#F9DB20', '#934B4E', '#42170D', '#C27922', '#E2C8A7']
+Fantastic_Fox3 = ['#E4BF44', '#C65742', '#9AD0BB', '#332737', '#ABA18D']
+Grand_Budapest1 = ['#EEAE65', '#FB4F55', '#481313', '#CC5F27']
+Grand_Budapest2 = ["#E6A0C4", "#C6CDF7", "#D8A499", "#7294D4"]
+Grand_Budapest3 = ['#FFA68E', '#FBCCB7', '#8C1108', '#290B04']
+Grand_Budapest4 = ['#FFDCB6', '#253845', '#E7AD9D', '#66756E', '#8B3F31', '#966D35']
+Life_Aquatic1 = ["#3B9AB2", "#F21A00", "#EBCC2A", "#78B7C5"]
+Life_Aquatic2 = ['#0099E6', '#12255A', '#F23814', '#DFB78B', '#B6C3C5']
+Life_Aquatic3 = ['#342419', '#1C4027', '#F1C90E', '#665899', '#B89382']
+Moonrise1 = ["#F3DF6C", "#CEAB07", "#D5D5D3", "#24281A"]
+Moonrise2 = ['#72CADD', '#F0A5B0', '#8C8536', '#C3B477', '#FAD063']
+Moonrise3 = ['#667C74', '#B56A27', '#C2BA7C', '#1F1917']
+Moonrise4 = ['#7B8761', '#C1A62E', '#4F8F6B', '#3B453C', '#9F3208']
+Moonrise5 = ['#DF8C90', '#D8D28E', '#F5BE25', '#3D4A1C', '#D13060', '#A86B4C']
+Royal1 = ['#897712', '#F3C2A4', '#F69F97', '#FED68C', '#629075']
+Royal2 = ['#768B93', '#BC240F', '#F9ECC5', '#D47329']
+Royal3 = ['#87A2A4', '#CAA065', '#D6CABF', '#D6A0A0']
+Royal4 = ['#79A43A', '#F2D6AF', '#5E4829', '#181401']
+Royal5 = ['#C2ABBA', '#8C3B49', '#B6ACA6', '#212053', '#D1D3D5']
+Rushmore = ["#E1BD6D", "#F2300F", "#0B775E", "#35274A"]
+
+# Globals
+
+colours_by_experiment = [Life_Aquatic2, Grand_Budapest1, Darjeeling2]
 markers_by_chain = ['s', 'o', 'p', '^']
-colours_by_experiment = [['#01AAE9', '#1B346C', '#F44B1A', '#E5C39E'], ['#F6C83C', '#4C5B28', '#DB4472', '#B77F60'], ['#CBB345', '#609F80', '#4B574D', '#AF420A']]
 data_type_ranges = {'expressivity_d':(0,50), 'expressivity_s':(0,50), 'expressivity_c':(0,100), 'structure':(-3,14), 'sublexical_structure':(-3,14), 'transmission_error':(0,1), 'communicative_accuracy':(0,50), 'communicative_error':(25,55), 'sound_symbolism':(-3,6)}
 data_type_labels = {'expressivity_d':'Expressivity (dynamic set)', 'expressivity_s':'Expressivity (static set)', 'expressivity_c':'Expressivity', 'structure':'Structure', 'sublexical_structure':'Sublexical structure', 'transmission_error':'Transmission error', 'communicative_accuracy':'Communicative accuracy', 'communicative_error':'Communicative error', 'sound_symbolism':'Sound symbolism'}
 
