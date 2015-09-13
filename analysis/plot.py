@@ -32,14 +32,19 @@ class Plot:
   # Add a subplot to the multipanel plot
   def add(self, dataset, position_x=False, position_y=False):
     if type(dataset) != dict:
-      raise ValueError('Please pass a data dictionary generated from one of the experiment_results() functions.')
+      print('Please pass a data dictionary generated from one of the experiment_results() functions.')
+      return
     if (type(position_x) == bool and position_x == False) or (type(position_y) == bool and position_y == False):
       position_x, position_y = self.__next_available_position()
+      if type(position_x) == bool and position_x == False:
+        print('No space left to add a new subplot. Reshape the plot or specify a position to overwrite.')
+        return
     else:
       position_x, position_y = position_x-1, position_y-1
     if (position_x * position_y) > self.n:
-      raise ValueError('Insufficient size for this position. Multiplot size is %ix%i' % (self.shape_x, self.shape_y))
-    if self.datasets[position_y][position_x] != None and raw_input('Position %i,%i in use. Overwrite? (y/n) ' % (position_x+1, position_y+1)) != 'y':
+      print('Plot shape is %ix%i. Reshape the plot or specify a different position.' % (self.shape_x, self.shape_y))
+      return
+    if self.datasets[position_y][position_x] != None and raw_input('Position %i,%i is in use. Overwrite? (y/n) ' % (position_x+1, position_y+1)) != 'y':
       return
     self.datasets[position_y][position_x] = dataset
 
@@ -149,6 +154,7 @@ class Plot:
       for x in range(self.shape_x):
         if self.datasets[y][x] == None:
           return x, y
+    return False, False
 
   def __add_confidence_intervals(self, min_y, n):
     plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
