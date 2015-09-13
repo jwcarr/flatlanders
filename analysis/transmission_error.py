@@ -1,5 +1,4 @@
 import basics
-import plot as plt
 
 def experiment_results(experiment):
   results = []
@@ -22,6 +21,3 @@ def generation_results(chain, generation, experiment=False):
   words_A = basics.getWords(experiment, chain, generation, "s")
   words_B = basics.getWords(experiment, chain, generation-1, "s")
   return basics.meanNormLevenshtein(words_A, words_B)
-
-def plot(data, experiment, save_location=False):
-  plt.chains(data, miny=0, maxy=1, y_label='Transmission error', experiment=experiment, save_location=save_location, save_name='E%i_transmission_error.pdf'%experiment)

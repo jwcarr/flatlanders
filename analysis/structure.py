@@ -2,7 +2,6 @@ import sublexical_structure
 import Mantel
 import basics
 import rater_analysis
-import plot as plt
 
 def experiment_results(experiment, sublexical=False, permutations=1000, meaning_distances=False):
   if type(meaning_distances) == bool and meaning_distances == False:
@@ -39,6 +38,3 @@ def generation_results(chain, generation, sublexical=False, permutations=1000, m
     string_distances = basics.stringDistances(strings)
     return Mantel.test(string_distances, meaning_distances, permutations)[2]
   return None
-
-def plot(left_plot, right_plot, experiment, save_location=False):
-  plt.chains(left_plot, dataset2=right_plot, miny=-2, maxy=14, y_label='Structure (z-score)', text='(A)', text2='(B)',  text_pos='top', experiment=experiment, conf=True, conf2=True, save_location=save_location, save_name='E%i_structure.pdf'%experiment)
