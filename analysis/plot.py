@@ -97,13 +97,10 @@ class Plot:
           continue
         self.__make_subplot(x, y, subplot_i, one_y_label)
         subplot_i += 1
-    if save_location == False:
-      save_location = basics.desktop_location
-    if save_name == False:
-      save_name = 'plot'
     self.__add_legend(per_column_legend)
     self.grid.tight_layout(self.fig, pad=0.1, h_pad=-.5, w_pad=1)
-    plt.savefig(save_location + save_name + '.eps')
+    filename = self.__determine_filename(save_name, save_location)
+    plt.savefig(filename)
     plt.clf()
 
   # Peek inside the current state of the multipanel plot
@@ -216,6 +213,13 @@ class Plot:
       return False
     except:
       return False
+
+  def __determine_filename(self, save_name, save_location):
+    if type(save_name) == bool and save_name == False:
+      save_name = 'plot'
+    if type(save_location) == bool and save_location == False:
+      save_location = basics.desktop_location
+    return save_location + save_name + '.eps'
 
   def __add_confidence_intervals(self, min_y, n):
     plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
