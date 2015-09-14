@@ -127,7 +127,7 @@ E1_expressivity_plot.add(E1_exp_dynamic)
 E1_expressivity_plot.add(E1_exp_static)
 ```
 
-In this case we are creating a 5.5$\times$2.5 in. multipanel plot with two columns and one row. Finally, call the ```make()``` method of the ```Plot``` object to save a PDF file:
+In this case we are creating a 5.5×2.5 in. multipanel plot with two columns and one row. Finally, call the ```make()``` method of the ```Plot``` object to save a PDF file:
 
 ```python
 E1_expressivity_plot.make()
@@ -244,7 +244,7 @@ E2_str_geo = structure.experiment_results(2, meaning_distances=geometrical_dista
 E3_str_geo = structure.experiment_results(3, meaning_distances=geometrical_distance.all_combination_matrices[14])
 ```
 
-and then plot the results in a 3$\times$1 multipanel plot:
+and then plot the results in a 3×1 multipanel plot:
 
 ```python
 import plot
