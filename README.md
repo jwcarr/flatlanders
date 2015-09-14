@@ -57,8 +57,6 @@ The ```/analysis``` directory contains Python code for analyzing the three exper
 
 - ```sound_symbolism.py```: Functions for analyzing sound symbolism.
 
-- ```structure_measure_comparison.py```: Code for plotting a comparison of the general and sublexical structure measures.
-
 - ```structure.py```: Functions for computing and plotting structure results.
 
 - ```sublexical_structure.py```: Module for measuring sublexical structure.
@@ -89,13 +87,13 @@ The Experiment 3 data (42 files per chain) is organized in the same way as descr
 
 The ```/task_1``` directory contains 96 plain text files, one for each of the participants who completed the first dissimilarity rating task. The filename is a unique “rater ID” used to identify participants. The first line gives the current trial number (the task is complete, so this will always read 151), the direction in which the sliding scale was oriented (```L``` = *very similar* on the left; ```R``` = *very similar* on the right), the participant’s IP address (all IP addresses have been concealed), and a Unix timestamp for the time the task was started. The subsequent lines give the results for each of the 150 rating trials. The first six trials are practice trials; in addition, three reliability trials are randomly interspersed among the normal trials. Column 1 gives a reference number for the triangle in the static set presented on the left; column 2 gives the reference number for the triangle presented on the right; column 3 gives the participant’s rating on the 1,000 point scale (0 is always *very similar* and 1000 is always *very dissimilar* regardless of the direction of the sliding scale); and column 4 gives a Unix timestamp for the time the rating was submitted. Negative reference numbers refer to a small fixed set of triangles used only in practice and reliability trials. The final line in the file is a unique code generated at the time the participant finished the task allowing him or her to collect payment. In some cases, the rating is given as ```undefined```; this was caused by a browser compatibility issue that was later fixed.
 
-The ```/task_2``` directory contains 184 files, one for each of the participants who completed the second dissimilarity rating task. The contents of the files are organized in the same way as described above with the following exceptions: (1) Task 2 is comprised of 135 or 136 trials rather than 150, and (2) the coordinates of each triangle are given in full for each trial rather then represented by reference numbers, since the triangles rated in this task are not drawn from a fixed set as in the case in Task 1.
+The ```/task_2``` directory contains 184 files, one for each of the participants who completed the second dissimilarity rating task. The contents of the files are organized in the same way as described above with the following exceptions: (1) Task 2 is comprised of 135 or 136 trials rather than 150, and (2) the coordinates of each triangle are given in full for each trial rather then represented by reference numbers, since the triangles rated in this task are not drawn from a fixed set as in the case of Task 1.
 
 
 Replicating the Reported Results
 --------------------------------
 
-All analytical code is written in Python and has only been tested under version 2.7 of the language. The following nonstandard libraries are used extensively throughout the codebase and should be installed first (if not already available):
+All analytical code is written in Python and has only been tested under version 2.7 of the language. The following nonstandard libraries are used extensively throughout the code and should be installed first (if not already available):
 
 - Matplotlib: http://matplotlib.org
 
@@ -103,83 +101,93 @@ All analytical code is written in Python and has only been tested under version 
 
 - SciPy: https://www.scipy.org
 
-All analyses were performed on OS X, but the instructions that follow should also apply to Linux or Windows systems. The instructions begin with the assumption that you have ```cd```’d into the ```analysis/``` directory and opened a Python interpreter, e.g.:
+All analyses were performed on OS X El Capitan with up-to-date versions of all external libraries. These instructions are intended to get you started and do not cover the use of every function in every module. They begin with the assumption that you have ```cd```’d into the ```/flatlanders/analysis``` directory and opened a Python interpreter, e.g.: 
 
 ```
 $ cd flatlanders/analysis/
 $ python
 ```
 
-These instructions are intended to get you started and do not cover the use of every function in every module.
-
 ### Expressivity
 
-The following commands are used to import the ```expressivity``` module, load in the expressivity data for the dynamic and static sets of all generations in Experiment 1, and produce a plot displaying the results.
+The following commands are used to import the ```expressivity``` module and load in the expressivity data for the dynamic and static sets of Experiment 1:
 
 ```python
 import expressivity
 E1_exp_dynamic = expressivity.experiment_results(1, set_type='d')
 E1_exp_static = expressivity.experiment_results(1, set_type='s')
-expressivity.plot(E1_exp_dynamic, E1_exp_static, experiment=1)
 ```
 
-By default the plot will be saved to your desktop, although this can be changed by passing a path to the ```plot``` function using the ```save_location``` argument or by editing the ```desktop_location``` variable in ```basics.py```. To run the analysis on Experiment 2 or 3, change all ```1```s to ```2```s or ```3```s. To get expressivity results for the union of the dynamic and static set the ```set_type``` argument to ```'c'```.
+The variables ```E1_exp_dynamic``` and ```E1_exp_static``` that you have just created are dictionaries containing the expressivity data and other parameters. To get the results for Experiment 2 or 3, change the ```1```s above to ```2```s or ```3```s. To get expressivity results for the union of the dynamic and static set, change the ```set_type``` argument to ```’c’```. To produce a plot, import the ```plot``` module and initialize a ```Plot``` object. You can then pass in the dictionaries generated above to produce a multipanel plot:
+
+```python
+import plot
+E1_expressivity_plot = plot.Plot(2, 1, 5.5, 2.5)
+E1_expressivity_plot.add(E1_exp_dynamic)
+E1_expressivity_plot.add(E1_exp_static)
+```
+
+In this case we are creating a 5.5$\times$2.5 in. multipanel plot with two columns and one row. Finally, call the ```make()``` method of the ```Plot``` object to save a PDF file:
+
+```python
+E1_expressivity_plot.make()
+```
+
+By default this will save the plot to your desktop as ```plot.pdf```. This can be changed by passing a filename and/or directory, e.g.:
+
+```python
+E1_expressivity_plot.make('E1_expressivity', '/Users/jon/')
+```
 
 ### Structure
 
-The following commands are used to import the ```structure``` module, compute the structure results for Experiment 1, and produce a plot displaying the results.
+The following commands are used to import the ```structure``` module and compute the structure and sublexical structure results for Experiment 1.
 
 ```python
 import structure
-E1_str = structure.experiment_results(1, sublexical=False, permutations=1000)
-E1_sub = structure.experiment_results(1, sublexical=True, permutations=1000)
-structure.plot(E1_str, E1_sub, experiment=1)
+E1_str = structure.experiment_results(1, permutations=1000)
+E1_sub = structure.experiment_results(1, permutations=1000, sublexical=True)
 ```
 
-The results reported in the paper are based on 100,000 permutations. However, 1,000 should be sufficient to replicate the results quickly. N.B., the computation of the measure of sublexical structure is around an order of magnitude slower than the measure of general structure.
+The results reported in the paper are based on 100,000 permutations. However, 1,000 should be sufficient to replicate the results quickly. N.B., the computation of the measure of sublexical structure is around an order of magnitude slower than the measure of general structure. To plot the results, customize the instructions above.
 
 ### Transmission error
 
-The following commands are used to import the ```transmission_error``` module, compute the results for Experiment 1, and produce a plot.
+The following commands are used to import the ```transmission_error``` module and compute the results for Experiment 1.
 
 ```python
 import transmission_error
 E1_trans_error = transmission_error.experiment_results(1)
-transmission_error.plot(E1_trans_error, experiment=1)
 ```
 
 ### Sound symbolism
 
-The following commands are used to import the ```sound_symbolism``` module, compute the results for Experiment 1, and produce a plot.
+The following commands are used to import the ```sound_symbolism``` module and compute the shape- and size-based sound symbolism results for Experiment 1.
 
 ```python
 import sound_symbolism
-E1_ss_shape = sound_symbolism.experiment_results(1, symbolism='shape')
-E1_ss_size = sound_symbolism.experiment_results(1, symbolism='size')
-sound_symbolism.plot(E1_ss_shape, E1_ss_size, experiment=1)
+E1_shape = sound_symbolism.experiment_results(1, symbolism='shape')
+E1_size = sound_symbolism.experiment_results(1, symbolism='size')
 ```
 
 ### Communicative accuracy
 
-The following commands are used to import the ```communication``` module, compute the communicative accuracy and error results for Experiment 3 (n.b., communication only applies to Experiment 3), and produce a plot.
+The following commands are used to import the ```communication``` module and compute the communicative accuracy and error results for Experiment 3 (n.b., communication only applies to Experiment 3).
 
 ```python
 import communication
 E3_comm_acc = communication.accuracy_results()
 E3_comm_err = communication.error_results()
-communication.plot(E1_comm_acc, E1_comm_err)
 ```
 
 ### Page’s test
 
-To run Page’s test on any of the data, import the ```Page``` module and pass a data matrix that was computed above to the ```test``` function. For example, to run Page’s test on the results for structure that we generated above, run:
+To run Page’s test on any of the data, import the ```Page``` module and pass one of the data dictionaries that was created above to the ```test``` function. For example, to run Page’s test on the results for structure that we generated above, run:
 
 ```python
 import Page
-Page.test(E1_str, ascending=True)
+Page.test(E1_str)
 ```
-
-The ```ascending``` argument defines whether we are hypothesizing an upward or downward trend (in this case an upward trend).
 
 ### MDS plots
 
@@ -217,40 +225,35 @@ The ```plot```, ```plot_chain```, and ```plot_experiment``` functions can take a
 
 - The ```label_cells``` argument (Boolean) adds string labels to the Voronoi cells.
 
-- The ```join_contiguous_cells``` argument (Boolean) joins together cells that form a continuous region of one color. However, this does not always work correctly, so use with caution.
+- The ```join_contiguous_cells``` argument (Boolean) joins together cells that form a continuous region of one color (this does not always work correctly, so use with caution).
 
 ### Geometrical measure of triangle dissimilarity
 
-The code for computing a geometrical measure of dissimilarity between triangles is contained in ```geometrical_distance.py```. When this module is run, it automatically computes distance matrices for all 15 combinations of the four geometrical features and stores them in a list called ```all_combination_matrices```. The last item in that list, ```all_combination_matrices[14]```, is the combination of all four features (i.e., Type 15). To plot the Experiment 1 results for structure using the combination of all four features, you can simply pass that matrix to the structure module:
+The code for computing a geometrical measure of dissimilarity between triangles is contained in ```geometrical_distance.py```. When this module is run, it automatically computes distance matrices for all 15 combinations of the four geometrical features and stores them in a list called ```all_combination_matrices```. The last item in that list, ```all_combination_matrices[14]```, is the combination of all four features (i.e., Type 15). To plot the Experiment 1 results for structure using the combination of all four features, you can simply pass that matrix to the ```structure``` module, which overrides the use of the human dissimilarity ratings:
 
 ```python
 import geometrical_distance
 import structure
-E1_str_geo_all = structure.experiment_results(1, meaning_distances=geometrical_distance.all_combination_matrices[14])
+E1_str_geo = structure.experiment_results(1, meaning_distances=geometrical_distance.all_combination_matrices[14])
 ```
 
-Say you wanted to compare how the combination of all four features compares with the combination of just shape and size in terms of the result it has on the measure of structure. To do this, compute the structure results for the shape/size combination (Type 10 so index 9 in ```all_combination_matrices```):
+To compare the three experiments in terms of this measure of structure, compute the structure results for the other two experiments:
 
 ```python
-E1_str_geo_shpSiz = structure.experiment_results(1, meaning_distances=geometrical_distance.all_combination_matrices[9])
+E2_str_geo = structure.experiment_results(2, meaning_distances=geometrical_distance.all_combination_matrices[14])
+E3_str_geo = structure.experiment_results(3, meaning_distances=geometrical_distance.all_combination_matrices[14])
 ```
 
-and then plot the results:
+and then plot the results in a 3$\times$1 multipanel plot:
 
 ```python
-structure.plot(E1_str_geo_all, E1_str_geo_shpSiz, experiment=1)
+import plot
+E1_geo_plot = plot.Plot(3, 1, 5.5, 2.5)
+E1_geo_plot.add(E1_str_geo)
+E1_geo_plot.add(E2_str_geo)
+E1_geo_plot.add(E3_str_geo)
+E1_geo_plot.make('geo_structure', per_column_legend=True)
 ```
-
-You should find that structure is better captured by the geometrical metric that only takes shape and size into account.
-
-To find which combination of features provide the strongest correlation with the strings in for all generations of Experiment 1, use the ```experiment_results``` function and then ```latex_table``` to format as a LaTeX table, e.g.:
-
-```python
-E1_typology = geometrical_distance.experiment_results(1)
-geometrical_distance.latex_table(E1_typology)
-```
-
-This saves a ```.tex``` file to your desktop containing the source for producing a full table.
 
 
 License
