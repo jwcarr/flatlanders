@@ -118,16 +118,21 @@ E1_exp_dynamic = expressivity.experiment_results(1, set_type='d')
 E1_exp_static = expressivity.experiment_results(1, set_type='s')
 ```
 
-The variables ```E1_exp_dynamic``` and ```E1_exp_static``` that you have just created are dictionaries containing the expressivity data and other parameters. To get the results for Experiment 2 or 3, change the ```1```s above to ```2```s or ```3```s. To get expressivity results for the union of the dynamic and static set, change the ```set_type``` argument to ```’c’```. To produce a plot, import the ```plot``` module and initialize a ```Plot``` object. You can then pass in the dictionaries generated above to produce a multipanel plot:
+The variables ```E1_exp_dynamic``` and ```E1_exp_static``` that you have just created are dictionaries containing the expressivity data and other parameters. To get the results for Experiment 2 or 3, change the ```1```s above to ```2```s or ```3```s. To get expressivity results for the union of the dynamic and static set, change the ```set_type``` argument to ```’c’```. To produce a plot, import the ```plot``` module and initialize a ```Plot``` object:
 
 ```python
 import plot
 E1_expressivity_plot = plot.Plot(2, 1, 5.5, 2.5)
+```
+
+In this case we are creating a 5.5×2.5 in. multipanel plot with two columns and one row. You can then pass in the dictionaries generated above:
+
+```python
 E1_expressivity_plot.add(E1_exp_dynamic)
 E1_expressivity_plot.add(E1_exp_static)
 ```
 
-In this case we are creating a 5.5×2.5 in. multipanel plot with two columns and one row. Finally, call the ```make()``` method of the ```Plot``` object to save a PDF file:
+Finally, call the ```make()``` method of the ```Plot``` object to save a PDF file:
 
 ```python
 E1_expressivity_plot.make()
@@ -248,11 +253,11 @@ and then plot the results in a 3×1 multipanel plot:
 
 ```python
 import plot
-E1_geo_plot = plot.Plot(3, 1, 5.5, 2.5)
-E1_geo_plot.add(E1_str_geo)
-E1_geo_plot.add(E2_str_geo)
-E1_geo_plot.add(E3_str_geo)
-E1_geo_plot.make('geo_structure', per_column_legend=True)
+geo_plot = plot.Plot(3, 1, 5.5, 2.5)
+geo_plot.add(E1_str_geo)
+geo_plot.add(E2_str_geo)
+geo_plot.add(E3_str_geo)
+geo_plot.make('geo_structure', per_column_legend=True)
 ```
 
 
