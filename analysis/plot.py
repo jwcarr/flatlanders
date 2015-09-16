@@ -126,6 +126,21 @@ class Plot:
       if self.__remove_rows(self.shape_y - shape_y) == True:
         self.shape_y = shape_y
 
+  # Remove a specific subplot
+  def remove(self, position_x, position_y):
+    try:
+      self.datasets[position_y-1][position_x-1] = None
+      self.subplots[position_y-1][position_x-1] = None
+    except IndexError:
+      print('Unable to remove the plot at position %i,%i. Review the plot using PLOT.peek().' % (position_x, position_y))
+
+  # Clear all subplots
+  def clear(self):
+    self.datasets = [[None] * self.shape_x for y in range(self.shape_y)]
+    self.subplots = [[None] * self.shape_x for y in range(self.shape_y)]
+
+  # Set the plot attributes
+
   def set_label_size(self, size):
     self.label_font_size = float(size)
 
