@@ -64,24 +64,15 @@ class Plot:
   #############################################
   # PUBLIC METHODS
 
-  # Add a subplot to the multipanel plot
-  def add(self, dataset, position_x=False, position_y=False):
-    if type(dataset) != dict:
-      print('Please pass a data dictionary generated from one of the experiment_results() functions.')
-      return
-    if (type(position_x) == bool and position_x == False) or (type(position_y) == bool and position_y == False):
-      position_x, position_y = self.__next_available_position()
-      if type(position_x) == bool and position_x == False:
-        print('No space left to add a new subplot. Reshape the plot or specify a position to overwrite.')
+  def add(self, data, position_x=False, position_y=False):
+    if type(data) == tuple or type(data) == list:
+      if self.__number_of_empty_positions() < len(data):
+        print('Insufficient space to add %i subplots. Use reshape() to reshape the plot or peek() to review the layout.' % len(data))
         return
+      for dataset in data:
+        self.__add_subplot(dataset, False, False)
     else:
-      if (position_x > self.shape_x) or (position_y > self.shape_y):
-        print('Plot shape is %ix%i. Reshape the plot or specify a different position.' % (self.shape_x, self.shape_y))
-        return
-      position_x, position_y = position_x-1, position_y-1
-    if self.datasets[position_y][position_x] != None and raw_input('Position %i,%i is in use. Overwrite? (y/n) ' % (position_x+1, position_y+1)) != 'y':
-      return
-    self.datasets[position_y][position_x] = dataset
+      self.__add_subplot(data, position_x, position_y)
 
   # Make the multipanel plot a reality and save as PDF
   def make(self, save_name=False, save_location=False, per_column_legend=False):
@@ -153,6 +144,25 @@ class Plot:
   #############################################
   # PRIVATE METHODS
 
+  # Add a subplot to the multipanel plot
+  def __add_subplot(self, dataset, position_x, position_y):
+    if type(dataset) != dict:
+      print('Please pass a data dictionary generated from one of the experiment_results() functions.')
+      return
+    if (type(position_x) == bool and position_x == False) or (type(position_y) == bool and position_y == False):
+      position_x, position_y = self.__next_available_position()
+      if type(position_x) == bool and position_x == False:
+        print('No space left to add a new subplot. Use reshape() to reshape the plot or specify a position to overwrite.')
+        return
+    else:
+      if (position_x > self.shape_x) or (position_y > self.shape_y):
+        print('Plot shape is %ix%i. Use reshape() to reshape the plot or specify a different position.' % (self.shape_x, self.shape_y))
+        return
+      position_x, position_y = position_x-1, position_y-1
+    if self.datasets[position_y][position_x] != None and raw_input('Position %i,%i is in use. Overwrite? (y/n) ' % (position_x+1, position_y+1)) != 'y':
+      return
+    self.datasets[position_y][position_x] = dataset
+
   def __make_subplot(self, position_x, position_y, subplot_i, one_y_label):
     dataset = self.datasets[position_y][position_x]
     matrix = self.__remove_NaN(dataset['data'])
@@ -197,6 +207,14 @@ class Plot:
         if self.datasets[y][x] == None:
           return x, y
     return False, False
+
+  def __number_of_empty_positions(self):
+    n = 0
+    for y in range(self.shape_y):
+      for x in range(self.shape_x):
+        if self.datasets[y][x] == None:
+          n += 1
+    return n
 
   def __determine_height_ratios(self, per_column_legend):
     legend_height = self.legend_height
