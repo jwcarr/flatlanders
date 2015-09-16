@@ -64,10 +64,11 @@ class Plot:
   #############################################
   # PUBLIC METHODS
 
+  # Add a subplot or multiple subplots
   def add(self, data, position_x=False, position_y=False):
     if type(data) == tuple or type(data) == list:
       if self.__number_of_empty_positions() < len(data):
-        print('Insufficient space to add %i subplots. Use reshape() to reshape the plot or peek() to review the layout.' % len(data))
+        print('Insufficient space to add %i subplots. Use PLOT.reshape() to reshape the plot or PLOT.peek() to review the layout.' % len(data))
         return
       for dataset in data:
         self.__add_subplot(dataset, False, False)
@@ -106,10 +107,12 @@ class Plot:
           print_row += '[x] '
       print(print_row)
 
+  # Change the dimensions of the plot (in inches)
   def resize(self, width, height):
     self.height = float(height)
     self.width = float(width)
 
+  # Change the number of columns and rows
   def reshape(self, shape_x, shape_y):
     shape_x = int(shape_x)
     shape_y = int(shape_y)
@@ -167,17 +170,18 @@ class Plot:
     if (type(position_x) == bool and position_x == False) or (type(position_y) == bool and position_y == False):
       position_x, position_y = self.__next_available_position()
       if type(position_x) == bool and position_x == False:
-        print('No space left to add a new subplot. Use reshape() to reshape the plot or specify a position to overwrite.')
+        print('No space left to add a new subplot. Use PLOT.reshape() to reshape the plot or specify a position to overwrite.')
         return
     else:
       if (position_x > self.shape_x) or (position_y > self.shape_y):
-        print('Plot shape is %ix%i. Use reshape() to reshape the plot or specify a different position.' % (self.shape_x, self.shape_y))
+        print('Plot shape is %ix%i. Use PLOT.reshape() to reshape the plot or specify a different position.' % (self.shape_x, self.shape_y))
         return
       position_x, position_y = position_x-1, position_y-1
     if self.datasets[position_y][position_x] != None and raw_input('Position %i,%i is in use. Overwrite? (y/n) ' % (position_x+1, position_y+1)) != 'y':
       return
     self.datasets[position_y][position_x] = dataset
 
+  # Make a subplot
   def __make_subplot(self, position_x, position_y, subplot_i, one_y_label):
     dataset = self.datasets[position_y][position_x]
     matrix = self.__remove_NaN(dataset['data'])
@@ -212,10 +216,12 @@ class Plot:
     if position_y == self.shape_y - 1:
       plt.xlabel('Generation number', fontsize=self.label_font_size)
 
+  # Leave a position empty
   def __make_empty_subplot(self, position_x, position_y):
     self.subplots[position_y][position_x] = self.fig.add_subplot(self.grid[position_y, position_x])
     plt.axis('off')
 
+  # Find out the next available position, working left to right, top to bottom
   def __next_available_position(self):
     for y in range(self.shape_y):
       for x in range(self.shape_x):
@@ -223,6 +229,7 @@ class Plot:
           return x, y
     return False, False
 
+  # Count the number of empty positions in the plot
   def __number_of_empty_positions(self):
     n = 0
     for y in range(self.shape_y):
@@ -231,6 +238,7 @@ class Plot:
           n += 1
     return n
 
+  # Determine appropriate height ratios for the plots and legend
   def __determine_height_ratios(self, per_column_legend):
     legend_height = self.legend_height
     if per_column_legend == True:
@@ -239,6 +247,7 @@ class Plot:
     ratios = ([row_height] * self.shape_y) + [legend_height]
     return ratios
 
+  # Determine if only one y-axis label is required (i.e. all plots on a row are the same type)
   def __determine_one_y_label(self, y):
     try:
       if len(set([self.datasets[y][x]['data_type'] for x in range(self.shape_x)])) == 1:
@@ -247,6 +256,7 @@ class Plot:
     except:
       return False
 
+  # Determine the appropriate filename for saving
   def __determine_filename(self, save_name, save_location):
     if type(save_name) == bool and save_name == False:
       save_name = 'plot'
@@ -254,14 +264,17 @@ class Plot:
       save_location = basics.desktop_location
     return save_location + save_name + '.eps'
 
+  # Add dotted line "confidence intervals" at -1.96 and 1.96"
   def __add_confidence_intervals(self, min_y, n):
     plt.plot(range(-1,n+2), [1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
     if min_y < -2:
       plt.plot(range(-1,n+2), [-1.959964] * (n+3), color='gray', linestyle=':', linewidth=0.5)
 
+  # Add dotted line for indicating chance level
   def __add_chance_level(self, level, n):
     plt.plot(range(-1,n+2), [level] * (n+3), color='gray', linestyle=':', linewidth=0.5)
 
+  # Add on one legend for entire plot or one legend per column
   def __add_legend(self, per_column_legend):
     if per_column_legend == True:
       for x in range(self.shape_x):
@@ -277,6 +290,7 @@ class Plot:
       handles, labels = self.subplots[0][0].get_legend_handles_labels()
       plt.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, -0.2), frameon=False, prop={'size':self.legend_font_size}, ncol=4, numpoints=1)
 
+  # Add aubplot labels: (A), (B), (C), etc...
   def __add_subplot_label(self, subplot_i, min_y, max_y, position):
     try:
       label = '(' + ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'[subplot_i]) + ')'
@@ -288,6 +302,7 @@ class Plot:
     else:
       plt.text(0.2, min_y + padding, label, {'fontsize':8}, fontweight='bold', ha='left', va='bottom')
 
+  # Remove NaN or infinity from data matrices and replace with None
   def __remove_NaN(self, matrix):
     new_matrix = []
     for row in matrix:
@@ -303,12 +318,14 @@ class Plot:
       new_matrix.append(new_row)
     return new_matrix
 
+  # Add new column(s) to the right of the plot
   def __add_columns(self, n):
     for y in range(self.shape_y):
       self.datasets[y] += [None] * n
       self.subplots[y] += [None] * n
     return True
 
+  # Remove column(s) from the right, warning if this will lead to plot removal
   def __remove_columns(self, n):
     cells_in_use = 0
     for row in self.datasets:
@@ -328,11 +345,13 @@ class Plot:
         del row[-1]
     return True
 
+  # Add new row(s) to the bottom of the plot
   def __add_rows(self, n):
     self.datasets += [[None] * self.shape_x for i in range(n)]
     self.subplots += [[None] * self.shape_x for i in range(n)]
     return True
 
+  # Remove row(s) from the bottom, warning if this will lead to plot removal
   def __remove_rows(self, n):
     cells_in_use = 0
     for i in range(1, n+1):
