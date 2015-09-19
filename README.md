@@ -101,7 +101,7 @@ All analytical code is written in Python and has only been tested under version 
 
 - SciPy: https://www.scipy.org
 
-All analyses were performed on OS X El Capitan with up-to-date versions of all external libraries. These instructions are intended to get you started and do not cover the use of every function in every module. They begin with the assumption that you have ```cd```’d into the ```/flatlanders/analysis``` directory and opened a Python interpreter, e.g.: 
+All analyses were performed on OS X El Capitan with up-to-date versions of the above libraries. These instructions are intended to get you started and do not cover the use of every function in every module. They begin with the assumption that you have ```cd```’d into the ```/flatlanders/analysis``` directory and opened a Python interpreter, e.g.: 
 
 ```
 $ cd flatlanders/analysis/
@@ -118,21 +118,21 @@ E1_exp_dynamic = expressivity.experiment_results(1, set_type='d')
 E1_exp_static = expressivity.experiment_results(1, set_type='s')
 ```
 
-The variables ```E1_exp_dynamic``` and ```E1_exp_static``` that you have just created are dictionaries containing the expressivity data and other parameters. To get the results for Experiment 2 or 3, change the ```1```s above to ```2```s or ```3```s. To get expressivity results for the union of the dynamic and static set, change the ```set_type``` argument to ```’c’```. To produce a plot, import the ```plot``` module and initialize a ```Plot``` object:
+The variables ```E1_exp_dynamic``` and ```E1_exp_static``` that you have just created are dictionaries containing the expressivity data and other parameters. To get the results for Experiment 2 or 3, change the ```1```s above to ```2```s or ```3```s. To get expressivity results for the union of the dynamic and static set, change the ```set_type``` argument to ```'c'```. To produce a plot, first import the ```plot``` module and initialize a ```Plot``` object:
 
 ```python
 import plot
 E1_expressivity_plot = plot.Plot(2, 1, 5.5, 2.5)
 ```
 
-In this case we are creating a 5.5×2.5 in. multipanel plot with two columns and one row. You can then pass in the dictionaries generated above:
+In this case we are creating a 5.5×2.5 in. multipanel plot with two columns and one row. You can then pass in the dictionaries generated above using the ```add()``` method of the ```Plot``` object:
 
 ```python
 E1_expressivity_plot.add(E1_exp_dynamic)
 E1_expressivity_plot.add(E1_exp_static)
 ```
 
-Finally, call the ```make()``` method of the ```Plot``` object to save a PDF file:
+Finally, call the ```make()``` method to save a PDF:
 
 ```python
 E1_expressivity_plot.make()
