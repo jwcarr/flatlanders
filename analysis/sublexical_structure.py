@@ -19,6 +19,9 @@ def test(strings, meaning_distances, perms):
   m = len(strings)
   n = factorial(len(category_labels))
 
+  # Compute the pairwise string indices to avoid doing this repeatedly in the main loop
+  string_iterator = [(i, j) for i in range(0, m) for j in range(i+1, m)]
+
   # Deterministic test - measure every possible category-meaning mapping.
   # This is used where the number of category permutations is less than the
   # number of requested permutations to run; therefore, it's faster and better
@@ -35,7 +38,7 @@ def test(strings, meaning_distances, perms):
       string_remapping = [category_labels.index(string) for string in strings]
 
       # Compile the string distances from the pre-computed label_distances matrix
-      string_distances = [label_distances[string_remapping[i], string_remapping[j]] for i in range(0, m) for j in range(i+1, m)]
+      string_distances = [label_distances[string_remapping[i], string_remapping[j]] for i, j in string_iterator]
 
       # Store the covarience between meaning distances and string distances
       covariences[p] = (meaning_residuals * residualize(string_distances)).sum()
@@ -59,7 +62,7 @@ def test(strings, meaning_distances, perms):
       string_remapping = [category_labels.index(string) for string in strings]
 
       # Compile the string distances from the pre-computed label_distances matrix
-      string_distances = [label_distances[string_remapping[i], string_remapping[j]] for i in range(0, m) for j in range(i+1, m)]
+      string_distances = [label_distances[string_remapping[i], string_remapping[j]] for i, j in string_iterator]
 
       # Store the covarience between meaning distances and string distances
       covariences[p] = (meaning_residuals * residualize(string_distances)).sum()
