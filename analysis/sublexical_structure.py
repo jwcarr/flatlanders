@@ -8,15 +8,21 @@ def test(strings, meaning_distances, perms):
   # Compute meaning distance residuals
   meaning_residuals = residualize(meaning_distances)
 
-  # Determine category labels and the edit-distances between them
+  # Determine category labels
   category_labels = list(set(strings))
+
+  # Get pairwise edit-distances between category labels and format as square
+  # distance matrix
   label_distances = squareform(pairwise_string_distances(category_labels))
 
   # Number of strings and number of possible category permutations
   m = len(strings)
   n = factorial(len(category_labels))
 
-  # Deterministic test - measure every possible category-meaning mapping
+  # Deterministic test - measure every possible category-meaning mapping.
+  # This is used where the number of category permutations is less than the
+  # number of requested permutations to run; therefore, it's faster and better
+  # to run every permutation.
   if n <= perms:
 
     # Create an empty array to store the covarience for each permutation
