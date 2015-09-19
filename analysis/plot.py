@@ -262,7 +262,7 @@ class Plot:
       save_name = 'plot'
     if type(save_location) == bool and save_location == False:
       save_location = basics.desktop_location
-    return save_location + save_name + '.eps'
+    return save_location + save_name + '.pdf'
 
   # Add dotted line "confidence intervals" at -1.96 and 1.96"
   def __add_confidence_intervals(self, min_y, n):
