@@ -234,7 +234,7 @@ The ```plot```, ```plot_chain```, and ```plot_experiment``` functions can take a
 
 ### Geometrical measure of triangle dissimilarity
 
-The code for computing a geometrical measure of dissimilarity between triangles is contained in ```geometrical_distance.py```. When this module is run, it automatically computes distance matrices for all 15 combinations of the four geometrical features and stores them in a list called ```all_combination_matrices```. The last item in that list, ```all_combination_matrices[14]```, is the combination of all four features (i.e., Type 15). To plot the Experiment 1 results for structure using the combination of all four features, you can simply pass that matrix to the ```structure``` module, which overrides the use of the human dissimilarity ratings:
+The code for computing a geometrical measure of dissimilarity between triangles is contained in ```geometrical_distance.py```. When this module is run, it automatically computes distance matrices for all 15 combinations of the four geometrical features and stores them in a list called ```all_combination_matrices```. The last item in that list, ```all_combination_matrices[14]```, is the combination of all four features (i.e., Type 15, thus index 14). To plot the Experiment 1 results for structure using the combination of all four features, you can simply pass that matrix to the ```structure``` module, which overrides the use of the human dissimilarity ratings:
 
 ```python
 import geometrical_distance
@@ -254,9 +254,7 @@ and then plot the results in a 3×1 multipanel plot:
 ```python
 import plot
 geo_plot = plot.Plot(3, 1, 5.5, 2.5)
-geo_plot.add(E1_str_geo)
-geo_plot.add(E2_str_geo)
-geo_plot.add(E3_str_geo)
+geo_plot.add([E1_str_geo, E2_str_geo, E3_str_geo])
 geo_plot.make('geo_structure', per_column_legend=True)
 ```
 
