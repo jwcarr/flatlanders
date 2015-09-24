@@ -51,7 +51,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, use_hsb=False, s
     all_strings = []
     for generation in range(0, 11):
       all_strings += basics.getWords(experiment, chain, generation, 's')
-    colour_palette = generate_colour_palette(all_strings, spectrum, push_factor)
+    colour_palette = generate_colour_palette(all_strings, use_hsb, spectrum, push_factor)
   else:
     colour_palette = None
 
