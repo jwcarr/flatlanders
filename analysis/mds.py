@@ -193,12 +193,16 @@ def generate_colour_palette(strings, use_hsb=False, spectrum=[0.0, 1.0], push_fa
 
   if use_hsb == True:
 
-    # Scale the MDS dimensions over the interval [0.4, 0.9] to map the string distances on to HSB
-    # colour space which uses 144-324 degrees of hue, 40-90% of saturation, and 40-90% of brightness
-    for dim in range(0, 3):
+    # Scale first dimension in [0, 0.5], which will translate to 0--180 degrees (half of hue space)
+    minimum = string_coordinates[:, 0].min()
+    difference = string_coordinates[:, 0].max() - minimum
+    string_coordinates[:, 0] = ((string_coordinates[:, 0] - minimum) / difference) / 2.0
+
+    # Scale the remaining two dimensions (saturation and brightness) over the specified spectrum
+    for dim in range(1, 3):
       minimum = string_coordinates[:, dim].min()
       difference = string_coordinates[:, dim].max() - minimum
-      string_coordinates[:, dim] = (((string_coordinates[:, dim] - minimum) / difference) * 0.5) + 0.4
+      string_coordinates[:, dim] = (((string_coordinates[:, dim] - minimum) / difference) * (spectrum[1] - spectrum[0])) + spectrum[0]
 
     # Convert HSB values to hexadecimal triplets (the light version is for the Voronoi cells)
     for h, s, b in string_coordinates:
