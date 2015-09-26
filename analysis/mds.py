@@ -186,32 +186,35 @@ def generate_colour_palette(strings, use_hsb=False, spectrum=[0.0, 1.0], push_fa
   string_distances = np.array(basics.stringDistances(words), dtype=float) + push_factor
   string_distance_matrix = distance.squareform(string_distances, 'tomatrix')
 
-  # Run distance matrix through MDS to determine the position of each word in 3-dimensional space
-  string_mds = MDS(dissimilarity='precomputed', n_components=3, n_init=25, max_iter=2000)
-  string_coordinates = string_mds.fit_transform(string_distance_matrix)
-
   hex_colour_values = []
 
   if use_hsb == True:
 
-    # Scale first dimension in [0, 0.5], which will translate to 0--180 degrees (half of hue space)
-    minimum = string_coordinates[:, 0].min()
-    difference = string_coordinates[:, 0].max() - minimum
-    string_coordinates[:, 0] = ((string_coordinates[:, 0] - minimum) / difference) / 2.0
+    # Run distance matrix through MDS to determine the position of each word in 2-dimensional space
+    string_mds = MDS(dissimilarity='precomputed', n_components=2, n_init=25, max_iter=2000)
+    string_coordinates = string_mds.fit_transform(string_distance_matrix)
 
-    # Scale the remaining two dimensions (saturation and brightness) over the specified spectrum
-    for dim in range(1, 3):
-      minimum = string_coordinates[:, dim].min()
-      difference = string_coordinates[:, dim].max() - minimum
-      string_coordinates[:, dim] = (((string_coordinates[:, dim] - minimum) / difference) * (spectrum[1] - spectrum[0])) + spectrum[0]
+    # Convert Cartesian coordinates to polar coordinates
+    polar_coordinates = np.array([polarize(string_coordinates[i, :]) for i in range(len(string_coordinates))])
 
-    # Convert HSB values to hexadecimal triplets (the light version is for the Voronoi cells)
-    for h, s, b in string_coordinates:
-      hex_colour = rgb_to_hex(hsb_to_rgb((h, s, b)))
-      hex_colour_light = rgb_to_hex(hsb_to_rgb((h, s, b+0.1)))
+    # Rescale the saturation coordinates in the specified spectrum
+    # This sucks the rho values in towards the center of the circle
+    minimum = polar_coordinates[:, 1].min()
+    difference = polar_coordinates[:, 1].max() - minimum
+    polar_coordinates[:, 1] = (((polar_coordinates[:, 1] - minimum) / difference) * (spectrum[1] - spectrum[0])) + (spectrum[0])
+
+    # Convert HSB values to hexadecimal triplets via RGB, keeping brightness constant
+    # The light version is for the Voronoi cells
+    for h, s in polar_coordinates:
+      hex_colour = rgb_to_hex(hsb_to_rgb((h, s, 0.9)))
+      hex_colour_light = rgb_to_hex(hsb_to_rgb((h, s, 1.0)))
       hex_colour_values.append((hex_colour, hex_colour_light))
 
   else:
+
+    # Run distance matrix through MDS to determine the position of each word in 3-dimensional space
+    string_mds = MDS(dissimilarity='precomputed', n_components=3, n_init=25, max_iter=2000)
+    string_coordinates = string_mds.fit_transform(string_distance_matrix)
 
     # Scale the dimensions of the space over the interval [0, 255] to create an RGB colour space.
     # The spectrum argument determines how much of the colour space will be used, allowing you to
