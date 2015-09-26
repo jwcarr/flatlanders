@@ -115,11 +115,12 @@ def plot(chain, generation, experiment=None, colour_palette=None, use_hsb=False,
     indices = word_dict[word]
     colour, colour_light = colour_palette[word]
     X, Y = triangle_coordinates[indices, 0], triangle_coordinates[indices, 1]
-    plt.scatter(X, Y, c=colour, label=word, marker='o', s=15, linewidth=0, zorder=1)
+    plt.scatter(X, Y, c=colour_light, label=word, marker='o', s=12, linewidth=0, zorder=0)
+    plt.scatter(X, Y, c=colour, marker='o', s=12, linewidth=0, zorder=2)
     if join_contiguous_cells == True:
       regional_polys = Voronoi.join_contiguous_polygons(voronoi_polygons[indices])
       for poly in regional_polys:
-        ax1.add_patch(patches.Polygon(poly, facecolor=colour_light, edgecolor='white', linewidth=0.5, zorder=0))
+        ax1.add_patch(patches.Polygon(poly, facecolor=colour_light, edgecolor='white', linewidth=0.5, zorder=1))
     else:
       for i in indices:
         ax1.add_patch(patches.Polygon(voronoi_polygons[i], facecolor=colour_light, edgecolor='white', linewidth=0.5, zorder=0))
@@ -141,7 +142,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, use_hsb=False,
 
   # Produce the legend
   handles, labels = ax1.get_legend_handles_labels()
-  ax2.legend(handles, labels, loc='upper center', bbox_to_anchor=[0.45, 0.5], frameon=False, prop={'size':legend_font_size}, ncol=grid_size, scatterpoints=1, handletextpad=0.01)
+  ax2.legend(handles, labels, loc='upper center', bbox_to_anchor=[0.45, 0.5], frameon=False, prop={'size':legend_font_size}, ncol=grid_size, scatterpoints=1, handletextpad=0.01, markerscale=2.5)
   
   # Tighten plot layout
   plt.tight_layout(pad=0.2, h_pad=0.0)
