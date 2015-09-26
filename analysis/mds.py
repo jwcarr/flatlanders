@@ -356,11 +356,12 @@ def splice_in_triangles(filename, triangle_code):
 def rgb_to_hex(rgb):
   return '#' + ''.join(map(chr, map(int, map(round, rgb)))).encode('hex')
 
-# Convert HSB (hue, saturation, brightness) to RGB
+# Convert hue (radians), saturation [0,1], and brightness [0,1] into RGB
 def hsb_to_rgb(hsb):
   if hsb[1] == 0.0: return hsb[2]*255, hsb[2]*255, hsb[2]*255
-  i = int(hsb[0]*6.)
-  f = (hsb[0]*6.)-i
+  h = hsb[0] / (2.0 * np.pi)
+  i = int(h*6.)
+  f = (h*6.)-i
   p, q, t = hsb[2]*(1.-hsb[1]), hsb[2]*(1.-hsb[1]*f), hsb[2]*(1.-hsb[1]*(1.-f))
   i %= 6
   if i == 0: return hsb[2]*255, t*255, p*255
