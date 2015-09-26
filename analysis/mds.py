@@ -399,6 +399,15 @@ def ED(a, b):
   return np.sqrt(sum([(a[i]-b[i])**2 for i in range(0, len(a))]))
 
 
+# Convert Cartesian coordinates to polar coordinates
+def polarize(xy):
+  phi = np.arctan2(xy[1], xy[0])
+  if phi < 0.0:
+    phi = np.pi + (np.pi + phi)
+  r = np.sqrt(xy[0]**2 + xy[1]**2)
+  return phi, r
+
+
 # Calculate the correspondence correlation - how well do the distances in
 # MDS space correlate with the original distances
 def correspondence_correlation(distances, mds_coordinates):
