@@ -17,12 +17,12 @@ legend_font_size = 10 # points
 figure_width = 5.5 # inches
 
 
-def plot_all(chain_wide_palette=True, use_hsb=False, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
+def plot_all(chain_wide_palette=True, use_rgb=False, spectrum=[0.5, 1.0], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
   for experiment in range(0, len(basics.chain_codes)):
-    plot_experiment(experiment+1, chain_wide_palette, use_hsb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
+    plot_experiment(experiment+1, chain_wide_palette, use_rgb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
 
 
-def plot_experiment(experiment, chain_wide_palette=True, use_hsb=False, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
+def plot_experiment(experiment, chain_wide_palette=True, use_rgb=False, spectrum=[0.5, 1.0], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
 
   # Set directory for saving, and create it if it doesn't exist
   if save_location == False:
@@ -36,10 +36,10 @@ def plot_experiment(experiment, chain_wide_palette=True, use_hsb=False, spectrum
 
   for chain in basics.chain_codes[experiment-1]:
     print('Chain: ' + chain)
-    plot_chain(chain, experiment, chain_wide_palette, use_hsb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
+    plot_chain(chain, experiment, chain_wide_palette, use_rgb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
 
 
-def plot_chain(chain, experiment=None, chain_wide_palette=True, use_hsb=False, spectrum=[0.2, 0.9], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
+def plot_chain(chain, experiment=None, chain_wide_palette=True, use_rgb=False, spectrum=[0.5, 1.0], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
 
   # Determine experiment number if none is supplied
   if experiment == None:
@@ -51,7 +51,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, use_hsb=False, s
     all_strings = []
     for generation in range(0, 11):
       all_strings += basics.getWords(experiment, chain, generation, 's')
-    colour_palette = generate_colour_palette(all_strings, use_hsb, spectrum, push_factor)
+    colour_palette = generate_colour_palette(all_strings, use_rgb, spectrum, push_factor)
   else:
     colour_palette = None
 
@@ -68,10 +68,10 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, use_hsb=False, s
   # Produce a plot for each generation
   print('Generating graphics...')
   for generation in range(0, 11):
-    plot(chain, generation, experiment, colour_palette, use_hsb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, False, save_location, str(generation))
+    plot(chain, generation, experiment, colour_palette, use_rgb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, False, save_location, str(generation))
 
 
-def plot(chain, generation, experiment=None, colour_palette=None, use_hsb=False, spectrum=[0.2, 0.9], push_factor=0.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, colour_candidates=False, save_location=False, save_name=False):
+def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False, spectrum=[0.5, 1.0], push_factor=0.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, colour_candidates=False, save_location=False, save_name=False):
 
   # Determine experiment number if none supplied
   if experiment == None:
@@ -83,7 +83,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, use_hsb=False,
 
   # Pick a colour palette if none has been supplied
   if colour_palette == None:
-    colour_palette = generate_colour_palette(strings, use_hsb, spectrum, push_factor)
+    colour_palette = generate_colour_palette(strings, use_rgb, spectrum, push_factor)
 
   # Organize strings and triangles into categories
   word_dict = {}
@@ -168,10 +168,10 @@ def plot(chain, generation, experiment=None, colour_palette=None, use_hsb=False,
 
   # If multiple colour palette candidates have been requested, run plot() again.
   if colour_candidates > 1:
-    plot(chain, generation, experiment, None, use_hsb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, colour_candidates-1, save_location, save_name)
+    plot(chain, generation, experiment, None, use_rgb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, colour_candidates-1, save_location, save_name)
 
 
-def generate_colour_palette(strings, use_hsb=False, spectrum=[0.0, 1.0], push_factor=0.0):
+def generate_colour_palette(strings, use_rgb=False, spectrum=[0.0, 1.0], push_factor=0.0):
 
   # Get list of unique strings
   words = list(set(strings))
@@ -188,29 +188,7 @@ def generate_colour_palette(strings, use_hsb=False, spectrum=[0.0, 1.0], push_fa
 
   hex_colour_values = []
 
-  if use_hsb == True:
-
-    # Run distance matrix through MDS to determine the position of each word in 2-dimensional space
-    string_mds = MDS(dissimilarity='precomputed', n_components=2, n_init=25, max_iter=2000)
-    string_coordinates = string_mds.fit_transform(string_distance_matrix)
-
-    # Convert Cartesian coordinates to polar coordinates
-    polar_coordinates = np.array([polarize(string_coordinates[i, :]) for i in range(len(string_coordinates))])
-
-    # Rescale the saturation coordinates in the specified spectrum
-    # This sucks the rho values in towards the center of the circle
-    minimum = polar_coordinates[:, 1].min()
-    difference = polar_coordinates[:, 1].max() - minimum
-    polar_coordinates[:, 1] = (((polar_coordinates[:, 1] - minimum) / difference) * (spectrum[1] - spectrum[0])) + (spectrum[0])
-
-    # Convert HSV values to hexadecimal triplets via RGB, keeping V (brightness) constant
-    # The light version is for the Voronoi cells
-    for h, s in polar_coordinates:
-      hex_colour = rgb_to_hex(hsv_to_rgb(h, s, 0.9))
-      hex_colour_light = rgb_to_hex(hsv_to_rgb(h, s, 1.0))
-      hex_colour_values.append((hex_colour, hex_colour_light))
-
-  else:
+  if use_rgb == True:
 
     # Run distance matrix through MDS to determine the position of each word in 3-dimensional space
     string_mds = MDS(dissimilarity='precomputed', n_components=3, n_init=25, max_iter=2000)
@@ -228,6 +206,27 @@ def generate_colour_palette(strings, use_hsb=False, spectrum=[0.0, 1.0], push_fa
     for r, g, b in string_coordinates:
       hex_colour = rgb_to_hex((r, g, b))
       hex_colour_light = rgb_to_hex(lighten((r, g, b)))
+      hex_colour_values.append((hex_colour, hex_colour_light))
+
+  else:
+
+    # Run distance matrix through MDS to determine the position of each word in 2-dimensional space
+    string_mds = MDS(dissimilarity='precomputed', n_components=2, n_init=25, max_iter=2000)
+    string_coordinates = string_mds.fit_transform(string_distance_matrix)
+
+    # Convert Cartesian coordinates to polar coordinates
+    polar_coordinates = np.array([polarize(point) for point in string_coordinates])
+
+    # Rescale the saturation coordinates in the specified spectrum
+    minimum = polar_coordinates[:, 1].min()
+    difference = polar_coordinates[:, 1].max() - minimum
+    polar_coordinates[:, 1] = (((polar_coordinates[:, 1] - minimum) / difference) * (spectrum[1] - spectrum[0])) + (spectrum[0])
+
+    # Convert HSV values to hexadecimal triplets via RGB, keeping V (brightness) constant
+    # The light version is for the Voronoi cells
+    for h, s in polar_coordinates:
+      hex_colour = rgb_to_hex(hsv_to_rgb(h, s, 0.9))
+      hex_colour_light = rgb_to_hex(hsv_to_rgb(h, s, 1.0))
       hex_colour_values.append((hex_colour, hex_colour_light))
 
   #print('Correspondence: %s' % correspondence_correlation(string_distances, string_coordinates))
