@@ -203,11 +203,11 @@ def generate_colour_palette(strings, use_hsb=False, spectrum=[0.0, 1.0], push_fa
     difference = polar_coordinates[:, 1].max() - minimum
     polar_coordinates[:, 1] = (((polar_coordinates[:, 1] - minimum) / difference) * (spectrum[1] - spectrum[0])) + (spectrum[0])
 
-    # Convert HSB values to hexadecimal triplets via RGB, keeping brightness constant
+    # Convert HSV values to hexadecimal triplets via RGB, keeping V (brightness) constant
     # The light version is for the Voronoi cells
     for h, s in polar_coordinates:
-      hex_colour = rgb_to_hex(hsb_to_rgb((h, s, 0.9)))
-      hex_colour_light = rgb_to_hex(hsb_to_rgb((h, s, 1.0)))
+      hex_colour = rgb_to_hex(hsv_to_rgb(h, s, 0.9))
+      hex_colour_light = rgb_to_hex(hsv_to_rgb(h, s, 1.0))
       hex_colour_values.append((hex_colour, hex_colour_light))
 
   else:
@@ -361,19 +361,19 @@ def rgb_to_hex(rgb):
   return '#' + ''.join(map(chr, map(int, map(round, rgb)))).encode('hex')
 
 # Convert hue (radians), saturation [0,1], and brightness [0,1] into RGB
-def hsb_to_rgb(hsb):
-  if hsb[1] == 0.0: return hsb[2]*255, hsb[2]*255, hsb[2]*255
-  h = hsb[0] / (2.0 * np.pi)
+def hsv_to_rgb(h, s, v):
+  if s == 0.0: return v*255, v*255, v*255
+  h /= 6.283185307179586 # convert radians to decimal
   i = int(h*6.)
   f = (h*6.)-i
-  p, q, t = hsb[2]*(1.-hsb[1]), hsb[2]*(1.-hsb[1]*f), hsb[2]*(1.-hsb[1]*(1.-f))
+  p, q, t = v*(1.-s), v*(1.-s*f), v*(1.-s*(1.-f))
   i %= 6
-  if i == 0: return hsb[2]*255, t*255, p*255
-  elif i == 1: return q*255, hsb[2]*255, p*255
-  elif i == 2: return p*255, hsb[2]*255, t*255
-  elif i == 3: return p*255, q*255, hsb[2]*255
-  elif i == 4: return t*255, p*255, hsb[2]*255
-  return hsb[2]*255, p*255, q*255
+  if i == 0: return v*255, t*255, p*255
+  elif i == 1: return q*255, v*255, p*255
+  elif i == 2: return p*255, v*255, t*255
+  elif i == 3: return p*255, q*255, v*255
+  elif i == 4: return t*255, p*255, v*255
+  return v*255, p*255, q*255
 
 # Lighten a colour by blending in 50% white
 def lighten(rgb):
