@@ -405,9 +405,11 @@ def ED(a, b):
 
 # Convert Cartesian coordinates to polar coordinates
 def polarize(xy):
+  # Angular coordinate
   phi = np.arctan2(xy[1], xy[0])
   if phi < 0.0:
-    phi = np.pi + (np.pi + phi)
+    phi += 2.0 * np.pi
+  # Radial coordinate
   r = np.sqrt(xy[0]**2 + xy[1]**2)
   return phi, r
 
