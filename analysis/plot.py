@@ -42,7 +42,7 @@ Rushmore = ["#E1BD6D", "#F2300F", "#0B775E", "#35274A"]
 colours_by_experiment = [Life_Aquatic2, Grand_Budapest1, Darjeeling2]
 markers_by_chain = ['s', 'o', 'p', '^']
 data_type_ranges = {'expressivity_d':(0,50), 'expressivity_s':(0,50), 'expressivity_c':(0,100), 'structure':(-3,14), 'sublexical_structure':(-3,14), 'transmission_error':(0,1), 'communicative_accuracy':(0,50), 'communicative_error':(25,55), 'sound_symbolism':(-3,7)}
-data_type_labels = {'expressivity_d':'Expressivity (dynamic set)', 'expressivity_s':'Expressivity (static set)', 'expressivity_c':'Expressivity', 'structure':'Structure', 'sublexical_structure':'Sublexical structure', 'transmission_error':'Transmission error', 'communicative_accuracy':'Communicative accuracy', 'communicative_error':'Communicative error', 'sound_symbolism':'Sound symbolism'}
+data_type_labels = {'expressivity_d':'Expressivity', 'expressivity_s':'Expressivity', 'expressivity_c':'Expressivity', 'structure':'Structure', 'sublexical_structure':'Sublexical structure', 'transmission_error':'Transmission error', 'communicative_accuracy':'Communicative accuracy', 'communicative_error':'Communicative error', 'sound_symbolism':'Sound symbolism'}
 
 
 class Plot:
@@ -76,10 +76,12 @@ class Plot:
       self.__add_subplot(data, position_x, position_y)
 
   # Make the multipanel plot a reality and save as PDF
-  def make(self, save_name=False, save_location=False, per_column_legend=False):
+  def make(self, save_name=False, save_location=False, legend_in_gap=False, per_column_legend=False):
+    if legend_in_gap == True and self.__number_of_empty_positions() == 0:
+      legend_in_gap = False
     self.fig = plt.figure(figsize=(self.width, self.height))
-    ratios = self.__determine_height_ratios(per_column_legend)
-    self.grid = gridspec.GridSpec(nrows=self.shape_y+1, ncols=self.shape_x, height_ratios=ratios)
+    ratios = self.__determine_height_ratios(legend_in_gap, per_column_legend)
+    self.grid = gridspec.GridSpec(nrows=self.shape_y+(1-int(legend_in_gap)), ncols=self.shape_x, height_ratios=ratios)
     subplot_i = 0
     for y in range(self.shape_y):
       one_y_label = self.__determine_one_y_label(y)
@@ -89,8 +91,8 @@ class Plot:
           continue
         self.__make_subplot(x, y, subplot_i, one_y_label)
         subplot_i += 1
-    self.__add_legend(per_column_legend)
-    self.grid.tight_layout(self.fig, pad=0.1, h_pad=-1.0, w_pad=1.0)
+    self.__add_legend(legend_in_gap, per_column_legend)
+    self.grid.tight_layout(self.fig, pad=0.1, h_pad=0.0-(1-int(legend_in_gap)), w_pad=0.75)
     filename = self.__determine_filename(save_name, save_location)
     plt.savefig(filename)
     plt.clf()
@@ -213,8 +215,7 @@ class Plot:
       self.__add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'bottom')
     else:
       self.__add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'top')
-    if position_y == self.shape_y - 1:
-      plt.xlabel('Generation number', fontsize=self.label_font_size)
+    plt.xlabel('Generation number', fontsize=self.label_font_size)
 
   # Leave a position empty
   def __make_empty_subplot(self, position_x, position_y):
@@ -229,6 +230,13 @@ class Plot:
           return x, y
     return False, False
 
+  def __get_legend_handles(self):
+    for y in range(self.shape_y):
+      for x in range(self.shape_x):
+        if self.datasets[y][x] != None:
+          return self.subplots[y][x].get_legend_handles_labels()
+    return False, False
+
   # Count the number of empty positions in the plot
   def __number_of_empty_positions(self):
     n = 0
@@ -239,7 +247,9 @@ class Plot:
     return n
 
   # Determine appropriate height ratios for the plots and legend
-  def __determine_height_ratios(self, per_column_legend):
+  def __determine_height_ratios(self, legend_in_gap, per_column_legend):
+    if legend_in_gap == True:
+      return [self.height / self.shape_y] * self.shape_y
     legend_height = self.legend_height
     if per_column_legend == True:
       legend_height *= 4.0
@@ -275,20 +285,33 @@ class Plot:
     plt.plot(range(-1,n+2), [level] * (n+3), color='gray', linestyle=':', linewidth=0.5)
 
   # Add on one legend for entire plot or one legend per column
-  def __add_legend(self, per_column_legend):
-    if per_column_legend == True:
-      for x in range(self.shape_x):
-        legend = self.fig.add_subplot(self.grid[self.shape_y, x])
-        plt.axis('off')
-        legend.set_yticklabels([])
-        legend.set_xticklabels([])
-        handles, labels = self.subplots[0][x].get_legend_handles_labels()
-        plt.legend([handles[0], handles[2], handles[1], handles[3]], [labels[0], labels[2], labels[1], labels[3]], loc='lower center', bbox_to_anchor=(0.5, -0.2), frameon=False, prop={'size':self.legend_font_size}, ncol=2, numpoints=1, handletextpad=0.2)
+  def __add_legend(self, legend_in_gap, per_column_legend):
+    if legend_in_gap == True:
+      self.__add_gap_legend()
+    elif per_column_legend == True:
+      self.__add_per_column_legend()
     else:
-      legend = self.fig.add_subplot(self.grid[self.shape_y, :])
+      self.__add_normal_legend()
+
+  def __add_normal_legend(self):
+    legend = self.fig.add_subplot(self.grid[self.shape_y, :])
+    plt.axis('off')
+    handles, labels = self.subplots[0][0].get_legend_handles_labels()
+    plt.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, -0.2), frameon=False, prop={'size':self.legend_font_size}, ncol=4, numpoints=1)
+
+  def __add_gap_legend(self):
+    x, y = self.__next_available_position()
+    handles, labels = self.__get_legend_handles()
+    self.subplots[y][x].legend(handles, labels, loc='center', bbox_to_anchor=(0.5, 0.5), frameon=False, prop={'size':self.legend_font_size}, ncol=1, numpoints=1)
+
+  def __add_per_column_legend(self):
+    for x in range(self.shape_x):
+      legend = self.fig.add_subplot(self.grid[self.shape_y, x])
       plt.axis('off')
-      handles, labels = self.subplots[0][0].get_legend_handles_labels()
-      plt.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, -0.2), frameon=False, prop={'size':self.legend_font_size}, ncol=4, numpoints=1)
+      legend.set_yticklabels([])
+      legend.set_xticklabels([])
+      handles, labels = self.subplots[0][x].get_legend_handles_labels()
+      plt.legend([handles[0], handles[2], handles[1], handles[3]], [labels[0], labels[2], labels[1], labels[3]], loc='lower center', bbox_to_anchor=(0.5, -0.2), frameon=False, prop={'size':self.legend_font_size}, ncol=2, numpoints=1, handletextpad=0.2)
 
   # Add aubplot labels: (A), (B), (C), etc...
   def __add_subplot_label(self, subplot_i, min_y, max_y, position):
