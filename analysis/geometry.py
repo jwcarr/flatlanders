@@ -57,21 +57,11 @@ def rotate(A):
   return np.dot(A-c,np.array([[np.cos(theta),np.sin(theta)],[-np.sin(theta),np.cos(theta)]]))+c
 
 #############################################################################
-# RETURN THE RADIAL DISTANCE FROM NORTH FOR TRIANGLE A BY ORIENTING SPOT
+# RETURN THE ANGULAR DISTANCE FROM NORTH FOR TRIANGLE A BY ORIENTING SPOT
 
 def rotation(A):
-  c = centroid(A)
-  if A[0][0] == c[0]:
-    if A[0][1] > c[1]:
-      theta = np.pi
-    else:
-      theta = 0.0
-  else:
-    p, q, r = ED(c,A[0]), ED(c,(c[0],0)), ED((c[0],0),A[0])
-    theta = np.arccos(((p**2.0)+(q**2.0)-(r**2.0))/(2.0*p*q))
-    if A[0][0] > c[0]:
-      theta = 0.0-theta
-  return theta
+  B = A - centroid(A)
+  return np.arctan2(B[0,0], B[0,1])
 
 #############################################################################
 # EQUILATERALNESS RATIO
