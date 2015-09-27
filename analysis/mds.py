@@ -39,7 +39,7 @@ def plot_experiment(experiment, chain_wide_palette=True, use_rgb=False, spectrum
     plot_chain(chain, experiment, chain_wide_palette, use_rgb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
 
 
-def plot_chain(chain, experiment=None, chain_wide_palette=True, use_rgb=False, spectrum=[0.5, 1.0], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, save_location=False):
+def plot_chain(chain, experiment=None, chain_wide_palette=True, use_rgb=False, spectrum=[0.5, 1.0], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, random_seed=False, save_location=False):
 
   # Determine experiment number if none is supplied
   if experiment == None:
@@ -51,7 +51,8 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, use_rgb=False, s
     all_strings = []
     for generation in range(0, 11):
       all_strings += basics.getWords(experiment, chain, generation, 's')
-    colour_palette = generate_colour_palette(all_strings, use_rgb, spectrum, push_factor)
+    colour_palette, random_seed = generate_colour_palette(all_strings, use_rgb, spectrum, push_factor, random_seed)
+    print('Random seed: %i' % random_seed)
   else:
     colour_palette = None
 
@@ -71,7 +72,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, use_rgb=False, s
     plot(chain, generation, experiment, colour_palette, use_rgb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, False, save_location, str(generation))
 
 
-def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False, spectrum=[0.5, 1.0], push_factor=0.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, colour_candidates=False, save_location=False, save_name=False):
+def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False, spectrum=[0.5, 1.0], push_factor=0.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, colour_candidates=False, random_seed=False, save_location=False, save_name=False):
 
   # Determine experiment number if none supplied
   if experiment == None:
@@ -83,7 +84,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False,
 
   # Pick a colour palette if none has been supplied
   if colour_palette == None:
-    colour_palette = generate_colour_palette(strings, use_rgb, spectrum, push_factor)
+    colour_palette, random_seed = generate_colour_palette(strings, use_rgb, spectrum, push_factor, random_seed)
 
   # Organize strings and triangles into categories
   word_dict = {}
@@ -154,8 +155,10 @@ def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False,
     save_name = chain + str(generation)
   if colour_candidates != False:
     candidate_num = '_' + str(colour_candidates)
+    print('Random seed for candidate %i: %i' % (colour_candidates, random_seed))
   else:
     candidate_num = ''
+    print('Random seed: %i' % random_seed)
 
   # Save matplotlib plot as SVG file
   filename = save_location + save_name + candidate_num + '.svg'
@@ -168,10 +171,10 @@ def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False,
 
   # If multiple colour palette candidates have been requested, run plot() again.
   if colour_candidates > 1:
-    plot(chain, generation, experiment, None, use_rgb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, colour_candidates-1, save_location, save_name)
+    plot(chain, generation, experiment, None, use_rgb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, colour_candidates-1, False, save_location, save_name)
 
 
-def generate_colour_palette(strings, use_rgb=False, spectrum=[0.0, 1.0], push_factor=0.0):
+def generate_colour_palette(strings, use_rgb=False, spectrum=[0.0, 1.0], push_factor=0.0, random_seed=False):
 
   # Get list of unique strings
   words = list(set(strings))
@@ -186,12 +189,16 @@ def generate_colour_palette(strings, use_rgb=False, spectrum=[0.0, 1.0], push_fa
   string_distances = np.array(basics.stringDistances(words), dtype=float) + push_factor
   string_distance_matrix = distance.squareform(string_distances, 'tomatrix')
 
+  if type(random_seed) != int:
+    # Pick a random number for the MDS algorithm
+    random_seed = np.random.randint(1, 1000000)
+
   hex_colour_values = []
 
   if use_rgb == True:
 
     # Run distance matrix through MDS to determine the position of each word in 3-dimensional space
-    string_mds = MDS(dissimilarity='precomputed', n_components=3, n_init=25, max_iter=2000)
+    string_mds = MDS(dissimilarity='precomputed', n_components=3, n_init=25, max_iter=2000, random_state=random_seed)
     string_coordinates = string_mds.fit_transform(string_distance_matrix)
 
     # Scale the dimensions of the space over the interval [0, 255] to create an RGB colour space.
@@ -211,7 +218,7 @@ def generate_colour_palette(strings, use_rgb=False, spectrum=[0.0, 1.0], push_fa
   else:
 
     # Run distance matrix through MDS to determine the position of each word in 2-dimensional space
-    string_mds = MDS(dissimilarity='precomputed', n_components=2, n_init=25, max_iter=2000)
+    string_mds = MDS(dissimilarity='precomputed', n_components=2, n_init=25, max_iter=2000, random_state=random_seed)
     string_coordinates = string_mds.fit_transform(string_distance_matrix)
 
     # Convert Cartesian coordinates to polar coordinates
@@ -232,8 +239,8 @@ def generate_colour_palette(strings, use_rgb=False, spectrum=[0.0, 1.0], push_fa
   #print('Correspondence: %s' % correspondence_correlation(string_distances, string_coordinates))
   #print('Stress-1: %s' % stress_1(string_mds.stress_, string_distances))
 
-  # Return the colour palette
-  return dict(zip(words, hex_colour_values))
+  # Return the colour palette and the random seed
+  return dict(zip(words, hex_colour_values)), random_seed
 
 
 def draw_triangles(triangles, colour_palette, show_prototypes, grid_size):
