@@ -226,11 +226,15 @@ The ```plot```, ```plot_chain```, and ```plot_experiment``` functions can take a
 
 - ```random_seed``` (int) allows you to manually specify an integer to seed the random number generator. This is useful if you want to reproduce a particular color palette. If no integer is specified a seed is chosen at random. 
 
+- ```save_location``` (string) specifies a path where the plot(s) should be saved. If none is specified, plots will be saved to your desktop.
+
 - ```show_prototypes``` (Boolean) adds prototype triangles to the triangle graphics.
 
-- ```spectrum``` (list of two floats in [0,~1]) determines how much of the saturation spectrum to use (in the case of HSB) or how much of the red, green, and blue colors to use (in the case of RGB). This makes it possible to avoid extremely light and/or extremely dark colors. Default is ```[0.5, 1.0]```, which should be suitable for HSB. For RGB, a range like ```[0.1, 0.9]``` will be more suitable.
+- ```spectrum``` (list of two floats in [0, 1]) determines how much of the saturation spectrum to use (in the case of HSB) or how much of the red, green, and blue colors to use (in the case of RGB). This makes it possible to avoid extremely light and/or extremely dark colors. Default is ```[0.5, 1.0]```, which should be suitable for HSB. For RGB, a range like ```[0.1, 0.9]``` will be more suitable.
 
 - ```use_rgb``` (Boolean) allows you to use RGB (red, green, blue) color space instead of HSB to determine the colors in the color palette. This uses a three-dimensional MDS solution, so may offer a better representation of the string space, but it may also be harder to interpret.
+
+When the plot(s) are saved, the random seed integer is appended to the file or directory name so that you can reproduce the plot(s) at a later time.
 
 ### Geometrical measure of triangle dissimilarity
 
