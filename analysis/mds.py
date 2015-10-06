@@ -36,7 +36,7 @@ def plot_experiment(experiment, chain_wide_palette=True, use_rgb=False, spectrum
 
   for chain in basics.chain_codes[experiment-1]:
     print('Chain: ' + chain)
-    plot_chain(chain, experiment, chain_wide_palette, use_rgb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, save_location)
+    plot_chain(chain, experiment, chain_wide_palette, use_rgb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, False, save_location)
 
 
 def plot_chain(chain, experiment=None, chain_wide_palette=True, use_rgb=False, spectrum=[0.5, 1.0], push_factor=5.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, random_seed=False, save_location=False):
@@ -52,14 +52,13 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, use_rgb=False, s
     for generation in range(0, 11):
       all_strings += basics.getWords(experiment, chain, generation, 's')
     colour_palette, random_seed = generate_colour_palette(all_strings, use_rgb, spectrum, push_factor, random_seed)
-    print('Random seed: %i' % random_seed)
   else:
     colour_palette = None
 
   # Set directory for saving, and create it if it doesn't exist
   if save_location == False:
     save_location = basics.desktop_location
-  save_location += chain + '/'
+  save_location += chain + '_' + str(random_seed) + '/'
   if os.path.exists(save_location) == True:
     if raw_input(save_location + ' already exists. Do you want to overwrite? (y/n) ') != 'y':
       return
@@ -69,7 +68,7 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, use_rgb=False, s
   # Produce a plot for each generation
   print('Generating graphics...')
   for generation in range(0, 11):
-    plot(chain, generation, experiment, colour_palette, use_rgb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, False, save_location, str(generation))
+    plot(chain, generation, experiment, colour_palette, use_rgb, spectrum, push_factor, show_prototypes, label_cells, join_contiguous_cells, False, random_seed, save_location, str(generation))
 
 
 def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False, spectrum=[0.5, 1.0], push_factor=0.0, show_prototypes=False, label_cells=False, join_contiguous_cells=False, colour_candidates=False, random_seed=False, save_location=False, save_name=False):
@@ -85,6 +84,11 @@ def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False,
   # Pick a colour palette if none has been supplied
   if colour_palette == None:
     colour_palette, random_seed = generate_colour_palette(strings, use_rgb, spectrum, push_factor, random_seed)
+
+  if type(colour_candidates) == int:
+    candidate_num = '_' + str(random_seed)
+  else:
+    candidate_num = ''
 
   # Organize strings and triangles into categories
   word_dict = {}
@@ -152,13 +156,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False,
   if type(save_location) == bool and save_location == False:
     save_location = basics.desktop_location
   if type(save_name) == bool and save_name == False:
-    save_name = chain + str(generation)
-  if colour_candidates != False:
-    candidate_num = '_' + str(colour_candidates)
-    print('Random seed for candidate %i: %i' % (colour_candidates, random_seed))
-  else:
-    candidate_num = ''
-    print('Random seed: %i' % random_seed)
+    save_name = chain + str(generation) + '_' + str(random_seed)
 
   # Save matplotlib plot as SVG file
   filename = save_location + save_name + candidate_num + '.svg'
@@ -192,6 +190,7 @@ def generate_colour_palette(strings, use_rgb=False, spectrum=[0.0, 1.0], push_fa
   if type(random_seed) != int:
     # Pick a random number for the MDS algorithm
     random_seed = np.random.randint(1, 1000000)
+    print('Random seed: %i' % random_seed)
 
   hex_colour_values = []
 
