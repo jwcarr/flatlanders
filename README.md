@@ -218,19 +218,19 @@ mds.plot_experiment(1)
 
 The ```plot```, ```plot_chain```, and ```plot_experiment``` functions can take a variety of arguments to further refine the plots:
 
-- The ```chain_wide_palette``` argument (Boolean) determines whether the color palette is selected based on the string distances across an entire chain or within each generation. Setting this to ```True``` is useful if you want to be able to compare across generations.
+- ```chain_wide_palette``` (Boolean) determines whether the color palette is selected based on the string distances across an entire chain or within each generation. Setting this to ```True``` is useful if you want to be able to compare across generations. Applies only to ```plot_chain()``` and ```plot_experiment()```.
 
-- The ```use_hsb``` argument (Boolean) allows you to use HSB (hue, saturation, brightness) instead of RGB to determine the colors in the color palette.
+- ```join_contiguous_cells``` (Boolean) joins together cells that form a continuous region of one color (this does not always work correctly, so use with caution).
 
-- The ```spectrum``` argument (list) determines how much of the color spectrum to use, allowing you to avoid extremely light and extremely dark colors which often don’t work very well.
+- ```label_cells``` (Boolean) adds string labels to the Voronoi cells.
 
-- The ```push_factor``` argument (float) artificially makes colors more distinct, which is useful if you’re using a chain-wide palette where colors can become too similar to interpret.
+- ```random_seed``` (int) allows you to manually specify an integer to seed the random number generator. This is useful if you want to reproduce a particular color palette. If no integer is specified a seed is chosen at random. 
 
-- The ```show_prototypes``` argument (Boolean) adds prototype triangles to the triangle graphics.
+- ```show_prototypes``` (Boolean) adds prototype triangles to the triangle graphics.
 
-- The ```label_cells``` argument (Boolean) adds string labels to the Voronoi cells.
+- ```spectrum``` (list of two floats in [0,~1]) determines how much of the saturation spectrum to use (in the case of HSB) or how much of the red, green, and blue colors to use (in the case of RGB). This makes it possible to avoid extremely light and/or extremely dark colors. Default is ```[0.5, 1.0]```, which should be suitable for HSB. For RGB, a range like ```[0.1, 0.9]``` will be more suitable.
 
-- The ```join_contiguous_cells``` argument (Boolean) joins together cells that form a continuous region of one color (this does not always work correctly, so use with caution).
+- ```use_rgb``` (Boolean) allows you to use RGB (red, green, blue) color space instead of HSB to determine the colors in the color palette. This uses a three-dimensional MDS solution, so may offer a better representation of the string space, but it may also be harder to interpret.
 
 ### Geometrical measure of triangle dissimilarity
 
