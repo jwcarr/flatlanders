@@ -68,10 +68,10 @@ def plot_chain(chain, experiment=None, chain_wide_palette=True, use_rgb=False, s
   # Produce a plot for each generation
   print('Generating graphics...')
   for generation in range(0, 11):
-    plot(chain, generation, experiment, colour_palette, use_rgb, spectrum, show_prototypes, label_cells, join_contiguous_cells, False, random_seed, save_location, str(generation))
+    plot(chain, generation, experiment, colour_palette, use_rgb, spectrum, show_prototypes, label_cells, join_contiguous_cells, False, random_seed, save_location)
 
 
-def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False, spectrum=[0.5, 1.0], show_prototypes=False, label_cells=False, join_contiguous_cells=False, colour_candidates=False, random_seed=False, save_location=False, save_name=False):
+def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False, spectrum=[0.5, 1.0], show_prototypes=False, label_cells=False, join_contiguous_cells=False, colour_candidates=False, random_seed=False, save_location=False):
 
   # Determine experiment number if none supplied
   if experiment == None:
@@ -84,6 +84,9 @@ def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False,
   # Pick a colour palette if none has been supplied
   if colour_palette == None:
     colour_palette, random_seed = generate_colour_palette(strings, use_rgb, spectrum, random_seed)
+    chain_palette = False
+  else:
+    chain_palette = True
 
   if type(colour_candidates) == int:
     candidate_num = '_' + str(random_seed)
@@ -155,11 +158,14 @@ def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False,
   # Determine filename and directory if none has been specified
   if type(save_location) == bool and save_location == False:
     save_location = basics.desktop_location
-  if type(save_name) == bool and save_name == False:
-    save_name = chain + str(generation) + '_' + str(random_seed)
+
+  if chain_palette == True:
+    filename = save_location + chain + str(generation) + '.svg'
+  else:
+    filename = save_location + chain + str(generation) + '_' + str(random_seed) + '.svg'
 
   # Save matplotlib plot as SVG file
-  filename = save_location + save_name + candidate_num + '.svg'
+
   plt.savefig(filename)
   plt.close()
 
@@ -169,7 +175,7 @@ def plot(chain, generation, experiment=None, colour_palette=None, use_rgb=False,
 
   # If multiple colour palette candidates have been requested, run plot() again.
   if colour_candidates > 1:
-    plot(chain, generation, experiment, None, use_rgb, spectrum, show_prototypes, label_cells, join_contiguous_cells, colour_candidates-1, False, save_location, save_name)
+    plot(chain, generation, experiment, None, use_rgb, spectrum, show_prototypes, label_cells, join_contiguous_cells, colour_candidates-1, False, save_location)
 
 
 def generate_colour_palette(strings, use_rgb=False, spectrum=[0.0, 1.0], random_seed=False):
@@ -190,7 +196,6 @@ def generate_colour_palette(strings, use_rgb=False, spectrum=[0.0, 1.0], random_
   if type(random_seed) != int:
     # Pick a random number for the MDS algorithm
     random_seed = np.random.randint(1, 1000000)
-    print('Random seed: %i' % random_seed)
 
   hex_colour_values = []
 
