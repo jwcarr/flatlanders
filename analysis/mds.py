@@ -189,7 +189,6 @@ def generate_colour_palette(strings, use_rgb=False, spectrum=[0.0, 1.0], random_
     return {words[0] : ('#B1B0CB', '#D8D8E5')}
 
   # Create distance matrix giving normalized Levenshtein distances between the words
-  # Add on the given push factor to prevent colours from being too similar
   string_distances = np.array(basics.stringDistances(words), dtype=float)
   string_distance_matrix = distance.squareform(string_distances, 'tomatrix')
 
@@ -370,10 +369,10 @@ def splice_in_triangles(filename, triangle_code):
 def rgb_to_hex(rgb):
   return '#' + ''.join(map(chr, map(int, map(round, rgb)))).encode('hex')
 
-# Convert hue (radians), saturation [0,1], and brightness [0,1] into RGB
+# Convert hue [0,2pi], saturation [0,1], and brightness [0,1] into RGB
 def hsv_to_rgb(h, s, v):
-  if s == 0.0: return v*255, v*255, v*255
-  h /= 6.283185307179586 # convert radians to decimal
+  if s == 0.0: return v*255, v*255, v*255 # saturation is 0, so return white
+  h /= 2 * np.pi # scale hue (expressed in radians) in [0,1]
   i = int(h*6.)
   f = (h*6.)-i
   p, q, t = v*(1.-s), v*(1.-s*f), v*(1.-s*(1.-f))
