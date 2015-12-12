@@ -235,7 +235,7 @@ def generate_colour_palette(strings, use_rgb=False, spectrum=[0.0, 1.0], random_
     # Convert HSV values to hexadecimal triplets via RGB, keeping V (brightness) constant
     # The light version is for the Voronoi cells
     for h, s in polar_coordinates:
-      hex_colour = rgb_to_hex(hsv_to_rgb(h, s, 0.9))
+      hex_colour = rgb_to_hex(hsv_to_rgb(h, s, 0.8))
       hex_colour_light = rgb_to_hex(hsv_to_rgb(h, s, 1.0))
       hex_colour_values.append((hex_colour, hex_colour_light))
 
