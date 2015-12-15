@@ -69,6 +69,7 @@ The ```/analysis``` directory contains Python code for analyzing the three exper
 
 - ```Voronoi.py```: Module for creating a Voronoi tessellation. Adapted from: https://gist.github.com/neothemachine/8803860
 
+- ```word_length.py```: Functions for calculating average word length.
 
 Raw Data
 --------

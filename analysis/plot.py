@@ -41,8 +41,8 @@ Rushmore = ["#E1BD6D", "#F2300F", "#0B775E", "#35274A"]
 
 colours_by_experiment = [Life_Aquatic2, Grand_Budapest1, Darjeeling2]
 markers_by_chain = ['s', 'o', 'p', '^']
-data_type_ranges = {'expressivity_d':(0,50), 'expressivity_s':(0,50), 'expressivity_c':(0,100), 'structure':(-3,14), 'sublexical_structure':(-3,14), 'transmission_error':(0,1), 'communicative_accuracy':(0,50), 'communicative_error':(25,55), 'sound_symbolism':(-3,7)}
-data_type_labels = {'expressivity_d':'Expressivity', 'expressivity_s':'Expressivity', 'expressivity_c':'Expressivity', 'structure':'Structure', 'sublexical_structure':'Sublexical structure', 'transmission_error':'Transmission error', 'communicative_accuracy':'Communicative accuracy', 'communicative_error':'Communicative error', 'sound_symbolism':'Sound symbolism'}
+data_type_ranges = {'expressivity_d':(0,50), 'expressivity_s':(0,50), 'expressivity_c':(0,100), 'structure':(-3,14), 'sublexical_structure':(-3,14), 'transmission_error':(0,1), 'communicative_accuracy':(0,50), 'communicative_error':(25,55), 'sound_symbolism':(-3,7), 'word_length':(3,9)}
+data_type_labels = {'expressivity_d':'Expressivity', 'expressivity_s':'Expressivity', 'expressivity_c':'Expressivity', 'structure':'Structure', 'sublexical_structure':'Sublexical structure', 'transmission_error':'Transmission error', 'communicative_accuracy':'Communicative accuracy', 'communicative_error':'Communicative error', 'sound_symbolism':'Sound symbolism', 'word_length':'Average word length'}
 
 
 class Plot:
