@@ -2,7 +2,8 @@ import basics
 
 def experiment_results(experiment):
   results = [chain_results(chain, experiment) for chain in basics.chain_codes[experiment-1]]
-  return {'data':results, 'experiment':experiment, 'starting_generation':0, 'data_type':'word_length'}
+  return {'data':results, 'experiment':experiment, 'starting_generation':0,
+    'y_range':(3,9)}, 'y_label':'Average word length', 'data_type':'word_length'}
 
 def chain_results(chain, experiment=False):
   if type(experiment) == bool and experiment == False:

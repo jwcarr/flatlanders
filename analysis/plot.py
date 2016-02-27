@@ -41,8 +41,6 @@ Rushmore = ["#E1BD6D", "#F2300F", "#0B775E", "#35274A"]
 
 colours_by_experiment = [Life_Aquatic2, Grand_Budapest1, Darjeeling2]
 markers_by_chain = ['s', 'o', 'p', '^']
-data_type_ranges = {'expressivity_d':(0,50), 'expressivity_s':(0,50), 'expressivity_c':(0,100), 'structure':(-3,14), 'sublexical_structure':(-3,14), 'transmission_error':(0,1), 'communicative_accuracy':(0,50), 'communicative_error':(25,55), 'sound_symbolism':(-3,7), 'word_length':(3,9)}
-data_type_labels = {'expressivity_d':'Expressivity', 'expressivity_s':'Expressivity', 'expressivity_c':'Expressivity', 'structure':'Structure', 'sublexical_structure':'Sublexical structure', 'transmission_error':'Transmission error', 'communicative_accuracy':'Communicative accuracy', 'communicative_error':'Communicative error', 'sound_symbolism':'Sound symbolism', 'word_length':'Average word length'}
 
 
 class Plot:
@@ -189,13 +187,15 @@ class Plot:
     matrix = self.__remove_NaN(dataset['data'])
     experiment = dataset['experiment']
     data_type = dataset['data_type']
+    y_range = dataset['y_range']
+    y_label = dataset['y_label']
     starting_generation = dataset['starting_generation']
     self.subplots[position_y][position_x] = self.fig.add_subplot(self.grid[position_y, position_x])
     colours = colours_by_experiment[experiment-1]
     chain_n = len(matrix)
     generation_n = len(matrix[0])
     if data_type in ['structure', 'sublexical_structure', 'sound_symbolism']:
-      self.__add_confidence_intervals(data_type_ranges[data_type][0], generation_n)
+      self.__add_confidence_intervals(y_range[0], generation_n)
     elif (data_type == 'expressivity_d' and experiment == 2) or (data_type == 'communicative_accuracy'):
       self.__add_chance_level(16, generation_n)
     for chain_i in range(0, chain_n):
@@ -203,19 +203,20 @@ class Plot:
       y_vals = [y for y in matrix[chain_i]]
       plt.plot(x_vals, y_vals, color=colours[chain_i], marker=markers_by_chain[chain_i], markersize=5.0, markeredgecolor=colours[chain_i], linewidth=self.line_thickness, label='Chain ' + basics.chain_codes[experiment-1][chain_i])
     plt.xlim(-0.5, generation_n + starting_generation - 0.5)
-    plt.ylim(data_type_ranges[data_type][0], data_type_ranges[data_type][1])
+    plt.ylim(y_range[0], y_range[1])
     plt.xticks(range(0, 11), range(0, 11), fontsize=self.axis_font_size)
     plt.yticks(fontsize=self.axis_font_size)
     plt.tick_params(axis='x', which='both', bottom='off', top='off')
     if position_x == 0 or one_y_label == False:
-      plt.ylabel(data_type_labels[data_type], fontsize=self.label_font_size)
+      plt.ylabel(y_label, fontsize=self.label_font_size)
     if position_x > 0 and one_y_label == True:
       self.subplots[position_y][position_x].set_yticklabels([])
     if data_type in ['expressivity_d', 'expressivity_s', 'expressivity_c', 'communicative_accuracy', 'communicative_error', 'transmission_error']:
-      self.__add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'bottom')
+      self.__add_subplot_label(subplot_i, y_range[0], y_range[1], 'bottom')
     else:
-      self.__add_subplot_label(subplot_i, data_type_ranges[data_type][0], data_type_ranges[data_type][1], 'top')
-    plt.xlabel('Generation number', fontsize=self.label_font_size)
+      self.__add_subplot_label(subplot_i, y_range[0], y_range[1], 'top')
+    if position_y == self.shape_y-1:
+      plt.xlabel('Generation number', fontsize=self.label_font_size)
 
   # Leave a position empty
   def __make_empty_subplot(self, position_x, position_y):

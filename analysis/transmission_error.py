@@ -4,7 +4,8 @@ def experiment_results(experiment):
   results = []
   for chain in basics.chain_codes[experiment-1]:
     results.append(chain_results(chain, experiment))
-  dataset = {'data':results, 'experiment': experiment, 'starting_generation':1, 'data_type':'transmission_error'}
+  dataset = {'data':results, 'experiment': experiment, 'starting_generation':1,
+    'y_range':(0,1), 'y_label':'Transmission error', 'data_type':'transmission_error'}
   return dataset
 
 def chain_results(chain, experiment=False):

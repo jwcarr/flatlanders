@@ -19,7 +19,8 @@ def experiment_results(experiment, set_type='s', symbolism='shape', permutations
   results = []
   for chain in basics.chain_codes[experiment-1]:
     results.append(chain_results(experiment, chain, set_type, symbolism, permutations))
-  dataset = {'data':results, 'experiment':experiment, 'starting_generation':0, 'data_type':'sound_symbolism'}
+  dataset = {'data':results, 'experiment':experiment, 'starting_generation':0,
+    'y_range':(-3,7), 'y_label':'Sound symbolism', 'data_type':'sound_symbolism'}
   return dataset
 
 def chain_results(experiment, chain, set_type='s', symbolism='shape', permutations=1000):

@@ -11,9 +11,11 @@ def experiment_results(experiment, sublexical=False, permutations=1000, meaning_
     print('Chain ' + chain + '...')
     results.append(chain_results(chain, sublexical, permutations, meaning_distances, experiment))
   if sublexical == True:
-    dataset = {'data':results, 'experiment': experiment, 'starting_generation':0, 'data_type':'sublexical_structure'}
+    dataset = {'data':results, 'experiment':experiment, 'starting_generation':0,
+      'y_range':(-3,14), 'y_label':'Sublexical structure', 'data_type':'sublexical_structure'}
   else:
-    dataset = {'data':results, 'experiment': experiment, 'starting_generation':0, 'data_type':'structure'}
+    dataset = {'data':results, 'experiment':experiment, 'starting_generation':0,
+      'y_range':(-3,14), 'y_label':'Structure', 'data_type':'structure'}
   return dataset
 
 def chain_results(chain, sublexical=False, permutations=1000, meaning_distances=False, experiment=False):
