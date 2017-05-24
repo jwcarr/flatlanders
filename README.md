@@ -7,7 +7,7 @@ Description
 
 This repository contains the raw data and code for Carr, Smith, Cornish, and Kirby (2016) -- three experiments looking at the evolution of language structure in an open-ended meaning space through iterated learning. See the paper for full details.
 
-Carr, J. W., Smith, K., Cornish, H., & Kirby, S. (2016). The cultural evolution of structured languages in an open-ended, continuous world. *Cognitive Science*. doi:[10.1111/cogs.12371](http://dx.doi.org/10.1111/cogs.12371)
+Carr, J. W., Smith, K., Cornish, H., & Kirby, S. (2017). The cultural evolution of structured languages in an open-ended, continuous world. *Cognitive Science*, *41*, 892-923. doi:[10.1111/cogs.12371](http://dx.doi.org/10.1111/cogs.12371)
 
 
 Repository Content
